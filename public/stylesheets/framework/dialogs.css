@@ -110,6 +110,57 @@
 }
 
 
+/* CONFIRMATION DIALOG */
+/* ----------------------------------------------------------------------------- */
+.confirmation-dialog {
+    right  : calc(50% - 240px);
+    left   : calc(50% - 240px);
+    top    : calc(50% - 120px);
+    height : 200px;
+}
+.confirmation-dialog-icon {
+    font-size   : 48px !important;
+    line-height : 96px !important;
+    max-width   : 96px;
+    min-width   : 96px;
+    width       : 96px;
+    max-height  : 96px;
+    min-height  : 96px;
+    height      : 96px;
+    text-align  : center;
+}
+.confirmation-dialog-title {
+    position      : absolute;
+    top           : 24px;
+    right         : 28px;
+    height        : 24px;
+    left          : 96px;
+    font-size     : 20px;
+    font-weight   : bold;
+    line-height   : 24px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.confirmation-dialog-message {
+    position : absolute;
+    top      : 58px;
+    right    : 28px;
+    bottom   : 70px;
+    left     : 96px;
+}
+.confirmation-dialog-actions {
+    display         : flex;
+    gap             : 8px;
+    padding         : 18px 28px;
+    justify-content : end;
+    position        : absolute;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 96px;    
+}
+.confirmation-dialog.no-icon > * { left : 28px; }
+
 
 /* SAVE PROCESSING */
 /* ----------------------------------------------------------------------------- */
