@@ -1177,6 +1177,7 @@ function sortArray(array, key, type, direction) {
     array.sort(function(a, b){
 
         let valueA = a[key], valueB = b[key];
+        let result = 0;
 
         switch(type.toLowerCase()) {
 
