@@ -409,6 +409,7 @@ td.exists > div.target::before { content : '\e5ca'; }
 td.exists > div.icon-compare {
     font-size   : 20px;
     line-height : 24px;
+    min-height  : 24px;
     height      : 24px;
     max-width   : 24px;
     min-width   : 24px;
