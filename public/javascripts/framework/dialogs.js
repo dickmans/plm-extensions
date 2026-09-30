@@ -50,17 +50,6 @@ function showConfirmationDialog({
         .addClass('confirmation-dialog-actions');
 
     $('<div></div>').appendTo(elemActions)
-        .addClass('confirmation-dialog-confirm')
-        .addClass('red')
-        .addClass('button')
-        .html(labelY)
-        .click(function(e) {
-            e.stopPropagation();
-            removeConfirmationDialog($(this));
-            onConfirm();
-        });
-
-    $('<div></div>').appendTo(elemActions)
         .addClass('confirmation-dialog-cancel')
         .addClass('default')
         .addClass('button')
@@ -69,6 +58,17 @@ function showConfirmationDialog({
             e.stopPropagation();
             removeConfirmationDialog($(this));
             onCancel();
+        });
+
+    $('<div></div>').appendTo(elemActions)
+        .addClass('confirmation-dialog-confirm')
+        .addClass('red')
+        .addClass('button')
+        .html(labelY)
+        .click(function(e) {
+            e.stopPropagation();
+            removeConfirmationDialog($(this));
+            onConfirm();
         });
 
     if(!hide) { elemDialog.show(); elemOverlay.show().css('display', 'block'); }
