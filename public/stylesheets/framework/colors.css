@@ -256,10 +256,10 @@ body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-footer {
 
 /*  OVERLAY & PROCESSING*/
 /* ----------------------------------------------------------------------------- */
- .light-theme #overlay { background : rgba( 0,  0,  0, 0.5); }
-  .dark-theme #overlay { background : rgba(26, 31, 38, 0.8); }
- .black-theme #overlay { background : rgba(20, 20, 20, 0.7); }
-.fusion-theme #overlay { background : rgba( 0,  0,  0, 0.5); }
+ .light-theme #overlay,  .light-theme .overlay { background : rgba( 0,  0,  0, 0.5); }
+  .dark-theme #overlay,   .dark-theme .overlay { background : rgba(26, 31, 38, 0.8); }
+ .black-theme #overlay,  .black-theme .overlay { background : rgba(20, 20, 20, 0.7); }
+.fusion-theme #overlay, .fusion-theme .overlay { background : rgba( 0,  0,  0, 0.5); }
 
  .light-theme .processing > div { background-color : var(--color-blue-500); }
   .dark-theme .processing > div { background-color : white; }
