@@ -226,6 +226,11 @@ function mergeSettingsProperty(master, custom, property) {
 
     if(typeof custom[property] === 'undefined') return;
 
+    if(custom[property] === null) {
+        master[property] = null;
+        return;
+    }
+
     let keysCustom = Object.keys(custom[property]);
 
     if(keysCustom.length === 0) return;
@@ -262,7 +267,6 @@ function mergeSettingsProperty(master, custom, property) {
    } else master[property] = custom[property];
 
 }
-
 
 function removeDisabledServicesFromMenu(menu, server) {
 
