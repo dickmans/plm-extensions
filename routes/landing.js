@@ -20,9 +20,9 @@ router.get('/', function(req, res, next) {
         });
     }   
 });
-router.get('/chrome-extension', function(req, res, next) {
+router.get('/docs/chrome-extension', function(req, res, next) {
     if(isServiceDisabled('chrome-extension', req, res)) return;
-    res.render('framework/chrome-extension', {
+    res.render('docs/chrome-extension', {
         title : 'PLM UX Chrome Extension',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
