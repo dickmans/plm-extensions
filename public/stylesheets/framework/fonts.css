@@ -439,6 +439,7 @@
 .icon-underline::before         { content : '\e249'; }
 .icon-undo::before              { content : '\e166'; }
 .icon-unfold::before            { content : '\e5d7'; }
+.icon-unlock::before            { content : '\e898'; }
 .icon-upload::before            { content : '\e2c3'; }
 .icon-user::before              { content : '\e7fd'; }
 .icon-user-info::before         { content : '\f567'; }
