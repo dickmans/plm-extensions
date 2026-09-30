@@ -17,7 +17,7 @@ $(document).ready(function() {
 
     $('#chrome').click(function() {
         let href = document.location.href.split('?');
-        let base = href[0] += 'chrome-extension';
+        let base = href[0] += 'docs/chrome-extension';
 
         if(href.length > 1) base += '?' + href[1];
         
@@ -52,6 +52,28 @@ $(document).ready(function() {
         });
 
     });
+
+    $('#monitoring-docs').click(function() {
+
+        let href = document.location.href.split('?');
+        let base = href[0] += 'docs/monitoring';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+        
+    });  
+         
+    $('#monitoring-open').click(function() {
+
+        let href = document.location.href.split('?');
+        let base = href[0] += 'monitoring';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+        
+    });        
 
     $('#studio').click(function() {
 

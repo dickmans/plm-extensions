@@ -59,10 +59,19 @@ exports.vaultName    = '';
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
+//  OPTIONAL SYSTEM MONITORING SETTINGS
+// ---------------------------------------------------------------------------------------------------------------------------
+//  Set monitoringSecret to a secret of your choice to unlock the System Monitoring page at /monitoring.
+//  Even with this secret, that page also requires a valid PLM login and membership in the 'Administration [SYSTEM]' group.
+//  Leave this blank to keep the System Monitoring page locked entirely.
+exports.monitoringSecret = '';
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
 //  ENVIRONMENT VARIABLES
 // ---------------------------------------------------------------------------------------------------------------------------
 //  When running the server in the cloud, changing this file might be a challenge
-//  This is why you can also provide all these settings by using the environment variables listed below. 
+//  This is why you can also provide all these settings by using the environment variables listed below.
 //  Environment variables have higher priority, matching environment variable values overwrite the value defined in this file
 //   - TENANT              ( overrides exports.tenant            )
 //   - CLIENT_ID           ( overrides exports.clientId          )
@@ -72,11 +81,12 @@ exports.vaultName    = '';
 //   - ENABLE_CACHE        ( overrides exports.enableCache       )
 //   - DEBUG_MODE          ( overrides exports.debugMode         )
 //   - FUSION_CONNECTED    ( overrides exports.fusionConnected   )
-//   - ADMIN_CLIENT_ID     ( overrides exports.adminClientId     ) 
+//   - ADMIN_CLIENT_ID     ( overrides exports.adminClientId     )
 //   - ADMIN_CLIENT_SECRET ( overrides exports.adminClientSecret )
 //   - SSA_ACCOUNT_ID      ( overrides exports.ssaAccountId      )
 //   - SSA_KEY_ID          ( overrides exports.ssaKeyId          )
 //   - SSA_PRIVATE_KEY     ( overrides exports.ssaPrivateKey     )
 //   - VAULT_GATEWAY       ( overrides exports.vaultGateway      )
 //   - VAULT_NAME          ( overrides exports.vaultName         )
+//   - MONITORING_SECRET   ( overrides exports.monitoringSecret  )
 // ---------------------------------------------------------------------------------------------------------------------------

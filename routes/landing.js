@@ -7,7 +7,7 @@ const router  = express.Router();
 
 
 /* ------------------------------------------------------------------------------
-    DEFAULT LANDING PAGE & DOCUMENTATION
+    DEFAULT LANDING PAGE, DOCUMENTATION & MONITORING
    ------------------------------------------------------------------------------ */
 router.get('/', function(req, res, next) {
 
@@ -24,6 +24,13 @@ router.get('/docs/chrome-extension', function(req, res, next) {
     if(isServiceDisabled('chrome-extension', req, res)) return;
     res.render('docs/chrome-extension', {
         title : 'PLM UX Chrome Extension',
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+    });
+});
+router.get('/docs/monitoring', function(req, res, next) {
+    if(isServiceDisabled('monitoring', req, res)) return;
+    res.render('docs/monitoring', {
+        title : 'PLM UX Server Monitoring',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
@@ -54,6 +61,12 @@ router.get('/start', function(req, res, next) {
         title : 'PLM UX Extensions',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
+});
+router.get('/monitoring' , async function(req, res, next) {
+
+    if(!validateSystemAdmin(req, res)) return;
+    launch('framework/monitoring', 'monitoring', 'UX Server Monitoring', req, res, next);
+
 });
 router.get('/error-loading', function(req, res, next) {
     res.render('framework/error-loading.pug');
@@ -174,9 +187,11 @@ async function launch(appURL, appSettings, appTitle, req, res) {
     let useSSA       = false;
 
     if(appSettings !== '') {
-        if(req.app.locals.applications[appSettings] !== null) {
-            runAs  = req.app.locals.applications[appSettings].runAs  || '';
-            useSSA = req.app.locals.applications[appSettings].useSSA || useSSA;
+        if(typeof req.app.locals.applications[appSettings] !== 'undefined') {
+            if(req.app.locals.applications[appSettings] !== null) {
+                runAs  = req.app.locals.applications[appSettings].runAs  || '';
+                useSSA = req.app.locals.applications[appSettings].useSSA || useSSA;
+            }
         }
     }
 
@@ -345,6 +360,64 @@ function isServiceDisabled(appURL, req, res) {
 
 
 /* ------------------------------------------------------------------------------
+    CHECK MEMBERSHIP IN THE Administration [SYSTEM] GROUP (server-side, cached)
+   ------------------------------------------------------------------------------ */
+async function checkSystemAdminGroup(req) {
+
+    const cacheTTL = 5 * 60 * 1000;
+
+    if(req.session.hasOwnProperty('systemAdminCheck')) {
+        if((Date.now() - req.session.systemAdminCheck.checked) < cacheTTL) {
+            return req.session.systemAdminCheck.isSystemAdmin;
+        }
+    }
+
+    let isSystemAdmin = false;
+
+    try {
+
+        let url      = req.app.locals.tenantLink + '/api/v3/users/@me';
+        let response = await axios.get(url, { headers : req.session.headers });
+        let groups   = response.data.groups || [];
+
+        isSystemAdmin = groups.some(function(group) { return group.shortName === 'Administration [SYSTEM]'; });
+
+    } catch(error) {
+        isSystemAdmin = false;
+    }
+
+    req.session.systemAdminCheck = { checked : Date.now(), isSystemAdmin : isSystemAdmin };
+
+    return isSystemAdmin;
+
+}
+async function validateSystemAdmin(req, res) {
+
+    let authorized = req.session.hasOwnProperty('headers') && req.session.headers.hasOwnProperty('token');
+
+    if(authorized) {
+
+        let isSystemAdmin = await checkSystemAdminGroup(req);
+
+        if(!isSystemAdmin) {
+
+            res.status(403);
+            res.locals.message = 'Access denied';
+            res.locals.error   = { status : 403, stack : 'The System Monitoring page requires membership in the Administration [SYSTEM] group.' };
+            res.render('framework/error');
+            return false;
+
+        }
+
+    }
+
+    return true;
+
+}
+
+
+
+/* ------------------------------------------------------------------------------
     DETERMINE APS HUB ID WHEN CONNECTED TO FUSION
    ------------------------------------------------------------------------------ */
 function getHubId(req, callback) {
@@ -394,7 +467,6 @@ function getHubId(req, callback) {
     }
 
 }
-
 
 
 
@@ -700,3 +772,4 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
 }
 
 module.exports = router;
+module.exports.checkSystemAdminGroup = checkSystemAdminGroup;

@@ -40,6 +40,7 @@ if(app.locals.protocol === 'https') {
 
 app.set('port', app.locals.port);
 
+app.locals.httpServer = server;
 
 server.listen(app.locals.port);
 server.on('error', onError);
@@ -89,45 +90,63 @@ function onListening() {
 	? 'pipe ' + addr
 	: 'port ' + addr.port;
 
-	console.log();
-	console.log('  >> Using PLM Tenant       ' + app.locals.tenant);
-	console.log('  >> Using Client ID        ' + app.locals.clientId.substring(0, 8) + '...');
-	console.log('  >> Using redirect Uri     ' + app.locals.redirectUri);
-	console.log('  >> Using environment file ' + app.locals.environment);
-	console.log('  >> Using settings file    ' + app.locals.settings);
-	console.log('  >> Using Default Theme    ' + app.locals.defaultTheme);
-	console.log('  >> Cache Enabled?         ' + app.locals.enableCache);
-	console.log('  >> Debug Mode Enabled?    ' + app.locals.debugMode);
-	console.log('  >> Fusion Connected?      ' + app.locals.fusionConnected);
-	console.log('  >> Listening on           ' + bind);
+	let startupInfo = buildStartupInfoLines(bind);
+
+	startupInfo.forEach(function(line) { console.log(line); });
+
+	app.locals.startupInfo = startupInfo.join(';');
+
+}
+
+function buildStartupInfoLines(bind) {
+
+	let lines = [];
+
+	lines.push('');
+	lines.push('  >> Using PLM Tenant       ' + app.locals.tenant);
+	lines.push('  >> Using Client ID        ' + app.locals.clientId.substring(0, 8) + '...');
+	lines.push('  >> Using redirect Uri     ' + app.locals.redirectUri);
+	lines.push('  >> Using environment file ' + app.locals.environment);
+	lines.push('  >> Using settings file    ' + app.locals.settings);
+	lines.push('  >> Using Default Theme    ' + app.locals.defaultTheme);
+	lines.push('  >> Cache Enabled?         ' + app.locals.enableCache);
+	lines.push('  >> Debug Mode Enabled?    ' + app.locals.debugMode);
+	lines.push('  >> Fusion Connected?      ' + app.locals.fusionConnected);
+	lines.push('  >> Listening on           ' + bind);
 
 	if((app.locals.adminClientId === '') || (app.locals.adminClientSecret === '')) {
-		console.log();	
-		console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
+		lines.push('');
+		lines.push('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
 	} else {
-		console.log('  >> Using Admin Client ID  ' + app.locals.adminClientId.substring(0, 8) + '...');
+		lines.push('  >> Using Admin Client ID  ' + app.locals.adminClientId.substring(0, 8) + '...');
 		if((app.locals.ssaAccountId !== ''))  {
-			console.log('  >> Using SAA Account ID   ' + app.locals.ssaAccountId);
+			lines.push('  >> Using SAA Account ID   ' + app.locals.ssaAccountId);
 		}
 		if((app.locals.ssaKeyId !== ''))  {
-			console.log('  >> Using SSA Key ID       ' + app.locals.ssaKeyId.substring(0,4) + '...');
+			lines.push('  >> Using SSA Key ID       ' + app.locals.ssaKeyId.substring(0,4) + '...');
 		}
 		if((app.locals.ssaPrivateKey !== ''))  {
-			console.log('  >> Using SSA Private Key  ' + app.locals.ssaPrivateKey.substring(0,42).replaceAll('\n', '') + '...');
+			lines.push('  >> Using SSA Private Key  ' + app.locals.ssaPrivateKey.substring(0,42).replaceAll('\n', '') + '...');
 		}
 	}
-	
-	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
-		console.log();
-		console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
+
+	if(app.locals.monitoringSecret !== '') {
+		lines.push('  >> Server Monitoring      enabled by monitoring secret');
 	} else {
-		console.log('  >> Using Vault Gateway    ' + app.locals.vaultGateway);
-		console.log('  >> Using Vault Name       ' + app.locals.vaultName);
+		lines.push('  >> Server Monitoring      disabled (no secret defined)');
+	}
+
+	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
+		lines.push('');
+		lines.push('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
+	} else {
+		lines.push('  >> Using Vault Gateway    ' + app.locals.vaultGateway);
+		lines.push('  >> Using Vault Name       ' + app.locals.vaultName);
 	}
 
 	if(typeof app.locals.chrome === 'undefined') {
-		console.log();
-		console.log('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in settings');
+		lines.push('');
+		lines.push('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in settings');
 	}
 
 	if(app.locals.adminClientId !== '') {
@@ -135,29 +154,31 @@ function onListening() {
 			if(app.locals.ssaAccountId !== '') {
 				if(app.locals.ssaKeyId !== '') {
 					if(app.locals.ssaPrivateKey !== '') {
-						console.log();
-						console.log('  Secure Service Account can be used as Admin Client ID/Secret, SSA Account ID, Key ID and Private Key are all defined');
+						lines.push('');
+						lines.push('  Secure Service Account can be used as Admin Client ID/Secret, SSA Account ID, Key ID and Private Key are all defined');
 					}
 				}
 			}
 		}
 	}
 
-	console.log();
-	console.log();
-	console.log('  REMINDERS');
-	console.log(' --------------------------------------------------------------------------------------------------');
-	console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead of the');
-	console.log('  former mechanism involving the Client Secret. This requries an APS application of type');
-	console.log('  "Desktop, Mobile, Single-Page App" for successful authentication.');
-	console.log('  ');
-	console.log('  If not done so yet, create such an app at aps.autodesk.com and provide the given ');
-	console.log('  Client ID in file environments.js. This app must use a callback URL that end with "/callback"');
-	console.log('  (i.e. http://localhost:8080/callback).');
-	console.log('  ');
-	console.log('  If your login to the UX solutions fails with an error code 401, you most likely are');
-	console.log('  using an APS of wrong type or with wrong callback URL.')
-	console.log();
-	console.log();
+	lines.push('');
+	lines.push('');
+	lines.push('  REMINDERS');
+	lines.push(' --------------------------------------------------------------------------------------------------');
+	lines.push('  Since the release of July 2024, the UX server uses PKCE for authentication instead of the');
+	lines.push('  former mechanism involving the Client Secret. This requries an APS application of type');
+	lines.push('  "Desktop, Mobile, Single-Page App" for successful authentication.');
+	lines.push('  ');
+	lines.push('  If not done so yet, create such an app at aps.autodesk.com and provide the given ');
+	lines.push('  Client ID in file environments.js. This app must use a callback URL that end with "/callback"');
+	lines.push('  (i.e. http://localhost:8080/callback).');
+	lines.push('  ');
+	lines.push('  If your login to the UX solutions fails with an error code 401, you most likely are');
+	lines.push('  using an APS of wrong type or with wrong callback URL.');
+	lines.push('');
+	lines.push('');
+
+	return lines;
 
 }

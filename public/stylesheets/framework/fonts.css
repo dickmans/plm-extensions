@@ -314,6 +314,7 @@
 .icon-group::before             { content : '\e7ef'; }
 .icon-group-add::before         { content : '\e7f0'; }
 .icon-help::before              { content : '\f1c0'; }
+.icon-health-monitor::before    { content : '\eaa2'; }
 .icon-help-circle::before       { content : '\e887'; }
 .icon-hide::before              { content : '\e8f5'; }
 .icon-highlight::before         { content : '\e518'; }

@@ -1,3 +1,5 @@
+require('./lib/console-buffer').start();
+
 let pathEnvironment = './environment.js';
 if (process.argv.length > 2) {
     let fileEnvironment = process.argv[2];
@@ -39,6 +41,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     const vault       = require('./routes/pdm');
     const aps         = require('./routes/aps');
     const services    = require('./routes/services');
+    const monitoring  = require('./routes/monitoring');
     const { fchmodSync } = require('fs');
     const environment = require(pathEnvironment);
     const app         = express();
@@ -61,6 +64,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.ssaPrivateKey     = process.env.SSA_PRIVATE_KEY     || environment.ssaPrivateKey     || '';
     app.locals.vaultGateway      = process.env.VAULT_GATEWAY       || environment.vaultGateway      || '';
     app.locals.vaultName         = process.env.VAULT_NAME          || environment.vaultName         || '';
+    app.locals.monitoringSecret  = process.env.MONITORING_SECRET   || environment.monitoringSecret  || '';
     app.locals.tenantLink        = 'https://' + app.locals.tenant + '.autodeskplm360.net';
     app.locals.protocol          = process.env.PROTOCOL || app.locals.redirectUri.split('://')[0];
     app.locals.port              = process.env.PORT;
@@ -83,6 +87,8 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     removeDisabledServicesFromMenu(settings.menu, settings.server);
 
     settings.chrome.workspaces = settings.common.workspaceIds;
+    
+    const sessionStore = new session.MemoryStore();
 
     app.locals.debugMode    = environment.debugMode;
     app.locals.common       = settings.common;
@@ -91,6 +97,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.server       = settings.server;
     app.locals.chrome       = settings.chrome;
     app.locals.colors       = settings.colors;
+    app.locals.sessionStore = sessionStore;
 
 
     // VIEW ENGINE SETUP
@@ -105,19 +112,41 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
         secret: "XASDSEDR",
         proxy: true,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        store: sessionStore
     }));
     app.use(bodyParser.json({limit: "50mb"}));
     app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
+    
+
+    // MAINTENANCE MODE
+    // Set by /monitoring/api/deploy/update while it pulls the latest code and
+    // relaunches the server. Blocks every request (assets included) with a
+    // self-contained holding page until the new process comes back online.
+    app.locals.maintenance = { active : false, startedAt : null, etaMinutes : 10 };
+    app.use(function(req, res, next) {
+
+        if(!app.locals.maintenance.active) return next();
+
+        res.status(503);
+        res.set('Retry-After', '60');
+        res.render('framework/maintenance', {
+            startedAt  : app.locals.maintenance.startedAt,
+            etaMinutes : app.locals.maintenance.etaMinutes
+        });
+
+    });
+
     app.use(express.static(path.join(__dirname, 'public')));
-    
-    
+
+
     // ROUTING
     app.use('/', landing);
     app.use('/plm', plm);
     app.use('/vault', vault);
     app.use('/aps', aps);
     app.use('/services', services);
+    app.use('/monitoring/api', monitoring);
     app.use('/storage', express.static(__dirname + '/storage'), serveIndex(__dirname + '/storage', { icons: true }));
 
 

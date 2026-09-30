@@ -1,0 +1,164 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/console.css')
+    link(rel='stylesheet', href='/stylesheets/framework/monitoring.css')
+    
+    script(src='/javascripts/framework/console.js') 
+    script(src='https://cdn.jsdelivr.net/npm/chart.js')
+    script(src='/javascripts/framework/monitoring.js')
+
+block body
+
+    body.surface-level-1
+
+        #header.dark.hidden
+            #header-logo
+            #header-title=title
+            #header-subtitle Manage server health, sessions, configuration and storage
+            #header-toolbar
+                #reload.button.with-icon.icon-refresh(title='Refresh all panels') Reload
+                #lock-application.button.with-icon.icon-lock(title='Lock this page again') Lock Application
+                #toggle-console.button.with-toggle.toggle-on(title='Click to toggle console display to the right on/off') Display Console
+                #header-avatar
+
+        #gate.pos-abs-max
+            .gate-box
+                .gate-title System Monitoring is locked
+                .gate-text This page requires the server-side monitoring secret in addition to your PLM System Administrator login.
+                input#secret.input(type='password' placeholder='Enter Monitoring Secret' autocomplete='off')
+                .gate-error#gate-error
+                #unlock.button.default.with-icon.icon-unlock Unlock
+
+        .screen#dashboard.hidden
+        
+            #dashboard-grid.pos-abs-max
+
+                .card.hover#card-variables
+                    .card-counter#env-variables-count ?
+                    .card-counter-text Environment Variables
+                    .card-action Click for details
+
+                .card.hover#card-sessions
+                    .card-counter#sessions-count ?
+                    .card-counter-text Active Sessions
+                    .card-action Click for details 
+
+                .card.hover#card-storage
+                    .card-counter#storage-total ?
+                    .card-counter-text Total size of folder /storage
+                    .card-chart
+                        canvas#chart-storage-mini
+                    .card-action Click for details and cleanup utilities  
+
+                .card#card-uptime
+                    .card-counter#server-uptime ?
+                    .card-counter-text Server Uptime
+                    .card-toolbar 
+                        #server-restart-status
+                        .button#action-server-restart Restart Now                               
+
+                .card.surface-level-2#card-startup
+                    .card-header Server Startup Info 
+                    .card-body#card-startup-content
+
+                .card.hover#card-memory
+                    .card-counter#memory-heap ?
+                    .card-counter-text Memory Usage
+                    .card-chart
+                        canvas#chart-memory-mini
+                    .card-action Click for details
+
+                .card#card-cache
+                    .card-counter#cache-size ?
+                    .card-counter-text Total Cache Size
+                    .card-chart
+                        canvas#chart-cache-mini
+                    .card-toolbar 
+                        .button#action-clear-caches Clear All Caches Now
+                        #cache-status.card-toolbar-status
+                
+                .card#view-files
+                    .card-header View Server Files
+                    .card-body
+                        .button#view-environment-js 
+                            div View your environment file
+                            #file-environment --
+                        .button#view-custom-js 
+                            div View your settings file
+                            #file-custom --
+                        .button#view-settings-js View master settings.js
+
+                .card#edit-file
+                    .card-header Edit Server Settings 
+                    .card-body
+                        .card-hint Use this editor to adjust the custom settings file of your server. Select the settings to be overriden and assign the right value. To apply the changes, use the Save &amp; Restart button of this editor.
+                        .button#edit-settings-js.hidden
+
+                //- .mon-card.mon-card-wide#card-deploy
+                //-     .card-header
+                //-         .mon-card-title Deployment (github.com/dickmans/plm-extensions)
+                //-         .mon-card-value#deploy-status —
+                //-     .mon-card-body
+                //-         div#deploy-local Local: —
+                //-         div#deploy-remote GitHub: —
+                //-         div#deploy-last-deploy Last deployment: —
+                //-     .card-actions
+                //-     button.mon-link.details-toggle(data-target='deploy') View details
+                //-     button.button#action-update-deploy(disabled) Update &amp; Restart
+
+            #console.surface-level-4.pos-abs-right
+                #console-toolbar 
+                    .button.icon.icon-delete#console-clear(title='Clear console contents')
+                    .button.with-toggle.toggle-on#console-scroll Auto-Scroll
+                #console-header Server Console
+                #console-content.pos-abs-bottom.no-scrollbar
+
+
+
+            .dialog#details-dialog
+                .dialog-header
+                    .dialog-title#details-dialog-title
+                    .dialog-close.icon.icon-close.button.close-dialog
+                .dialog-content#details-dialog-content.no-scrollbar
+                .dialog-footer
+                    .button.default.close-dialog#dialog-close Close
+
+            .dialog#settings-dialog
+                .dialog-header
+                    .dialog-title#settings-dialog-title
+                    .dialog-close.icon.icon-close.button.close-dialog
+                .dialog-content#settings-dialog-content.no-scrollbar
+                .dialog-footer
+                    .button#settings-editor-save.default Save &amp; Restart
+                    .button#mon-detail-cancel.mon-detail-close Cancel
+                    #settings-editor-status
+
+            .dialog#storage-dialog
+                .dialog-header
+                    .dialog-title Manage Storage
+                    .dialog-close.icon.icon-close.button.close-dialog
+                .dialog-content#storage-dialog-content.no-scrollbar
+                    #storage-dialog-chart-sizes
+                    #storage-dialog-folders-list
+                    #storage-dialog-chart-timeline
+                    #storage-dialog-cleanup
+                        #storage-dialog-header Cleanup Folders
+                        #storage-dialog-actions
+                            #storage-dialog-options
+                                label Folder
+                                select#cleanup-folder.button
+                                label Older than (days)
+                                input#cleanup-days(type='number' min='0' placeholder='any age')
+                                label Keep total under (MB)
+                                input#cleanup-size(type='number' min='0' placeholder='no limit')
+                            #storage-dialog-presets
+                                .button#storage-cleanup-preset-6 Select files older than 6 months
+                                .button#storage-cleanup-preset-12 Select files older than 12 months
+                            #storage-cleanup-result.hint 
+                            .button.default#storage-cleanup-confirm(disabled) Delete
+
+                .dialog-footer
+                    .button.default.close-dialog Close
+                    .button#storage-dialog-refresh.with-icon.icon-refresh Refresh

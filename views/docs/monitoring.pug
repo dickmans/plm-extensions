@@ -1,0 +1,55 @@
+
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/docs/monitoring.css')
+
+block body
+
+    body.surface-level-1
+        .content
+            .title.surface-level-2 Server Monitoring
+            p Review server health (sessions, memory), clear caches, inspect configuration and environment variables and manage storage.
+            img(src='../images/docs/monitoring-1.png' style='display:block;max-width:960px;')
+            h1 Access
+            p This utility requires a valid PLM login, membership in the tenant's 
+                strong Administration [SYSTEM]
+                |  group (verified server-side on every request) and a monitoring secret. Without all three, the page and its APIs stay locked. Provide the monitoring secret by setting
+            .code exports.monitoringSecret
+            p in your environment file (environment.js, or the file in folder /environments used to start the server). 
+                br
+                |Like all values in these environment files, you can also use the following environment variable instead. This variable takes priority if both are set:
+            .code MONITORING_SECRET
+            h1 What it shows
+            ul
+                li Server Environment Variables
+                li Server startup information
+                li Active user sessions (count, user name, user mail address, PLM login state, per-session cache size) 
+                li System memory consumption, sampled every 5 seconds and charted over time
+                li User based cache memory consumption, sampled every 5 seconds and charted over time
+                li A button to clear these shared and per-session data caches
+                li Buttons to view the server's environment and settings files
+                li Server uptime and button to perform a server restart
+                li Storage statistics for the caching folder 
+                    strong /storage
+                    | including functionality for cleanup
+                li Live feed of the server console output
+            p The dashboard contents refresh automatically on defined intervals, but users can always enforce a refresh with the button in main toolbar
+            h1 Advanced Capabilities 
+            p Admins can use the dashboard to perform changes on the environment file, by overriding parameters in the settings.js file: 
+            ul 
+                li Click the edit button in the 
+                    strong Edit Server Seetings 
+                    |card to open the editor
+                li Check the override option for the values to be changed and provide the right input in column value
+                li Once done, use the given button to save your changes and restart the server.
+            img(src='../images/docs/monitoring-2.png' style='display:block;max-width:960px;')
+            //- h1 Updating the server from GitHub
+            //- p The Deployment card compares the local checkout against the latest commit on
+            //-     a(href='https://github.com/dickmans/plm-extensions' target='_blank') github.com/dickmans/plm-extensions
+            //-     |  (branch main) and shows when the server was last updated through this page.
+            //- p The
+            //-     strong  Update &amp; Restart
+            //-     |  button pulls the latest code (fast-forward only - it never overwrites diverged history) and restarts the server process. It refuses to run if the working tree has uncommitted changes, listing the files that need to be committed, stashed or discarded first.
+            //- p While the update is applied, the server process restarts. During that short window every visitor - not only admins - sees a maintenance page explaining the server is being updated, which retries automatically and also offers a manual retry button. Because sessions are kept in memory only, everyone, including the administrator who triggered the update, needs to log in again once the server is back online.

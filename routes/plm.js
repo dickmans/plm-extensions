@@ -15,6 +15,12 @@ router.use(fileUpload());
 let indexRequest = 0;
 let sharedCaches = {};
 
+function clearSharedCaches() {
+    let count = Object.keys(sharedCaches).length;
+    sharedCaches = {};
+    return count;
+}
+
 
 function getCustomHeaders(req) {
 
@@ -7538,8 +7544,19 @@ router.get('/me', function(req, res, next) {
         axios.get(url, {
             headers : req.session.headers
         }).then(function(response) {
+            
             response.data.fullName = response.data.lastName + ', ' + response.data.firstName;
+
+            req.session.userInfo = {
+                fullName    : response.data.fullName,
+                displayName : response.data.displayName,
+                email       : response.data.email
+            };
+            
+            req.session.save();
+
             sendResponse(req, res, response, false);
+
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
         });
@@ -8430,3 +8447,4 @@ function getWorkspaceTypeLabel(workspace) {
 
 
 module.exports = router;
+module.exports.clearSharedCaches = clearSharedCaches;

@@ -146,8 +146,21 @@ body.layout-tiles-list .tile.min .tile-access .button {
     display : block;
     color   : var(--color-blue-500);
 }
-span.link {
-    color: var(--color-blue-500);
+span.link,
+.toolbar .button span {
+    color : var(--color-blue-500);
+}
+span.block {
+    display : block;
+}
+.toolbar {
+    display : flex;
+    gap     : 4px;
+}
+.toolbar .button {
+    flex-grow : 1;
+    height    : 40px;
+    padding   : 6px 12px;
 }
 #themes {
     display         : flex;

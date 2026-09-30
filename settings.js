@@ -2379,6 +2379,11 @@ exports.menu = [
             title    : 'Administration Shortcuts',
             subtitle : 'Provides quick access to frequently used admin panels',
             url      : '/shortcuts'
+        },{
+            icon     : 'icon-health-monitor',
+            title    : 'System Monitoring',
+            subtitle : 'Review server health, sessions and storage',
+            url      : '/monitoring'
         }]
     },{
         label      : 'Advanced Administration Utilities',
@@ -2455,6 +2460,7 @@ exports.server = {
         troubleshooting    : true,
         start              : true,
         gallery            : true,
+        monitoring         : true,  // System Monitoring
         template           : true,
         playground         : true,
         studio             : true,
@@ -2500,6 +2506,12 @@ exports.chrome = {
         label : 'Outstanding Work Report',
         icon  : 'zmdi-assignment-account',
         order : 105 
+    },{
+        id    : 'system-monitor',
+        url   : '/monitoring',
+        label : 'UX Server Monitoring',
+        icon  : 'zmdi-view-dashboard',
+        order : 110
     }],  
     buttons : [
       { // Change Impact Analysis for PR, CR and CO

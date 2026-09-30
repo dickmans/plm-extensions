@@ -130,3 +130,12 @@ Reduce deployment and administration efforts with the following utilities addres
 | **Administration Shortcuts**<br/>Use this dashboard to quickly navigate to tenant administration capabilities including workspace configuration, picklist setup, script editing and role definition. See video at https://youtu.be/D_qFX90CGAI. | <img src="public/images/admin-shortcuts.png" width="600"> |
 | **Outstanding Work Report**<br/>Review the outstanding work lists of other users and take action if needed to keep the processing going. See video at https://youtu.be/zUIfiiAVwVQ | <img src="public/images/admin-outstanding-work.png" width="600"> |
 | **User Settings Manager**<br/>Set default settings for your tenant users to provide a better user experience. Share workspace views, configure the dashboard charts and set the color theme to drive user adoption. See video at https://youtu.be/hJjxoovwbS8. | <img src="public/images/admin-users.png" width="600"> |
+
+### Server Monitoring ###
+The **Server Monitoring** page (`/monitoring`) gives administrators a single-screen overview of the running server. Administrators can review server health, manage storage consumption and edit server configuration settings in this dedicated dashboard.
+
+<img src="public/images/docs/monitoring-1.png" width="600"> 
+<br/>
+<br/>
+
+Access to this monitoring dashboard requires three things at once: a valid PLM login, membership in the tenant's <code>Administration [SYSTEM]</code> group and the monitoring secret defined in the environments file. All three are enforced on every API call the page makes, not just when the page loads.
