@@ -64,7 +64,7 @@ router.get('/start', function(req, res, next) {
 });
 router.get('/monitoring' , async function(req, res, next) {
 
-    if(!validateSystemAdmin(req, res)) return;
+    if(!checkPLMSystemAdmin(req, res)) return;
     launch('framework/monitoring', 'monitoring', 'UX Server Monitoring', req, res, next);
 
 });
@@ -352,64 +352,6 @@ function isServiceDisabled(appURL, req, res) {
     
     res.status(404);
     res.render('framework/error');
-
-    return true;
-
-}
-
-
-
-/* ------------------------------------------------------------------------------
-    CHECK MEMBERSHIP IN THE Administration [SYSTEM] GROUP (server-side, cached)
-   ------------------------------------------------------------------------------ */
-async function checkSystemAdminGroup(req) {
-
-    const cacheTTL = 5 * 60 * 1000;
-
-    if(req.session.hasOwnProperty('systemAdminCheck')) {
-        if((Date.now() - req.session.systemAdminCheck.checked) < cacheTTL) {
-            return req.session.systemAdminCheck.isSystemAdmin;
-        }
-    }
-
-    let isSystemAdmin = false;
-
-    try {
-
-        let url      = req.app.locals.tenantLink + '/api/v3/users/@me';
-        let response = await axios.get(url, { headers : req.session.headers });
-        let groups   = response.data.groups || [];
-
-        isSystemAdmin = groups.some(function(group) { return group.shortName === 'Administration [SYSTEM]'; });
-
-    } catch(error) {
-        isSystemAdmin = false;
-    }
-
-    req.session.systemAdminCheck = { checked : Date.now(), isSystemAdmin : isSystemAdmin };
-
-    return isSystemAdmin;
-
-}
-async function validateSystemAdmin(req, res) {
-
-    let authorized = req.session.hasOwnProperty('headers') && req.session.headers.hasOwnProperty('token');
-
-    if(authorized) {
-
-        let isSystemAdmin = await checkSystemAdminGroup(req);
-
-        if(!isSystemAdmin) {
-
-            res.status(403);
-            res.locals.message = 'Access denied';
-            res.locals.error   = { status : 403, stack : 'The System Monitoring page requires membership in the Administration [SYSTEM] group.' };
-            res.render('framework/error');
-            return false;
-
-        }
-
-    }
 
     return true;
 
@@ -771,5 +713,83 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
 
 }
 
+
+
+/* ------------------------------------------------------------------------------
+    CHECK USER SESSION
+   ------------------------------------------------------------------------------ */
+function validatePLMSession(req, res, next) {
+
+    let headers = req.session && req.session.headers;
+
+    if(!headers || !headers.token) return res.status(401).send('PLM login required.');
+
+    if(headers.expires && headers.expires < Date.now() && !headers.refreshToken) return res.status(401).send('Session expired.');
+
+    next();
+
+}
+
+
+
+/* ------------------------------------------------------------------------------
+    CHECK MEMBERSHIP IN THE Administration [SYSTEM] GROUP (server-side, cached)
+   ------------------------------------------------------------------------------ */
+async function validatePLMSystemAdmin(req) {
+
+    const cacheTTL = 5 * 60 * 1000;
+
+    if(req.session.hasOwnProperty('systemAdminCheck')) {
+        if((Date.now() - req.session.systemAdminCheck.checked) < cacheTTL) {
+            return req.session.systemAdminCheck.isSystemAdmin;
+        }
+    }
+
+    let isSystemAdmin = false;
+
+    try {
+
+        let url      = req.app.locals.tenantLink + '/api/v3/users/@me';
+        let response = await axios.get(url, { headers : req.session.headers });
+        let groups   = response.data.groups || [];
+
+        isSystemAdmin = groups.some(function(group) { return group.shortName === 'Administration [SYSTEM]'; });
+
+    } catch(error) {
+        isSystemAdmin = false;
+    }
+
+    req.session.systemAdminCheck = { checked : Date.now(), isSystemAdmin : isSystemAdmin };
+
+    return isSystemAdmin;
+
+}
+async function checkPLMSystemAdmin(req, res) {
+
+    let authorized = req.session.hasOwnProperty('headers') && req.session.headers.hasOwnProperty('token');
+
+    if(authorized) {
+
+        let isSystemAdmin = await validatePLMSystemAdmin(req);
+
+        if(!isSystemAdmin) {
+
+            res.status(403);
+            res.locals.message = 'Access denied';
+            res.locals.error   = { status : 403, stack : 'The System Monitoring page requires membership in the Administration [SYSTEM] group.' };
+            res.render('framework/error');
+            return false;
+
+        }
+
+    }
+
+    return true;
+
+}
+
+
+
 module.exports = router;
-module.exports.checkSystemAdminGroup = checkSystemAdminGroup;
+module.exports.validatePLMSystemAdmin = validatePLMSystemAdmin;
+module.exports.validatePLMSession     = validatePLMSession;

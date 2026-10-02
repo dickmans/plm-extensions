@@ -7,7 +7,7 @@ const path          = require('path');
 const os            = require('os');
 const axios         = require('axios');
 const { execSync, spawn } = require('child_process');
-const { checkSystemAdminGroup } = require('./landing');
+const { validatePLMSystemAdmin } = require('./landing');
 const plm           = require('./plm');
 const consoleBuffer = require('../lib/console-buffer');
 
@@ -33,7 +33,7 @@ async function requireSystemAdmin(req, res, next) {
         return res.status(401).json({ error : 'PLM login required.' });
     }
 
-    let isSystemAdmin = await checkSystemAdminGroup(req);
+    let isSystemAdmin = await validatePLMSystemAdmin(req);
 
     if(!isSystemAdmin) {
         return res.status(403).json({ error : 'This feature requires membership in the Administration [SYSTEM] group.' });

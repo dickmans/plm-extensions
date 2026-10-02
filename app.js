@@ -1,5 +1,7 @@
 require('./lib/console-buffer').start();
 
+const crypto = require('crypto');
+
 let pathEnvironment = './environment.js';
 if (process.argv.length > 2) {
     let fileEnvironment = process.argv[2];
@@ -34,8 +36,8 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     const path        = require('path');
     const favicon     = require('serve-favicon');
     const morgan      = require('morgan');
-    const serveIndex  = require('serve-index');
     const bodyParser  = require('body-parser');
+    const storage     = require('./routes/storage');
     const landing     = require('./routes/landing');
     const plm         = require('./routes/plm');
     const vault       = require('./routes/pdm');
@@ -80,8 +82,8 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
         }
     } 
 
-    let settings     = require('./settings.js');
-    let custom       = require('./settings/' + environment.settings);
+    let settings = require('./settings.js');
+    let custom   = require('./settings/' + environment.settings);
 
     mergeSettings(settings, custom);
     removeDisabledServicesFromMenu(settings.menu, settings.server);
@@ -109,11 +111,18 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
     app.use(morgan('dev'));
     app.use(session({
-        secret: "XASDSEDR",
+        secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
         proxy: true,
         resave: false,
         saveUninitialized: false,
-        store: sessionStore
+        rolling: true,
+        store: sessionStore,
+        cookie: {
+            httpOnly : true,
+            sameSite : 'lax',
+            secure   : 'auto',          // Secure flag only when the request arrived via HTTPS (also behind a proxy, see proxy: true)
+            maxAge   : 90 * 60 * 1000   // 90 minutes, renewed with every request
+        }
     }));
     app.use(bodyParser.json({limit: "50mb"}));
     app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
@@ -146,8 +155,8 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.use('/vault', vault);
     app.use('/aps', aps);
     app.use('/services', services);
+    app.use('/storage', storage);
     app.use('/monitoring/api', monitoring);
-    app.use('/storage', express.static(__dirname + '/storage'), serveIndex(__dirname + '/storage', { icons: true }));
 
 
     // CATCH 404 AND FORWARD TO ERROR HANDLER
@@ -268,6 +277,8 @@ function mergeSettingsProperty(master, custom, property) {
 
 }
 
+
+// Disable endpoints / services per definition in settings file (see exports.server.servicesEnabled)
 function removeDisabledServicesFromMenu(menu, server) {
 
     for(let column of menu) {

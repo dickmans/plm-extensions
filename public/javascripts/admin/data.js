@@ -23,7 +23,7 @@ $(document).ready(function() {
                 $.get('/plm/workspaces', {}),
                 $.get('/plm/users',      {}),
                 $.get('/plm/groups',     {}),
-                $.get('/services/storage/folders', { path : 'imports' })
+                $.get('/storage/folders', { path : 'imports' })
             ]
         
             getFeatureSettings('items', requests, function(responses) {
@@ -105,7 +105,7 @@ function setUIEvents() {
 
         if(value !== '--') {
 
-            $.get('/services/storage/contents', params, function(response) {
+            $.get('/storage/contents', params, function(response) {
                 
                 if(timestamp !== params.timestamp) return;
                 
@@ -1151,7 +1151,7 @@ function startProcessing() {
 
     if(run.actionId === 'import-attachments') {
 
-        run.url          = '/services/storage/contents';
+        run.url          = '/storage/contents';
         run.method       = 'get';
         run.params.path  = 'imports/' + $('#select-import-folder').val();
         // run.params.limit = 2;

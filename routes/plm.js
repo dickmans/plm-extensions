@@ -8,6 +8,7 @@ const ExcelJS       = require('exceljs/dist/es5');
 const FormData      = require('form-data');
 const { Console }   = require('console');
 const pathUploads   = 'uploads/';
+const { resolveStoragePath } = require('./storage');
 const urlGraphQL    = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
 
 router.use(fileUpload());
@@ -135,6 +136,8 @@ function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, item
             itemPath += itemFolder;
         }
     }
+
+    if(resolveStoragePath(rootFolder, subFolder, itemFolder || '', fileName) === null) return Promise.resolve({ success : false });
 
     createServerFolderPath(itemPath, clearExistingFolder);
 
@@ -2128,6 +2131,8 @@ router.get('/image-cache', function(req, res) {
         }
     }
 
+    if(resolveStoragePath('cache', fileName) === null) return res.status(400).json({ error : true, message : 'Invalid file name' });
+
     fs.stat('storage/cache/' + fileName, function(err, stat) {
 
         if(err === null) {
@@ -3096,6 +3101,8 @@ router.post('/export-attachments', function(req, res, next) {
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
+    if(resolveStoragePath(rootFolder, subFolder) === null) return res.status(400).json({ error : true, message : 'Invalid rootFolder or subFolder' });
+
     if(subFolder !== '') {
         if(clearFolder) {
             createServerFolderPath('storage/' + rootFolder + '/' + subFolder, true);
@@ -3638,6 +3645,8 @@ router.post('/upload-screenshot', function(req, res) {
     let stream    = new Buffer.from(data, 'base64');
     let path      = 'storage/uploads';
 
+    if(resolveStoragePath('uploads', fileName) === null) return res.status(400).json({ error : true, message : 'Invalid file name' });
+
     createServerFolderPath(path, false);
 
     path += '/' + fileName;
@@ -3715,6 +3724,13 @@ router.post('/import-attachment', function(req, res) {
     let pathFailure    = (typeof req.body.pathFailure    === 'undefined') ? '__failed'  : req.body.pathFailure;
     let pathSuccess    = (typeof req.body.pathSuccess    === 'undefined') ? '__success' : req.body.pathSuccess;
     let pathSkipped    = (typeof req.body.pathSkipped    === 'undefined') ? '__skipped' : req.body.pathSkipped;
+
+    if(   resolveStoragePath(req.body.path, folderName, fileName) === null
+       || resolveStoragePath(req.body.path, pathFailure ) === null
+       || resolveStoragePath(req.body.path, pathSuccess ) === null
+       || resolveStoragePath(req.body.path, pathSkipped ) === null) {
+        return res.status(400).json({ error : true, message : 'Invalid path' });
+    }
 
     pathFailure = 'storage/' + req.body.path + '/' + pathFailure;
     pathSuccess = 'storage/' + req.body.path + '/' + pathSuccess;

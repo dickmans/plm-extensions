@@ -1109,8 +1109,8 @@ function clearAllFormFields(id) {
 // Insert Item Details
 function insertDetails(link, params, data) {
 
-    if(isBlank(link  )) return;
-    if(isBlank(data  )) data   = {};
+    if(isBlank(link)) return;
+    if(isBlank(data)) data   = {};
 
     const id = getPanelSettings('insertDetails', params, { link : link });
     
