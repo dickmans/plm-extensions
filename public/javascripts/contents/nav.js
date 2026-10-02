@@ -1377,11 +1377,10 @@ function insertResultsDataDone(id, data) {}
 // Insert tasks in defined status with acknowledgement actions
 function insertNewTasks(wsId, filters, params) {
 
-    if(isBlank(params)) params = {};
-    
-    const id = isBlank(params.id) ? 'new-tasks' : params.id;
-
-    getPanelSettings('insertNewTasks', id, params);
+    const id = getPanelSettings('insertNewTasks', params, {
+        wsId    : wsId,
+        filters : filters
+    });
 
     settings[id].layout = 'list';
 
@@ -1400,7 +1399,7 @@ function insertNewTasksData(id) {
         wsId      : settings[id].wsId,
         filter    : settings[id].filters,
         fields    : [],
-        pageSize  : settings[id].pageSize,
+        pageSize  : settings[id].limit,
         sort      : settings[id].sortBy,
         timestamp : settings[id].timestamp,
         useCache  : settings[id].useCache

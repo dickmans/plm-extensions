@@ -193,52 +193,53 @@ const registry = {
                     'searchReturnFields', 'stateColors',
                     'searchLatestOnly', 'searchReleasedOnly', 'searchWorkingOnly', 'hideWorking'                    
                 ],
-                excluded    : [ 'openInPLM' ]
-            // },{ // insertNewTasks
-            //     id          : 'insertNewTasks',
-            //     description : "Displays the tasks assigned to the current user awaiting acknowledgement / acceptance",
-            //     usage       : "Use on a personal landing or home screen so each user immediately sees the workflow tasks waiting on them. Typical cases: a 'My Work' dashboard, or the first tab of a role-based home page. Enable the due-date, status and workspace filters when users juggle many tasks across processes.",
-            //     inputs      : [{
-            //         id          : 'wsId',
-            //         title       : 'Workspace ID',
-            //         description : 'Workspace ID of items to display',
-            //         default     : '211',
-            //         type        : 'string',
-            //         required    : true
-            //     },{
-            //         id          : 'filters',
-            //         title       : 'Filters',
-            //         description : 'List of filters to apply when retrieving new tasks list',
-            //         default     : [{"field" : "TITLE","type" : "0","comparator" : "contains" ,"value" : "r"}],
-            //         type        : 'textarea',
-            //         required    : true
-            //     }],
-            //     defaults    : {
-            //         headerLabel : 'New Tasks',
-            //         layout      : 'list',
-            //         contentSize : 'm',
-            //         transitions : [
-            //             { id : 'ACCEPT'       , icon : 'icon-check'      , class : ''       , title : 'Accept Task'  }, 
-            //             { id : 'SET_ON_HOLD_1', icon : 'icon-undo'       , class : 'red'    , title : 'Return Task'  },
-            //             { id : 'FINISH_3'     , icon : 'icon-flag-finish', class : 'default', title : 'Set Complete' } 
-            //         ]
-            //     },
-
-            //     filters     : [ ],
-            //     fieldIDs    : [
-            //         { key : 'root'         , default : 'PROJECT_NUMBER'         , description : 'Parent element used for grouping' },
-            //         { key : 'id'           , default : 'ID'                     , description : 'Unique identifier / number of each task' },
-            //         { key : 'title'        , default : 'TITLE'                  , description : 'Title field of tasks' },
-            //         { key : 'description'  , default : 'DESCRIPTION'            , description : 'Task Description' },
-            //         { key : 'priority'     , default : 'PRIORITY'               , description : 'Task Priority' },
-            //         { key : 'start'        , default : 'PLANNED_START_DATE'     , description : 'Target Start Date' },
-            //         { key : 'end'          , default : 'PLANNED_COMPLETION_DATE', description : 'Target End Date' },
-            //         { key : 'duration'     , default : 'PLANNED_DURATION'       , description : 'Target Duration' },
-            //         { key : 'plannedEffort', default : 'PLANNED_EFFORT'         , description : 'Planned total effort' },
-            //         { key : 'weeklyEffort' , default : 'EFFORT_BY_WEEK'         , description : 'Planned weekly effort' },
-            //     ],
-            //     additional : [ 'pageSize', 'sortBy', 'tileImage', 'transitions' ],
-            //     excluded   : [ 'layout' ] 
+                excluded    : [ ]
+            },{ // insertNewTasks
+                id          : 'insertNewTasks',
+                description : "Displays the tasks assigned to the current user awaiting acknowledgement / acceptance",
+                usage       : "Use on a personal landing or home screen so each user immediately sees the workflow tasks waiting on them. Typical cases: a 'My Work' dashboard, or the first tab of a role-based home page. Enable the due-date, status and workspace filters when users juggle many tasks across processes.",
+                className   : 'new-tasks',
+                inputs      : [{
+                    id          : 'wsId',
+                    title       : 'Workspace ID',
+                    description : 'Workspace ID of items to display',
+                    default     : '211',
+                    type        : 'string',
+                    required    : true
+                },{
+                    id          : 'filters',
+                    title       : 'Filters',
+                    description : 'List of filters to apply when retrieving new tasks list',
+                    default     : [{"field" : "WF_CURRENT_STATE","type" : "1","comparator" : "status-is" ,"value" : "Requested"}],
+                    type        : 'textarea',
+                    required    : true
+                }],
+                defaults    : {
+                    id          : 'new-tasks',
+                    headerLabel : 'New Tasks',
+                    layout      : 'list',
+                    contentSize : 'm',
+                    transitions : [
+                        { id : 'ACCEPT'       , icon : 'icon-check'      , class : ''       , title : 'Accept Task'  }, 
+                        { id : 'SET_ON_HOLD_1', icon : 'icon-undo'       , class : 'red'    , title : 'Return Task'  },
+                        { id : 'FINISH_3'     , icon : 'icon-flag-finish', class : 'default', title : 'Set Complete' } 
+                    ]
+                },
+                filters     : [ ],
+                fieldIDs    : [
+                    { key : 'root'         , default : 'PROJECT_NUMBER'         , description : 'Parent element used for grouping' },
+                    { key : 'id'           , default : 'ID'                     , description : 'Unique identifier / number of each task' },
+                    { key : 'title'        , default : 'TITLE'                  , description : 'Title field of tasks' },
+                    { key : 'description'  , default : 'DESCRIPTION'            , description : 'Task Description' },
+                    { key : 'priority'     , default : 'PRIORITY'               , description : 'Task Priority' },
+                    { key : 'start'        , default : 'PLANNED_START_DATE'     , description : 'Target Start Date' },
+                    { key : 'end'          , default : 'PLANNED_COMPLETION_DATE', description : 'Target End Date' },
+                    { key : 'duration'     , default : 'PLANNED_DURATION'       , description : 'Target Duration' },
+                    { key : 'plannedEffort', default : 'PLANNED_EFFORT'         , description : 'Planned total effort' },
+                    { key : 'weeklyEffort' , default : 'EFFORT_BY_WEEK'         , description : 'Planned weekly effort' },
+                ],
+                additional : [ 'limit', 'sortBy', 'tileImage', 'transitions' ],
+                excluded   : [ 'layout', 'openInPLM' ] 
             // },{ // insertTasksManager
             //     id          : 'insertTasksManager',
             //     description : "Displays the tasks assigned to the current user with advanced controls for effort and progress management",
@@ -259,6 +260,7 @@ const registry = {
             //         required    : true
             //     }],
             //     defaults    : {
+            //         id          : 'tasks-manager',
             //         headerLabel : 'Tasks Manager',
             //         layout      : 'list',
             //         contentSize : 'custom',
@@ -1288,12 +1290,12 @@ const registry = {
                 default     : false,
                 type        : 'boolean'
             },
-            // transitions : {
-            //     title       : 'Transition Actions',
-            //     description : "Adds actions buttons for each transition defined",
-            //     default     : {},
-            //     type        : 'textarea'
-            // },            
+            transitions : {
+                title       : 'Transition Actions',
+                description : "Adds actions buttons for each transition defined",
+                default     : {},
+                type        : 'textarea'
+            }    
         },
 
         table : {
@@ -2693,7 +2695,15 @@ function getPanelFieldIDs(panelSettings, params, panelType) {
     panelSettings.fieldIDs = {};
 
     for(let fieldId of panelType.fieldIDs) {
-        panelSettings.fieldIDs[fieldId.key] = params.fieldIDs[fieldId.key] || fieldId.default;
+
+        panelSettings.fieldIDs[fieldId.key] = fieldId.default;
+
+        if(typeof params.fieldIDs !== 'undefined') {
+            if(params.hasOwnProperty(fieldId.key)) {
+                panelSettings.fieldIDs[fieldId.key] = params.fieldIDs[fieldId.key]
+            }
+        }
+
     }
 
 }
