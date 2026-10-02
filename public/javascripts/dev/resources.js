@@ -51,6 +51,8 @@ let paramsItemSummaryAssignment = {
 
 $(document).ready(function() {
 
+        console.log(config);
+
     appendOverlay(true);
     appendProcessing('activities', false);
     appendProcessing('resources', false);
@@ -58,20 +60,45 @@ $(document).ready(function() {
     insertMenu();
     setHeaders();
 
+    wsConfig = {
+        projects : {
+            workspaceId : config.projects.workspaceId || common.workspaceIds.engineeringProjects
+        },
+        plans : {
+            workspaceId : config.plans.workspaceId
+        },
+        activities : {
+            workspaceId : config.projects.workspaceId || common.workspaceIds.engineeringProjectActivities
+        },
+        groups : {
+            workspaceId : config.groups.workspaceId
+        },
+        resources : {
+            workspaceId : config.resources.workspaceId
+        },
+        plans : {
+            workspaceId : config.plans.workspaceId
+        }
+    }
+
+    console.log(wsConfig);
+
     let requests = [
-        $.get('/plm/permissions' , { wsId : config.projects.workspaceId   }),
-        $.get('/plm/permissions' , { wsId : config.plans.workspaceId      }),
-        $.get('/plm/sections'    , { wsId : config.activities.workspaceId })
+        $.get('/plm/permissions' , { wsId : wsConfig.projects.workspaceId   }),
+        $.get('/plm/permissions' , { wsId : wsConfig.plans.workspaceId      }),
+        $.get('/plm/sections'    , { wsId : wsConfig.activities.workspaceId })
     ];
 
     getFeatureSettings('resources', requests, function(responses) {
 
-        permissions.projects = responses[0].data;
-        permissions.plans    = responses[1].data;
-        wsConfig.activities  = { sections : responses[2].data }
+        console.log(responses);
 
-        if(hasPermission, permissions.projects, 'add_items') $('#button-create-project').removeClass('hidden');
-        if(hasPermission, permissions.plans   , 'add_items') $('#button-create-plan'   ).removeClass('hidden');
+        wsConfig.projects.permissions = responses[1].data;
+        wsConfig.plans.permissions    = responses[1].data;
+        wsConfig.activities.sections  = responses[2].data;
+
+        if(hasPermission, wsConfig.projects.permissions, 'add_items') $('#button-create-project').removeClass('hidden');
+        if(hasPermission, wsConfig.plans.permissions   , 'add_items') $('#button-create-plan'   ).removeClass('hidden');
 
         setWeeks();
         insertWeekColumns($('#activities-header'));
@@ -172,8 +199,8 @@ function setUIEvents() {
 function setHeaders() {
 
     // $('#header-subtitle').html(config.subtitle);
-    $('#activities-header-title').html(config.headers.activities);
-    $('#resources-header-title').html(config.headers.resources);  
+    $('#activities-header-title').html(config.headers.activities || 'Engineering Project Activities');
+    $('#resources-header-title' ).html(config.headers.resources  || 'Teams and Members Availability');  
 
 }
 function setWeeks() {
@@ -241,34 +268,34 @@ function insertWeekColumns(elemParent) {
 }
 function getInitialData() {
 
-    let paramsSearchResources = { wsId : config.resources.workspaceId, fields : [
-        config.resources.fieldIDs.account,
-        config.resources.fieldIDs.title,
-        config.resources.fieldIDs.group,
-        config.resources.fieldIDs.capacity,
+    let paramsSearchResources = { wsId : wsConfig.resources.workspaceId, fields : [
+        config.resources.fieldIds.account  || 'USER_ACCOUNT',
+        config.resources.fieldIds.title    || 'USER_ACCOUNT',
+        config.resources.fieldIds.group    || 'TEAM',
+        config.resources.fieldIds.capacity || 'WEEKLY_CAPACITY',
     ]};
 
-    let paramsSearchGroups = { wsId : config.groups.workspaceId, fields : [
-        config.groups.fieldIDs.title
+    let paramsSearchGroups = { wsId : wsConfig.groups.workspaceId, fields : [
+        config.groups.fieldIds.title || 'NAME'
     ]};
 
-    let paramsSearchPlans = { wsId : config.plans.workspaceId, fields : [
-        config.plans.fieldIDs.group,
-        config.plans.fieldIDs.week,
-        config.plans.fieldIDs.start,
-        config.plans.fieldIDs.end
+    let paramsSearchPlans = { wsId : wsConfig.plans.workspaceId, fields : [
+        config.plans.fieldIds.group || 'TEAM',
+        config.plans.fieldIds.week  || 'WEEK',
+        config.plans.fieldIds.start || 'START_DATE',
+        config.plans.fieldIds.end   || 'END_DATE'
     ], grid : [
-        config.plans.grid.resource,
-        config.plans.grid.capacity
+        config.plans.grid.resource || 'RESOURCE',
+        config.plans.grid.capacity || 'ACTUAL_CAPACITY'
     ],
     filter : [{
         comparator : 18, // after
-        field      : config.plans.fieldIDs.end,
+        field      : config.plans.fieldIds.end,
         type       : 0,
         value      : weeks[0].startString          
     },{
         comparator : 19, // before
-        field      : config.plans.fieldIDs.start,
+        field      : config.plans.fieldIds.start,
         type       : 0,
         value      : weeks[weeks.length -1].endString    
     },{
@@ -278,28 +305,28 @@ function getInitialData() {
         value      : ''
     }]};
 
-    let paramsSearchActivities = { wsId : config.activities.workspaceId, fields : [
-        config.activities.fieldIDs.title,
-        config.activities.fieldIDs.start,
-        config.activities.fieldIDs.end,
-        config.activities.fieldIDs.type,
-        config.activities.fieldIDs.root,
-        config.activities.fieldIDs.parent,
-        config.activities.fieldIDs.group,
-        config.activities.fieldIDs.resource,
-        config.activities.fieldIDs.effortWS,
-        config.activities.fieldIDs.effortWA,
-        config.activities.fieldIDs.effortWE,
-        config.activities.fieldIDs.progress,
-        config.activities.fieldIDs.status
+    let paramsSearchActivities = { wsId : wsConfig.activities.workspaceId, fields : [
+        config.activities.fieldIds.title    || 'TEAM',
+        config.activities.fieldIds.start    || 'PLANNED_START_DATE',
+        config.activities.fieldIds.end      || 'PLANNED_COMPLETION_DATE',
+        config.activities.fieldIds.type     || 'TEAM',
+        config.activities.fieldIds.root     || 'PROJECT',
+        config.activities.fieldIds.parent   || 'PARENT_ACTIVITY',
+        config.activities.fieldIds.group    || 'TEAM',
+        config.activities.fieldIds.resource || 'ASSIGNEE',
+        config.activities.fieldIds.effortWS || 'EFFORT_START_WEEK',
+        config.activities.fieldIds.effortWA || 'EFFORT_BY_WEEK',
+        config.activities.fieldIds.effortWE || 'EFFORT_END_WEEK',
+        config.activities.fieldIds.progress || 'PERCENT_COMPLETE',
+        config.activities.fieldIds.status   || 'WF_CURRENT_STATE'
     ], filter : [{
         comparator : 18, // after
-        field      : config.activities.fieldIDs.end,
+        field      : config.activities.fieldIds.end,
         type       : 0 ,
         value      : weeks[0].startString          
     },{
         comparator : 19, // before
-        field      : config.activities.fieldIDs.start,
+        field      : config.activities.fieldIds.start,
         type       : 0 ,
         value      : weeks[weeks.length -1].endString       
     }]};
@@ -317,7 +344,7 @@ function getInitialData() {
 
     let requests = [
         $.post( '/plm/search', paramsSearchResources  ),
-        $.post( '/plm/search', paramsSearchGroups      ),
+        $.post( '/plm/search', paramsSearchGroups     ),
         $.post( '/plm/search', paramsSearchPlans      ),
         $.post( '/plm/search', paramsSearchActivities ),
         $.get ( '/plm/picklist' , { link : '/api/v3/lookups/CUSTOM_LOOKUP_ALL_USERS_VIEW', useCache : true } )
@@ -325,13 +352,15 @@ function getInitialData() {
 
     Promise.all(requests).then(function(responses) {
 
+        console.log(responses);
+
         let linksPlans = [];
         let listGroups = [];
 
         for(let row of responses[0].data.row) {
 
-            let title  = getSearchResultFieldValue(row, config.resources.fieldIDs.title, '');
-            let group  = getSearchResultFieldValue(row, config.resources.fieldIDs.group, '');
+            let title  = getSearchResultFieldValue(row, config.resources.fieldIds.title, '');
+            let group  = getSearchResultFieldValue(row, config.resources.fieldIds.group, '');
             let userLink   = '';
 
             for(let user of responses[4].data.items) {
@@ -346,7 +375,7 @@ function getInitialData() {
                 title    : title,
                 class    : getClassName('resource', title),
                 group    : group,
-                capacity : getSearchResultFieldValue(row, config.resources.fieldIDs.capacity, 0),
+                capacity : getSearchResultFieldValue(row, config.resources.fieldIds.capacity, 0),
             });
 
             if(!listGroups.includes(group)) listGroups.push(group);
@@ -355,7 +384,7 @@ function getInitialData() {
 
         for(let row of responses[1].data.row) {
 
-            let title = getSearchResultFieldValue(row, config.groups.fieldIDs.title, '');
+            let title = getSearchResultFieldValue(row, config.groups.fieldIds.title, '');
 
             if(listGroups.includes(title)) {           
                 groups.push({
@@ -378,10 +407,10 @@ function getInitialData() {
                 linksPlans.push(link);
 
                 plan.link      = link;
-                plan.group     = getSearchResultFieldValue(row, config.plans.fieldIDs.group, '');
-                plan.start     = getSearchResultFieldValue(row, config.plans.fieldIDs.start, '');
-                plan.end       = getSearchResultFieldValue(row, config.plans.fieldIDs.end  , '');
-                plan.week      = Number(getSearchResultFieldValue(row, config.plans.fieldIDs.week, 0));
+                plan.group     = getSearchResultFieldValue(row, config.plans.fieldIds.group, '');
+                plan.start     = getSearchResultFieldValue(row, config.plans.fieldIds.start, '');
+                plan.end       = getSearchResultFieldValue(row, config.plans.fieldIds.end  , '');
+                plan.week      = Number(getSearchResultFieldValue(row, config.plans.fieldIds.week, 0));
                 plan.year      = Number(plan.end.split('-')[0])
                 plan.resources = [];
 
@@ -400,19 +429,19 @@ function getInitialData() {
 
             activities.push({
                 link     : '/api/v3/workspaces/' + config.activities.workspaceId + '/items/' + row.dmsId,
-                title    : getSearchResultFieldValue(row, config.activities.fieldIDs.title, ''),
-                start    : getDateDetails(getSearchResultFieldValue(row, config.activities.fieldIDs.start, '')),
-                end      : getDateDetails(getSearchResultFieldValue(row, config.activities.fieldIDs.end  , '')),
-                type     : getSearchResultFieldValue(row, config.activities.fieldIDs.type, ''),
-                root     : getSearchResultFieldValue(row, config.activities.fieldIDs.root, ''),
-                parent   : getSearchResultFieldValue(row, config.activities.fieldIDs.parent, ''),
-                group    : getSearchResultFieldValue(row, config.activities.fieldIDs.group, ''),
-                resource : getSearchResultFieldValue(row, config.activities.fieldIDs.resource, ''),
-                effortWS : Number(getSearchResultFieldValue(row, config.activities.fieldIDs.effortWS, '')),
-                effortWA : Number(getSearchResultFieldValue(row, config.activities.fieldIDs.effortWA, '')),
-                effortWE : Number(getSearchResultFieldValue(row, config.activities.fieldIDs.effortWE, '')),
-                progress : Number(getSearchResultFieldValue(row, config.activities.fieldIDs.progress, 0)),
-                status   : getSearchResultFieldValue(row, config.activities.fieldIDs.status, ''),
+                title    : getSearchResultFieldValue(row, config.activities.fieldIds.title, ''),
+                start    : getDateDetails(getSearchResultFieldValue(row, config.activities.fieldIds.start, '')),
+                end      : getDateDetails(getSearchResultFieldValue(row, config.activities.fieldIds.end  , '')),
+                type     : getSearchResultFieldValue(row, config.activities.fieldIds.type, ''),
+                root     : getSearchResultFieldValue(row, config.activities.fieldIds.root, ''),
+                parent   : getSearchResultFieldValue(row, config.activities.fieldIds.parent, ''),
+                group    : getSearchResultFieldValue(row, config.activities.fieldIds.group, ''),
+                resource : getSearchResultFieldValue(row, config.activities.fieldIds.resource, ''),
+                effortWS : Number(getSearchResultFieldValue(row, config.activities.fieldIds.effortWS, '')),
+                effortWA : Number(getSearchResultFieldValue(row, config.activities.fieldIds.effortWA, '')),
+                effortWE : Number(getSearchResultFieldValue(row, config.activities.fieldIds.effortWE, '')),
+                progress : Number(getSearchResultFieldValue(row, config.activities.fieldIds.progress, 0)),
+                status   : getSearchResultFieldValue(row, config.activities.fieldIds.status, ''),
             });
 
         }        
@@ -990,8 +1019,8 @@ function updateActivityEfforts(elemInput) {
         sections    : wsConfig.activities.sections,
         getDetails  : true,
         fields      : [
-            { fieldId : config.activities.fieldIDs.totalEffort,  value : null            } ,
-            { fieldId : config.activities.fieldIDs.weeklyEffort, value : elemInput.val() }
+            { fieldId : config.activities.fieldIds.totalEffort,  value : null            } ,
+            { fieldId : config.activities.fieldIds.weeklyEffort, value : elemInput.val() }
         ],
     }   
 
@@ -1282,7 +1311,7 @@ function removeAssignment(elemClicked) {
         link        : linkActivity, 
         sections    : wsConfig.activities.sections,
         fields      : [
-            { fieldId : config.activities.fieldIDs.resource, value : null }
+            { fieldId : config.activities.fieldIds.resource, value : null }
         ]
     }  
 
@@ -1544,7 +1573,7 @@ function setResourcesEvents() {
 //                     link     : timelineSelection.activity,
 //                     sections : wsConfig.activities.sections,
 //                     fields   : [{  
-//                         fieldId : config.activities.fieldIDs.resource, 
+//                         fieldId : config.activities.fieldIds.resource, 
 //                         value : linkResource
 //                     }]
 //                 };
@@ -1636,8 +1665,8 @@ function assignResource(elemClicked) {
             link        : elemActivity.attr('data-link'), 
             sections    : wsConfig.activities.sections,
             fields      : [
-                { fieldId : config.activities.fieldIDs.group,    value : { link : linkGroup    }},
-                { fieldId : config.activities.fieldIDs.resource, value : { link : linkResource }}
+                { fieldId : config.activities.fieldIds.group,    value : { link : linkGroup    }},
+                { fieldId : config.activities.fieldIds.resource, value : { link : linkResource }}
             ]
         }  
         
@@ -1706,7 +1735,7 @@ function unassignResource() {
         link        : linkActivity, 
         sections    : wsConfig.activities.sections,
         fields      : [
-            { fieldId : config.activities.fieldIDs.resource, value : null }
+            { fieldId : config.activities.fieldIds.resource, value : null }
         ]
     }  
 

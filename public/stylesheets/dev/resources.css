@@ -241,6 +241,7 @@ input.filter {
 }
 .week.week-now {
     background : var(--color-surface-level-4);
+    color      : var(--color-red-500);
 }
 .week-number {
     font-weight : bold;

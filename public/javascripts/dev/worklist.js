@@ -1,50 +1,8 @@
-let yourTasks = [];
-let weeks     = [];
-let wsConfig  = {};
-let user      = {};
-
-let paramsTaskSummary = {
-    id              : 'summary',
-    layout          : 'tabs',
-    bookmark        : true,
-    openInPLM       : true,
-    reload          : true,
-    hideCloseButton : true,
-    contents   : [{ 
-        type   : 'details', 
-        params : { 
-            id         : 'task-details',
-            hideHeader : true,
-        }
-    },{ 
-        type   : 'attachments', 
-        params : { 
-            id         : 'task-attachments', 
-            editable   : true,
-            hideHeader : true,
-        } 
-    },{ 
-        type   : 'grid', 
-        params : { 
-            id         : 'task-grid', 
-            editable   : true,
-            hideHeader : true,
-            rotate     : false,
-        } 
-    },{ 
-        type   : 'relationships', 
-        params : { 
-            id         : 'task-relationships',
-            hideHeader : true,
-        }
-    },{ 
-        type   : 'change-log', 
-        params : { 
-            id         : 'task-change-log',
-            hideHeader : true,
-        }
-    }]
-}
+let yourTasks         = [];
+let weeks             = [];
+let wsConfig          = { workspaceId : '', fieldIDs : [], sections : [], scriptId : ''};
+let user              = {};
+let paramsTaskSummary = {}
 
 
 $(document).ready(function() {
@@ -93,31 +51,30 @@ $(document).ready(function() {
 
         if(isBlank(wsConfig.scriptId)) {
             showStartupError({
-                title : 'Server Configuration Error',
-                details : 'The configuration settings for this application are not valid as there is no script defined for the task efforts rollup',
+                title        : 'Server Configuration Error',
+                details      : 'The configuration settings for this application are not valid as there is no script defined for the task efforts rollup',
                 instructions : 'Contact your administrator and let him review the settings of application worklist. A valid script name must be defined in setting <strong>actionScriptName</strong>, matching an on demand script of the tasks workspace with id <strong>' + wsConfig.workspaceId + '</strong>.'
             });
             return;
         }
 
-        insertNewTasks(wsConfig.workspaceId, transitions, {
-            reload         : true,
-            // search         : true,
-            openOnDblClick : true,
-            headerLabel    : 'Requested Tasks',
-            // singleToolbar  : 'actions',
-            groupBy        : config.fieldIDs.root,
-            // transitionActions : transitions,
-            onClickItem    : function(elemClicked) { insertItemSummary(elemClicked.attr('data-link'), paramsTaskSummary); }
-        });
+        paramsTaskSummary = config.panels.taskSummary;
+        paramsTaskSummary.id = 'summary';
 
-        insertTasksManager(config.yourTasks.filters, {
-            headerLabel : 'Your Tasks In Work',
-            reload      : true,
-            search      : true,
-            openInPLM   : true,
-            afterCompletion : function(id, data) { setGlobalToolbarActions(data); }
-        });
+        let paramsNewTasks = config.panels.insertNewTasks;
+
+        paramsNewTasks.transitions = config.transistions;
+        paramsNewTasks.onClickItem = function(elemClicked) { insertItemSummary(elemClicked.attr('data-link'), paramsTaskSummary); }
+
+        insertNewTasks(wsConfig.workspaceId, config.filters, paramsNewTasks);
+
+        // insertTasksManager(config.yourTasks.filters, {
+        //     headerLabel : 'Your Tasks In Work',
+        //     reload      : true,
+        //     search      : true,
+        //     openInPLM   : true,
+        //     afterCompletion : function(id, data) { setGlobalToolbarActions(data); }
+        // });
 
     });
 
