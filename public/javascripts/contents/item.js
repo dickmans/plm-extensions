@@ -5537,7 +5537,7 @@ function openBOMView(id) {
 
     if(settings[id].details        === null) requests.push($.get('/plm/details'   , { link : params.link }));
     if(settings[id].workspaces.length === 0) requests.push($.get('/plm/workspaces', { useCache : settings[id].useCache }));
-    if(settings[id].downloadFiles          ) requests.push($.get('/services/storage/folders', { path : 'downloads'     }));
+    if(settings[id].downloadFiles          ) requests.push($.get('/storage/folders', { path : 'downloads'     }));
 
     if(settings[id].editable) {
     
