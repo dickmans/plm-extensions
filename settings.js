@@ -2381,7 +2381,7 @@ exports.menu = [
             url      : '/shortcuts'
         },{
             icon     : 'icon-health-monitor',
-            title    : 'System Monitoring',
+            title    : 'UX Server Monitoring',
             subtitle : 'Review server health, sessions and storage',
             url      : '/monitoring'
         }]
