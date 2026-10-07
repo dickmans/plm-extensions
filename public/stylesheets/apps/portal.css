@@ -7,9 +7,9 @@
     --width-panels      : 500px;
     --width-field-label : 200px;
 
-    --height-recents : 380px;
-    --height-files   : 280px;
-    --height-viewer  : 220px;
+    --height-bookmarks : 380px;
+    --height-files     : 280px;
+    --height-viewer    : 220px;
 
 }
 
@@ -19,15 +19,15 @@
 #search {
     border-width : var(--width-border-v) var(--width-border-h);
     top          : 0px;
-    bottom       : calc(var(--height-recents) + (1.5 * var(--width-border-v) ));
+    bottom       : calc(var(--height-bookmarks) + (1.5 * var(--width-border-v) ));
     left         : 0px;
     width        : var(--width-search);
 }
-#recents {
+#bookmarks {
     border-width : var(--width-border-v) var(--width-border-h);
     bottom       : 0px;
     left         : 0px;
-    height       : var(--height-recents);
+    height       : var(--height-bookmarks);
     width        : var(--width-search);
 }
 #bom {
@@ -59,7 +59,7 @@
 }
 
 body.no-search #search,
-body.no-search #recents { left : calc(0px - var(--width-search) - (2 * var(--width-border-h))); }
+body.no-search #bookmarks { left : calc(0px - var(--width-search) - (2 * var(--width-border-h))); }
 body.no-search #bom { left : 0px; }
 body.no-search .viewer { left : calc(var(--width-bom) + (2 * var(--width-border-h)));; }
 

@@ -1314,8 +1314,8 @@ exports.applications = {
                 tileImageFieldId  : 'IMAGE',
                 tileRevision      : true
             },
-            insertRecentItems : { 
-                headerLabel   : 'Recent Items',
+            insertBookmarks : { 
+                headerLabel   : 'Bookmarked Items',
                 search        : false,
                 reload        : true,
                 contentSize   : 'xs',

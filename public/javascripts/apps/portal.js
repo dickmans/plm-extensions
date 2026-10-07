@@ -38,12 +38,11 @@ $(document).ready(function() {
 
             insertWorkspaceSearch(wsConfig.workspaceId, paramsSearch);
 
-            let paramsRecentItems = config.panels.insertRecentItems;
-                paramsRecentItems.workspacesIn    = [wsConfig.workspaceId];
-                paramsRecentItems.afterCompletion = function(id) { openMostRecentItem(); };
-                paramsRecentItems.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
+            let paramsBookmarks = config.panels.insertBookmarks;
+                paramsBookmarks.workspacesIn    = [wsConfig.workspaceId];
+                paramsBookmarks.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
 
-            insertRecentItems(paramsRecentItems);
+            insertBookmarks(paramsBookmarks);
 
             paramsDetails     = config.panels.insertDetails;
             paramsAttachments = config.panels.insertAttachments;

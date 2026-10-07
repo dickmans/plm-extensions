@@ -114,11 +114,11 @@ exports.applications = {
     },
     portal         : {
         // panels : {
-        //     insertSearch      : {},
-        //     insertRecentItems : {},
-        //     insertBOM         : {},
-        //     insertDetails     : {},
-        //     insertDetails     : {},
+        //     insertSearch    : {},
+        //     insertBookmarks : {},
+        //     insertBOM       : {},
+        //     insertDetails   : {},
+        //     insertDetails   : {},
         // },
         // viewerFeatures  : {
         //     contextMenu : false
