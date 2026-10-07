@@ -2213,6 +2213,7 @@ function genPanelBookmarkButton(id) {
 
         elemButtonBookmark = $('<div></div>').prependTo(elemToolbar)
             .attr('id', id + '-bookmark')
+            .attr('title', 'Click to add/remove this item from your bookmarks')
             .addClass('disabled')
             .addClass('button')
             .addClass('icon')
@@ -2305,6 +2306,7 @@ function genPanelOpenInPLMButton(id,) {
 
     elemButtonOpenInPLM = $('<div></div>').prependTo(elemToolbar)
         .attr('id', id + '-open')
+        .attr('title', 'Opens a new tab with this item in standard PLM user interface')
         .addClass('button')
         .addClass('icon')
         .addClass('icon-open')
