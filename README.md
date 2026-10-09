@@ -93,7 +93,7 @@ The following extensions are included in this package. Each application can be a
 
 | Screenshots | Applications |
 | -- | -- |
-| <img src="public/images/app-portal.jpg" width="600"> | **PLM Portal**<br/>Provides quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/tM8why6ybAU. |
+| <img src="public/images/app-portal.jpg" width="600"> | **PLM Portal**<br/>Provides quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/xSsV0A1iMLs. |
 | <img src="public/images/app-product-catalog.png" width="600"> | **Product Portfolio Catalog**<br/>The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials. See video at (https://youtu.be/hroRMjZzueQ). |
 | <img src="public/images/app-workspace-navigator.png" width="600"> | **Workspace Navigator**<br/>All contributors and decison makers now can manage multiple records easily; mass edit & compare properties based on the user's workspace views, bookmarks & recently viewed records. See video at https://youtu.be/jHBkAuEh32g. |
 | <img src="public/images/app-mobile-client.png" width="600"> | **Mobile Client**<br/>Have PLM with you all the time in your pocket. Visualize product data, enrich data, manage documents, perform workflow actions and trigger new processes whenever needed. |
