@@ -2544,7 +2544,10 @@ function genPanelSearchInput(id) {
     let elemSearch = $('<div></div>').appendTo(elemToolbar)
         .addClass('button')
         .addClass('panel-search')
-        .attr('id', id + '-search');
+        .attr('id', id + '-search')
+        .click(function() {
+            $(this).children('.panel-search-input').focus();
+        });
 
     $('<div></div>').appendTo(elemSearch)
         .addClass('button')
