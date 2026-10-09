@@ -679,15 +679,16 @@ td.tree-first-col {
 .tree-files-download-panel {
     position : absolute;
     top      : 56px;
-    right    : 0px;
-    left     : 0px;
+    right    : 1px;
+    left     : 1px;
 }
 .tree-files-download-options {
     border-width   : 18px 18px;
     display        : grid;
     flex-direction : column;
-    height         : 290px;
-    line-height    : 38px;
+    height         : 255px;
+    line-height    : 34px;
+    row-gap        : 1px;
     grid-template-columns: 140px calc(100% - 140px);
 }
 .tree-files-download-options-label {
@@ -696,10 +697,10 @@ td.tree-first-col {
 }
 .tree-files-download-options select {
     padding     : 0px 16px;
-    max-height  : 38px !important;
-    min-height  : 38px !important;
-    height      : 38px !important;
-    line-height : 38px !important;
+    max-height  : 34px !important;
+    min-height  : 34px !important;
+    height      : 34px !important;
+    line-height : 34px !important;
     text-align  : left;
     width       : 100%;
 }
@@ -732,7 +733,7 @@ td.tree-first-col {
     justify-content : center;
 }
 .tree-files-download-progress {
-    height : 326px;
+    height : 291px;
 }
 .tree-files-download-progress > div {
     border-width : 18px 18px;
@@ -743,7 +744,7 @@ td.tree-first-col {
     padding-top : 20px;
     width       : 250px;
     grid-template-columns : 60px auto;
-    grid-template-rows : 26px 26px 26px 26px 100px auto;
+    grid-template-rows : 26px 26px 26px 26px 65px auto;
 }
 .tree-files-download-counters-value {
     font-weight   : bold;
@@ -802,7 +803,7 @@ td.tree-first-col {
     display     : flex;
     gap         : 12px;
     grid-column : 1 / 2;
-    margin      : 110px 8px 0px;
+    margin      : 75px 8px 0px;
     width       : 236px;
     justify-content : center;
 }
@@ -824,9 +825,9 @@ td.tree-first-col {
     white-space   : nowrap;
 }
 .tree-files-download-files-list {
-    max-height : 264px;
-    min-height : 264px;
-    height     : 264px;
+    max-height : 229px;
+    min-height : 229px;
+    height     : 229px;
     overflow-y : auto;
 }
 .tree-files-download-files-list > div {
@@ -866,7 +867,7 @@ td.tree-first-col {
 }
 .with-files-download .panel-content ,
 .with-files-download.panel-top.with-panel-actions > .panel-content {
-    top : 386px;
+    top : 355px;
 }
 .with-files-download .tree-files-download-status {
     display : table-cell;
