@@ -299,6 +299,7 @@ function launchViewer(viewerInstance, params) {
         
         viewerLeaveMarkupMode({ id : viewerInstance.id });
         viewerUnloadAllModels({ id : viewerInstance.id });
+        viewerCloseFileBrowser(viewerInstance);
         $('#' + viewerInstance.id).show();
         loadViewableInViewer(viewerInstance)
 
@@ -743,10 +744,11 @@ function getRootViewerInstance(elemClicked) {
 // File Browser
 function insertFileBrowser(viewerInstance) {
 
-    let elemFileBrowser = $('#' + viewerInstance.id + '-file-browser');
+    let elemFileBrowser = $('#' + viewerInstance.id + '-viewer-file-browser');
     let elemFileToolbar = $('#' + viewerInstance.id + '-customFileBrowserToolbar');
+    let elemFilesList   = $('#' + viewerInstance.id + '-viewer-file-browser-list');
 
-    if(viewerInstance.viewables.length > 1) {
+    if(viewerInstance.viewables.length > 0) {
 
         if(elemFileToolbar.length === 0) {
 
@@ -791,12 +793,18 @@ function insertFileBrowser(viewerInstance) {
                     $(this).closest('.viewer-file-browser').hide();
                 });
            
-            let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
+            elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
                 .addClass('tiles')    
                 .addClass('list')    
                 .addClass('xl')    
                 .addClass('viewer-file-browser-list')    
                 .attr('id', viewerInstance.id + '-viewer-file-browser-list');
+
+        }
+
+        if(elemFilesList.length > 0) {
+
+            elemFilesList.children().remove();
 
             for(let viewerFile of viewerInstance.viewables) {
 
@@ -843,8 +851,8 @@ function insertFileBrowser(viewerInstance) {
                 $('<div></div>').appendTo(elemFileDetails)
                     .html('Date : ' + creationDate.toLocaleString());
 
-            }
-
+            }    
+            
         }
 
     } else if(elemFileToolbar.length > 0) elemFileToolbar.hide();
@@ -894,6 +902,11 @@ function viewerSwitchFile(elemClicked) {
     //     }, onDocumentLoadFailure);
             
     // }
+
+}
+function viewerCloseFileBrowser(viewerInstance) {
+
+    $('#' + viewerInstance.id + '-viewer-file-browser').hide();
 
 }
 
