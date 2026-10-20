@@ -4671,12 +4671,16 @@ function compareAllWorkspaces(update) {
 
     if(stopped) return;
 
+    const missingSource = $('.row-workspace.missing-base').length;
+    const missingTarget = $('.row-workspace.missing-target').length;
+
     addLogSpacer();
     addLogSeparator();
     addLogEntry('Starting Workspace Comparison', 'head');
     addLogSpacer();
-    addLogEntry($('.row-workspace.missing-base').length + ' workspaces missing in ' + environments.source.tenantName, 'diff');
-    addLogEntry($('.row-workspace.missing-target').length + ' workspaces missing in ' + environments.target.tenantName, 'diff');
+    if(missingSource > 0) addLogEntry(missingSource + ' workspaces missing in ' + environments.source.tenantName, 'diff');
+    if(missingTarget > 0) addLogEntry(missingTarget + ' workspaces missing in ' + environments.target.tenantName, 'diff');
+    else if(missingSource === missingSource) addLogEntry('Workspaces list matches in both tenants');
     addLogSpacer();
 
     compareNextWorkspace(update);
@@ -4732,7 +4736,7 @@ function compareNextWorkspace(update) {
 
             } else {
 
-                addLogEntry('Comparing Workspace of <strong>' + workspace.name + '</strong>', '');
+                addLogEntry('Comparing Workspace <strong>' + workspace.name + '</strong>', '');
 
                 requests = [
                     $.get('/plm/tabs', { link : workspace.source.__self__, tenant : environments.source.tenantName, timestamp : timestamp }),

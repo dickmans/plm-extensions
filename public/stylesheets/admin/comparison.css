@@ -111,6 +111,7 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     flex-direction : column;
     gap            : 12px;
     line-height    : 18px;
+    opacity        : 0.7;
     padding-right  : var(--panel-border-width-h);
     width          : var(--width-comparison-text);
 }
@@ -120,8 +121,8 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     height                : calc( var(--height-comparison-controls) - 22px) !important;
     grid-template-columns : 110px 1fr 1fr;
     column-gap            : 12px;
-    row-gap               : 2px;
-    padding               : 20px 32px 16px !important;
+    row-gap               : 5px;
+    padding               : 18px 32px 18px !important;
     /* padding-left          : 12px; */
     /* padding-right         : 32px; */
 }
@@ -146,27 +147,26 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     text-overflow : ellipsis;
 }
 #comparison-options .label {
-    line-height : 38px;
+    line-height : 37px;
     text-align  : right;
 }
 #comparison-options input {
-    background      : var(--color-surface-level-3);
-    /* border-color    : var(--color-surface-level-3); */
-    height          : 22px;
-    text-align      : center;
-    width           : calc(100% - 16px);
+    background   : var(--color-surface-level-3);
+    border-color : var(--color-blue-500);
+    height       : 20px;
+    text-align   : center;
+    width        : calc(100% - 16px);
 }
 #comparison-options select {
-    height : 38px;
+    height : 36px;
     width  : 100%;
-
 }
 #comparison-options  > .hint {
     font-size     : 12px;
     grid-column   : 2 / 4;
     height        : 30px;
     line-height   : 32px;
-    opacity       : 0.8;
+    opacity       : 0.7;
     overflow      : hidden;
     text-align    : center;
     text-overflow : ellipsis;
@@ -545,7 +545,7 @@ td.exists > div.icon-compare {
         width         : 330px;
         padding-right : var(--panel-border-width-h);
     }
-    #comparison-options { padding : 20px 18px 16px !important; }
+    #comparison-options { padding : 18px 18px 18px !important; }
     #comparison-buttons { padding : 18px 18px !important; }
     
     #comparison-results  { top : 240px; }
