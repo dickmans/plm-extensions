@@ -34,14 +34,15 @@ block body
                     div.header Target Tenant 
                     div.label Tenant Names
                     div.input
-                        input#source-tenant(type='text')
+                        input#source-tenant(type='text' placeholder='Enter name + press Enter')
                     div.input
-                        input#target-tenant(type='text')
-                    div.label Workspaces
+                        input#target-tenant(type='text' placeholder='Enter name + press Enter')
+                    div.label Compare
                     div.select
                         select.button#source-workspaces
                     div.select
                         select.button#target-workspaces
+                    div.hint The server's Client ID must be whitelisted in both tenants
                 #comparison-buttons.surface-level-1
                     #comparison-start.button.with-icon.icon-start.default.disabled Start
                     #comparison-report.button.with-icon.icon-details.disabled Report

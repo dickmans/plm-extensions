@@ -75,25 +75,9 @@ function setUIEvents() {
             getWorkspaces('source');
         }
     });
-    $('#comparison-options input').keyup(function (e) {
-        let elemInput = $(this);
-        let value     = elemInput.val();
-        let id        = (elemInput.attr('id') === 'source-tenant') ? 'source' : 'target';
-        setTimeout(function() {
-            if(value === elemInput.val()) {
-                getWorkspaces(id);
-            };
-        }, 2000);
-    });
     $('#target-tenant').keydown(function (e) {
         if (e.keyCode == 13) {
             getWorkspaces('target');
-            $('.result-summary').html('');
-            $('.result-actions').html('');
-            $('.result-compare').hide();
-            $('#comparison-results').children().each(function() {
-                $(this).removeClass('match').removeClass('info').removeClass('diff').removeClass('varies').removeClass('disabled');
-            });
         }
     });
 
@@ -358,49 +342,61 @@ async function saveFile(fileHandler, fileName, fileContent) {
 // Set workspace selectors for both tenants
 function getWorkspaces(id, callback) {
 
+    $('#comparison-stop').click();
+
     let tenantName = $('#' + id + '-tenant').val();
-    
+
     if(tenantName === '') return;
-    
+
     $('#' + id + '-workspaces').attr('disabled', true).addClass('disabled');
     $('#overlay').show();
+    $('#message').hide();
 
     let elemSelect = $('#' + id + '-workspaces');
         elemSelect.children().remove();
 
     $.get('/plm/workspaces', { tenant : tenantName }, function(response) {
 
-        if(response.params.tenant !== tenantName) return;
+        if(response.error) {
 
-        $('#overlay').hide();
-        
-        environments[id].workspaces = response.data.items || [];
+            $('#comparison-start').addClass('disabled');
 
-        if(response.error) return;
+            showErrorMessage('Cannot access ' + tenantName, response.message + ' Is the Client ID defined in the environment file whitelisted in ' + tenantName + '?');
 
-        if(id === 'source') {
-           $('<option></option>').appendTo(elemSelect)
-                .attr('value', 'all-workspaces')
-                .html('All Workspaces, Scripts etc.');
-        }
-        
-        $('#' + id + '-workspaces').removeAttr('disabled').removeClass('disabled');
+        } else {
 
-        sortArray(environments[id].workspaces, 'title');
-        
-        for(let workspace of environments[id].workspaces) {
+            if(response.params.tenant !== tenantName) return;
+            
+            environments[id].workspaces = response.data.items || [];
+
+            if(response.error) return;
+
+            if(id === 'source') {
             $('<option></option>').appendTo(elemSelect)
-                .attr('value', workspace.systemName)
-                .html(workspace.title);
+                    .attr('value', 'all-workspaces')
+                    .html('All Workspaces, Scripts etc.');
+            }
+            
+            $('#' + id + '-workspaces').removeAttr('disabled').removeClass('disabled');
+
+            sortArray(environments[id].workspaces, 'title');
+            
+            for(let workspace of environments[id].workspaces) {
+                $('<option></option>').appendTo(elemSelect)
+                    .attr('value', workspace.systemName)
+                    .html(workspace.title);
+            }
+
+            if(id === 'target') $('#comparison-start').removeClass('disabled');
+
+            if(id === 'target') {
+                $('#target-workspaces').val($('#source-workspaces').val());
+            } 
+
         }
 
-        if(id === 'target') $('#comparison-start').removeClass('disabled');
-
-        if(id === 'target') {
-            $('#target-workspaces').val($('#source-workspaces').val());
-        } 
-        
         if( typeof callback !== 'undefined') { callback(); }
+        $('#overlay').hide();
 
     });
 
@@ -507,8 +503,7 @@ function addActionEntry(params) {
 // Launch & stop comparison
 function startComparison() {
 
-    stopped = false;
-
+    stopped   = false;
     timestamp = new Date().getTime();
 
     $('#console-content').html('');

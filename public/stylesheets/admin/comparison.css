@@ -115,27 +115,30 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     width          : var(--width-comparison-text);
 }
 #comparison-options {
-    display                 : grid;
-    flex-grow               : 1;
-    height                  : calc( var(--height-comparison-controls) - 30px) !important;
-    grid-template-columns   : 110px 1fr 1fr;
-    column-gap              : 12px;
-    row-gap                 : 2px;
-    padding                 : 22px 32px !important;
+    display               : grid;
+    flex-grow             : 1;
+    height                : calc( var(--height-comparison-controls) - 22px) !important;
+    grid-template-columns : 110px 1fr 1fr;
+    column-gap            : 12px;
+    row-gap               : 2px;
+    padding               : 20px 32px 16px !important;
     /* padding-left          : 12px; */
     /* padding-right         : 32px; */
 }
 #comparison-buttons {
-    align-content   : space-evenly;
-    display         : grid;
-    gap             : 2px;
-    height          : calc(var(--height-comparison-controls) - 22px) !important;
-    padding         : 18px 36px !important;
-    white-space     : normal;
-    width           : var(--width-buttons);
+    align-content : space-evenly;
+    display       : grid;
+    gap           : 2px;
+    height        : calc(var(--height-comparison-controls) - 22px) !important;
+    padding       : 18px 36px !important;
+    white-space   : normal;
+    width         : var(--width-buttons);
 }
 #comparison-options .header {
-    line-height : 38px;
+    height : 26px;
+    max-height : 26px;
+    min-height : 26px;
+    line-height : 22px;
     padding-top : 0px;
     text-align  : center;
     overflow    : hidden;
@@ -157,6 +160,17 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     height : 38px;
     width  : 100%;
 
+}
+#comparison-options  > .hint {
+    font-size     : 12px;
+    grid-column   : 2 / 4;
+    height        : 30px;
+    line-height   : 32px;
+    opacity       : 0.8;
+    overflow      : hidden;
+    text-align    : center;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 #comparison-stop {
     background   : var(--color-status-red);
@@ -531,7 +545,7 @@ td.exists > div.icon-compare {
         width         : 330px;
         padding-right : var(--panel-border-width-h);
     }
-    #comparison-options { padding : 22px 18px !important; }
+    #comparison-options { padding : 20px 18px 16px !important; }
     #comparison-buttons { padding : 18px 18px !important; }
     
     #comparison-results  { top : 240px; }
