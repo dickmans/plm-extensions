@@ -198,13 +198,13 @@ function toggleBOMLayout() {
 
         $('#bom-thead').children('tr').each(function() {
             $(this).children('th').each(function() {
-                if($(this).index() > 2) $(this).addClass('hidden');
+                if($(this).index() > 1) $(this).addClass('hidden');
             });
         });
 
         $('#bom-tbody').children('tr').each(function() {
             $(this).children('td').each(function() {
-                if($(this).index() > 2) $(this).addClass('hidden');
+                if($(this).index() > 1) $(this).addClass('hidden');
             });
         });
 
