@@ -887,28 +887,88 @@ exports.applications = {
     },
 
     matrix : {
-        title : 'Requirements Validation Dashboard',
-        wsContext : {
-            fieldIdTree    : 'REQUIREMENTS',
-            fieldIdColumns : 'REQUIREMENT_VALIDATIONS'
-        },
-        valueMapping : {
-            failed  : 'Failed',
-            pending : 'Pending',
-            success : 'Success',
-            partial : 'Conditional Success'
-        },
-        panels : {
-            insertBOM : {
-                counters : true,
-                search   : true,
-                path     : true,
-                toggles  : true,
+        'requirements-validation' : {
+            labels : {
+                applicationTitle : 'Requirements Validation Dashboard',
+                buttonCreateNew : {
+                    label : 'New Requirement Validation',
+                    title : 'Click to create new Requirement Validation process'
+                },
+                latestColumnTitle : 'Latest Result'
             },
-            insertDetails : {
-                headerLabel    : 'descriptor',
-                expandSections : ['Basic'],
-                bookmark       : true,
+            context : {
+                fieldIdTree    : 'REQUIREMENTS',            // This single picklist field is used to determine the root element of the tree
+                fieldIdColumns : 'REQUIREMENT_VALIDATIONS', // This multi  picklist field is used to determine the items driving the columns
+            },
+            columns : {
+                fieldIds : {
+                    title    : 'ID',
+                    subtitle : 'TARGET_DATE_2',
+                    sort     : 'TARGET_DATE_2'
+                },
+                search : { // Define a search defining the columns if context.fieldIdColumns should not be used
+                    workspaceId       : 144,
+                    fieldIdContext    : 'PRODUCT',
+                    additionalFilters : []
+                },
+                sortDirection : 'descending',
+                grid : {
+                    fieldIdLink   : 'BASE_REQUIREMENT',
+                    fieldIdLabel  : 'RESULT',
+                    defaults      : [
+                        { fieldId : 'RESULT', value : '/api/v3/lookups/CUSTOM_LOOKUP_REQUIREMENT_TEST_RESULT/options/1'}
+                    ],
+                    fieldMapping : [
+                        { grid : 'TEST_PROCEDURE'  , source : 'TEST_PROCEDURE'   },
+                        { grid : 'EXPECTED_RESULT' , source : 'EXPECTED_RESULT'  },
+                        { grid : 'SUCCESS_CRITERIA', source : 'SUCCESS_CRITERIA' }
+                    ]
+                }
+            },
+            statusDefinition : {
+                failure : { type : 'failure', className : 'failure', value : 'Failed'   },
+                missing : { type : 'missing', className : 'missing', value : 'Missing', },
+                pending : { type : 'pending', className : 'pending', value : 'Pending'  },
+                success : { type : 'success', className : 'success', value : 'Success'  },
+                partial : { type : 'partial', className : 'partial', value : 'Conditional Success' },
+            },
+            panels : {
+                insertBOM            : { // Tree display on left hand side
+                    headerLabel       : 'descriptor',
+                    placeholder       : 'Find Requirement',
+                    bomViewName       : 'Validation Planning',
+                    fieldsIn          : ['Descriptor', 'Revision'],
+                    contentSize       : 'xs',
+                    multiSelect       : true,
+                    openSelectedInPLM : true,
+                    search            : true,
+                    toggles           : true,
+                    treePath          : true,
+                },
+                insertDetails        : { // Details panel display of tree elmement
+                    headerLabel    : 'descriptor',
+                    expandSections : ['Basic'],
+                    bookmark       : true,
+                    toggles        : true,
+                },
+                insertItemSummary    : { // Details panel display of matrix column element
+                    bookmark     : true,
+                    hideSubtitle : true,
+                    openInPLM    : true,
+                    reload       : true,    
+                },
+                insertGridRowDetails : { // Details panel display of matrix cell element ( = grid row)
+                    headerLabel : 'descriptor',
+                    fieldsEx    : [ 'Status', 'Step' ],
+                    narrowPanel : true,
+                    openInPLM   : true,
+                    reload      : true
+                },
+                insertCreate         : { // Create dialog invoked from header toolbar
+                    headerLabel  : 'New Requirement Validation',
+                    sectionsIn   : ['Summary'],
+                    hideSections : true
+                }
             }
         }
     },
@@ -2525,7 +2585,12 @@ exports.chrome = {
         label      : 'Edit Requirements Specification',
         icon       : 'zmdi-file-text',
         workspaces : ['products', 'equipments', 'requirements']
-
+    // },{ // Requirements Validation Matrix for Products and Equipments
+    //     id         : 'matrix-requirements-validation',
+    //     url        : /matrix?profile=requirements-validation&',
+    //     label      : 'Requirements Validation Matrix',
+    //     icon       : 'zmdi-square-right',
+    //     workspaces : ['products', 'equipments']
     },{ // BOM Comparison for Items
         id         : 'compare',
         url        : '/compare?compareWith=self&',

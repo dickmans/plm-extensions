@@ -1,70 +1,315 @@
 :root {
 
-    --border-h : 28px;
-    --border-v : 14px;
+    --border-h : 24px;
+    --border-v : 18px;
 
-    --height-related : 400px;
-    --width-details  : 600px;
+    --height-status-bar    : 32px;
+    --border-status-bar    : 10px;
+    --height-create-dialog : 600px;
+    --width-details        : 600px;
+
+    --color-status-success : var(--color-status-green);
+    --color-status-failure : var(--color-status-red);
+    --color-status-pending : var(--color-status-yellow);
+    /* --color-status-missing : var(--color-blue-800); */
+    --color-status-missing : #2e3440;
+
 }
 
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-
-#details,
-#tree,
-#related { border-width : var(--border-v) var(--border-h); }
 #tree {
+    border-width : var(--border-v) var(--border-h) 0px;
     top    : 0px;
     right  : calc(var(--width-details ) + (2 * var(--border-h)));
-    bottom : calc(var(--height-related) + (2 * var(--border-v)));
+    bottom : calc(var(--height-status-bar ) + calc(2 * var(--border-status-bar)) + (0 * var(--border-v)));
     left   : 0px;
 }
-#details { width : var(--width-details); }
-#related { height : var(--height-related); }
+#details { 
+    border-width : var(--border-v) var(--border-h); 
+    width : var(--width-details); 
+}
+#status-bar { 
+    border-width : 0px var(--border-h) calc(var(--border-status-bar) / 2); 
+    gap    : 10px;
+    height : calc(var(--height-status-bar) + var(--border-status-bar)); 
+    right  : calc(var(--width-details ) + (2 * var(--border-h)));
+}
+#tree-table { width : unset; }
+th.tree-first-col {
+    max-height : 68px;
+    min-height : 68px;
+    height     : 68px !important;
+}
 
-.no-details #tree { right : 0px; }
+.no-details #tree,
+.no-details #status-bar { right : 0px; }
 .no-details #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }
 
-.no-related #tree { bottom : 0px; }
 
+
+/* TABLE BUTTONS */
+/* ----------------------------------------------------------------------------- */
+#tree-open-selected { order : -10; }
+#tree-deselect-all  { order :  -8; }
+#tree-select-all    { order :  -6; }
+#tree-search-input  { min-width : 64px; }
+th .button.active       { background : var(--color-yellow-500); }
+th .button.active:hover { background : var(--color-yellow-700); }
+table .button.icon {
+    font-size   : 16px;
+    line-height : 20px;
+    max-height  : 20px;
+    min-height  : 20px;
+    height      : 20px;
+    max-width   : 20px;
+    min-width   : 20px;
+    width       : 20px;
+}
 
 
 /* TREE COLUMNS */
 /* ----------------------------------------------------------------------------- */
-.content-item-check-box,
-.tree-color,
-.tree-first-col { background : var(--color-surface-level-3) !important; }
-
-
-/* STATUS COLUMN */
-/* ----------------------------------------------------------------------------- */
-.column-status {
-    max-width : 120px;
-    min-width : 120px;
-    width : 120px;
-    text-align : center;
+.surface-level-1 > .tree-table .node td {
+    background : var(--color-surface-level-3); 
 }
+.failure > .tree-color { background : var(--color-status-failure) !important; }
+.missing > .tree-color { background : var(--color-status-missing) !important; }
+.pending > .tree-color { background : var(--color-status-pending) !important; }
+.success > .tree-color { background : var(--color-status-success) !important; }
+.partial > .tree-color { background : var(--color-status-success) !important; }
+.tree-column-revision { 
+    text-align : right;
+    max-width  : 72px;
+    min-width  : 72px;
+    width      : 72px;
+}
+
+
+
+/* LATEST RESULT COLUMN */
+/* ----------------------------------------------------------------------------- */
+.matrix-column-latest {
+    padding-right : 6px !important;
+    max-width     : 128px;
+    min-width     : 128px;
+    width         : 128px;
+}
+.leaf.failure > .matrix-column-latest { background : var(--color-status-failure) !important; }
+.leaf.missing > .matrix-column-latest { background : var(--color-status-missing) !important; }
+.leaf.pending > .matrix-column-latest { background : var(--color-status-pending) !important; }
+.leaf.success > .matrix-column-latest { background : var(--color-status-success) !important; }
+.leaf.partial > .matrix-column-latest { background : var(--color-status-success) !important; }
+.matrix-column-latest .matrix-cell-content {
+    gap : 8px;
+    justify-content : space-between;
+}
+.matrix-column-latest .matrix-latest-label {
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.matrix-column-latest .button {
+    margin-top  : 5px;
+    font-size   : 12px;
+    font-weight : 800;
+    line-height : 20px;
+    max-height  : 20px;
+    min-height  : 20px;
+    height      : 20px;
+    padding     : 0px;
+    max-width   : 32px;
+    min-width   : 32px;
+    width       : 32px;
+
+}
+.panel-content.xs .matrix-column-latest .button { margin-top : 2px; }
+.missing .matrix-column-latest .button { display : none; }
+
+
+
+/* MATRIX SEPARATOR COLUMN */
+/* ----------------------------------------------------------------------------- */
+.matrix-column-separator {
+    padding   : 0px !important;
+    max-width : 10px;
+    min-width : 10px;
+    width     : 10px;
+
+}
+.surface-level-1 > .tree-table th.matrix-column-separator,
+.surface-level-1 > .tree-table td.matrix-column-separator {
+    background : none;
+} 
+
+
+
 
 
 /* MATRIX COLUMNS */
 /* ----------------------------------------------------------------------------- */
-th .matrix-head { 
-    cursor : pointer;
-    display : flex;
-    flex-direction : column;
-    font-size : 12px;
-    font-weight : normal;
-    line-height : 18px;
-        padding-top : 6px;
-    padding-bottom : 6px;
+.matrix-column {
+    border-left : 1px solid var(--color-surface-level-1);
+    max-width   : 104px;
+    min-width   : 104px;
+    width       : 104px;
+}
+.matrix-column.min {
+    max-width : 22px;
+    min-width : 22px;
+    width     : 22px;
 }
 
-.column-status.failed  { background : var(--color-status-red)   !important; }
-.column-status.success { background : var(--color-status-green) !important; }
-.column-status.pending { background : var(--color-blue-500)     !important; }
 
-td.column-matrix { font-weight : bold; }
-.column-matrix.failed  { color : var(--color-status-red)   !important; }
-.column-matrix.success { color : var(--color-status-green) !important; }
+
+/* MATRIX COLUMNS HEADERS */
+/* ----------------------------------------------------------------------------- */
+.panel-content.m thead th.matrix-column {
+    padding-left  : 10px;
+    padding-right : 10px;
+}
+th.matrix-column:hover {
+    background : var(--color-surface-level-4);
+}
+.matrix-head { 
+    cursor         : pointer;
+    display        : flex;
+    font-size      : 12px;
+    font-weight    : normal;
+    gap            : 4px;
+    line-height    : 16px;
+    padding-top    : 10px;
+    padding-bottom : 10px;
+    justify-content: space-between;
+}
+.matrix-head-title {
+    font-weight : 800;
+}
+.matrix-head-actions {
+    display : flex;
+    gap     : 2px;
+    height  : 48px;
+    flex-direction : column;
+}
+.matrix-unhide-column { display : none;  }
+th.matrix-column.min .matrix-unhide-column { display : block; }
+th.matrix-column.min .matrix-head-labels,
+th.matrix-column.min .matrix-hide-column { display : none; }
+
+
+
+/* MATRIX COLUMNS CELLS */
+/* ----------------------------------------------------------------------------- */
+.matrix-column-actions {
+    max-width : 22px;
+    min-width : 22px;
+    width     : 22px;
+}
+.matrix-column-actions .button {
+    font-size   : 16px !important;
+    line-height : 20px !important;
+    max-height  : 20px;
+    min-height  : 20px;
+    height      : 20px;
+    max-width   : 20px;
+    min-width   : 20px;
+    width       : 20px;
+}
+
+.matrix-cell-content { 
+    display : flex; 
+    gap     : 6px;
+}
+
+.matrix-cell-icon {
+    font-size   : 28px;
+    line-height : 28px;
+    height      : 30px;
+}
+.panel-content.xs .matrix-cell-icon { font-size : 18px; line-height : 24px; height : 26px; }
+
+
+.matrix-cell.failure .matrix-cell-icon { color : var(--color-status-failure) !important; }
+.matrix-cell.pending .matrix-cell-icon { color : var(--color-status-pending) !important; }
+.matrix-cell.success .matrix-cell-icon { color : var(--color-status-success) !important; }
+.matrix-cell.partial .matrix-cell-icon { color : var(--color-status-success) !important; }
+.matrix-cell-label { 
+    font-size : 12px;
+    opacity   : 0.7; 
+}
+.matrix-column.min .matrix-cell-label {
+    display : none;
+}
+.button.matrix-cell-action {
+    display     : none;
+    font-size   : 12px;
+    line-height : 20px;
+    max-height  : 20px;
+    min-height  : 20px;
+    height      : 20px;
+    padding     : 0px 12px;
+    max-width   : calc(100% - 26px);
+    min-width   : calc(100% - 26px);
+    width       : calc(100% - 26px);
+}
+
+body.edit-mode .matrix-cell:hover .button.matrix-cell-action {
+    display : block;
+}
+.matrix-status-connected    .matrix-cell-action-add    { display : none !important; }
+.matrix-status-disconnected .matrix-cell-action-remove { display : none !important; }
+
+.edit-mode .matrix-column-editable:hover .matrix-cell-content .matrix-cell-icon,
+.edit-mode .matrix-column-editable:hover .matrix-cell-content .matrix-cell-label {
+    display : none;
+}
+.edit-mode .matrix-column-editable:hover .button.matrix-cell-action {
+    display     : block;
+} 
+
+
+/* MATRIX STATUS BAR */
+/* ----------------------------------------------------------------------------- */
+#status-bar {
+    display : flex;
+}
+#status-bar > div {
+    border-top  : var(--border-status-bar) solid transparent;
+    cursor      : pointer;
+    display     : flex;
+    flex-grow   : 1;
+    font-size   : 12px;
+    gap         : 8px;
+    height      : var(--height-status-bar);
+    min-height  : var(--height-status-bar);
+    line-height : var(--height-status-bar);
+    text-align  : center;
+    transition  : all 0.25s ease;
+    justify-content : center;
+}
+#status-bar > div > * {
+    cursor : pointer;
+}
+.status-bar-counter { font-weight : 800; }
+#status-bar > div:hover,
+#status-bar > div.inactive:hover {
+    opacity : 0.65
+}
+#status-bar > div.inactive {
+    opacity : 0.2;
+}
+#status-bar-failure { border-color : var(--color-status-failure) !important; }
+#status-bar-missing { border-color : var(--color-status-missing) !important; }
+#status-bar-pending { border-color : var(--color-status-pending) !important; }
+#status-bar-success { border-color : var(--color-status-success) !important; }
+
+
+
+/* CREATE DIALOG */
+/* ----------------------------------------------------------------------------- */
+#create {
+    height : var(--height-create-dialog);
+    top    : calc(40% - (var(--height-create-dialog) / 2));
+}

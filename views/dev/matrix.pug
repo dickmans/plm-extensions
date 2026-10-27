@@ -17,14 +17,26 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #create-button.button.with-icon.icon-create(title='Click to create new validation process for selected requirements') New Validation
-                #toggle-details.button.with-toggle.toggle-off(title='Toggle Details panel on/off') Details
+                #create-button.button.with-icon.icon-add.hidden.default
+                #toggle-details.button.with-toggle.toggle-off(title='Toggle Details panel on/off') Details Panel
                 #header-avatar
         
         #main.screen
 
             #tree.surface-level-1
             #details.surface-level-2.pos-abs-right
-            #related.surface-level-2.pos-abs-bottom
+            #status-bar.surface-level-1.pos-abs-bottom.hidden
+                #status-bar-failure(title="Click to filter / reset filter")
+                    .status-bar-counter 
+                    .status-bar-label
+                #status-bar-missing(title="Click to filter / reset filter")
+                    .status-bar-counter 
+                    .status-bar-label
+                #status-bar-pending(title="Click to filter / reset filter")
+                    .status-bar-counter 
+                    .status-bar-label
+                #status-bar-success(title="Click to filter / reset filter")
+                    .status-bar-counter 
+                    .status-bar-label
 
             #create.dialog

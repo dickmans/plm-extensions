@@ -526,6 +526,7 @@ const registry = {
                     'editable', 'endItemFieldId', 'endItemFieldValue', 
                     'goThere',
                     'hideDescriptor', 'hideDescriptorRev', 'hideChildren', 'hideItems', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
+                    'multiSelect',
                     'saveButtonLabel', 'selectUnique',
                     'toggles', 'treePath', 'treePathTitle', 'treeShowQuantity', 'treeShowRestricted', 'treeSortByPartNumber',
                     'viewerSelection'
@@ -1419,12 +1420,6 @@ const registry = {
         //     cloneable : {
         //         title       : 'Cloneable',
         //         description : "Enables action button to clone existing item",
-        //         default     : false,
-        //         type        : 'boolean'
-        //     },
-        //     multiSelect : {
-        //         title       : 'Multi Select',
-        //         description : 'Allows users to select multiple items in the panel and adds select-all/none toolbar buttons',
         //         default     : false,
         //         type        : 'boolean'
         //     },
@@ -2398,6 +2393,12 @@ const registry = {
                 default     : false,
                 type        : 'boolean'
             },
+            multiSelect : {
+                title       : 'Multi Select',
+                description : 'Allows users to select multiple items in the panel and adds select-all/none toolbar buttons',
+                default     : false,
+                type        : 'boolean'
+            },            
             disconnectButtonIcon : {
                 title       : 'Disconnect Button Icon',
                 description : 'Icon class for the Disconnect/Remove button',

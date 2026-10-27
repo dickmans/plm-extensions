@@ -2060,6 +2060,8 @@ function genPanelTop(id) {
 
         elemTop.addClass(settings[id].panelClassName)
             .addClass('panel-top')
+            .removeClass('item')
+            .removeClass('with-tabs')
             .html('')
             .show();
 
@@ -2326,6 +2328,7 @@ function genPanelOpenSelectedInPLMButton(id) {
     let elemToolbar = genPanelToolbar(id, 'controls');
 
     let elemButtonOpenSelectedInPLM = $('<div></div>').appendTo(elemToolbar)
+        .attr('id', id + '-open-selected')
         .addClass('button')
         .addClass('icon')
         .addClass('icon-open')
@@ -4758,7 +4761,8 @@ function treeExpandParents(level, elem) {
 }
 function treeUnhideParents(elem) {
 
-    let level = Number(elem.attr('data-level')) - 1;
+    let level   = Number(elem.attr('data-level')) - 1;
+    let parents = [];
 
     elem.prevAll().each(function() {
 
@@ -4767,9 +4771,12 @@ function treeUnhideParents(elem) {
         if(level === prevLevel) {
             level--;
             $(this).show();
+            parents.push($(this));
         }
 
     });
+
+    return parents;
 
 }
 function treeToggleDownloadPanelAndColumn(id) {
@@ -5636,9 +5643,10 @@ function closeTreeDownloadPanel(id) {
     $('#' + id + '-tree-files-download-progress').addClass('hidden');
 
 }
-function treeGetItemChildren(elemRef, firstLevelOnly) {
+function treeGetItemChildren(elemRef, firstLevelOnly, classFilter) {
 
-    if(isBlank(firstLevelOnly)) firstLevelOnly = false;
+    firstLevelOnly = firstLevelOnly || false;
+    classFilter    = classFilter    || '';
 
     let level     = Number(elemRef.attr('data-level'));
     let levelNext = level - 1;
@@ -5653,9 +5661,13 @@ function treeGetItemChildren(elemRef, firstLevelOnly) {
         if(levelNext > level) {
             if(firstLevelOnly) {
                 if((levelNext - level) === 1 ) {
-                    children.push(elemNext); 
+                    if(classFilter === '' || elemNext.hasClass(classFilter)) {
+                        children.push(elemNext); 
+                    }
                 }
-            } else children.push(elemNext);
+            } else if(classFilter === '' || elemNext.hasClass(classFilter)) { 
+                children.push(elemNext);
+            }
         }
 
     } while(levelNext > level);
