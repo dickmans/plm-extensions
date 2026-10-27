@@ -44,7 +44,6 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     const aps         = require('./routes/aps');
     const services    = require('./routes/services');
     const monitoring  = require('./routes/monitoring');
-    const { fchmodSync } = require('fs');
     const environment = require(pathEnvironment);
     const app         = express();
 
@@ -185,8 +184,6 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     });
 
     module.exports = app;
-
-    fchmodSync
 
 }
 
