@@ -219,12 +219,12 @@ function insertItemHeaderButtons() {
                     elemButton.id        = 'plm-extensions-button-' + button.id;
 
                     elemButton.style.setProperty('border-radius', '3px');
-                    elemButton.style.setProperty('line-height', '16px');
+                    elemButton.style.setProperty('line-height', '24px');
                     elemButton.style.setProperty('margin-top', '0px');
 
                     if(typeof button.icon === 'undefined') {
                         elemButton.textContent = button.label;
-                        elemButton.style.setProperty('padding', '8px 16px');
+                        elemButton.style.setProperty('padding', '4px 16px');
                     } else {
                         elemButton.classList.add('zmdi');
                         elemButton.classList.add(button.icon);

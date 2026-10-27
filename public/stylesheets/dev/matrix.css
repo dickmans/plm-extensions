@@ -125,7 +125,8 @@ table .button.icon {
     width       : 32px;
 
 }
-.panel-content.xs .matrix-column-latest .button { margin-top : 2px; }
+.panel-content.xxs .matrix-column-latest .button { margin-top : 2px; font-size : 10px; line-height : 16px; max-height : 16px; min-height : 16px; height : 16px; }
+.panel-content.xs  .matrix-column-latest .button { margin-top : 2px; }
 .missing .matrix-column-latest .button { display : none; }
 
 
@@ -228,7 +229,15 @@ th.matrix-column.min .matrix-hide-column { display : none; }
     line-height : 28px;
     height      : 30px;
 }
-.panel-content.xs .matrix-cell-icon { font-size : 18px; line-height : 24px; height : 26px; }
+.min .matrix-cell-icon { 
+    max-width  : 22px;
+    min-width  : 22px;
+    width      : 22px;
+    text-align : center;
+}
+.panel-content.xxs .matrix-cell-icon { font-size : 18px; line-height : 18px; height : 20px; }
+.panel-content.xs  .matrix-cell-icon { font-size : 18px; line-height : 24px; height : 26px; }
+
 
 
 .matrix-cell.failure .matrix-cell-icon { color : var(--color-status-failure) !important; }
