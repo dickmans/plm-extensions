@@ -5283,6 +5283,217 @@ function gridResetSelection(id, unhideAll) {
     if(unhideAll) $('#' + id + '-tbody').children('.hidden').removeClass('hidden');
 
 }
+function mergetGridData(id, content) {
+
+    let elemTBody        = $('#' + id + '-tbody');
+    let gridKeyColumns   = settings[id].mergeGridKeyColumns || ['TITLE'];
+    let fileKeyColumns   = settings[id].mergeFileKeyColumns || [0];
+    let mergeFileColumns = settings[id].mergeFileColumns    || [ 'TITLE', 'DESCRIPTION' ];
+    let mergeDelete      = settings[id].mergeDelete         || false;
+    let fileContent      = content.split('\n');
+    let dataFile         = [];
+
+
+    for(let fileRow of fileContent) {
+
+        let dataRow = fileRow.split(',');
+        let key     = '';
+        let data    = [];
+        let index   = 0;
+
+        for(let fileKeyColumn of fileKeyColumns) {
+            if(fileKeyColumn > 0) dataKey += '.';
+            key += dataRow[fileKeyColumn];
+        }
+
+        for(let column of mergeFileColumns) {
+            data.push({ id : column, value : dataRow[index++]})
+        };        
+
+        dataFile.push({ hasMatch : false, key : key, data : data});
+
+    }
+
+    elemTBody.children('.content-item').each(function() {
+
+        let elemRow  = $(this);
+        let hasMatch = false;
+        let key      = getGridRowMergeKey(id, elemRow);
+
+        for(let fileRow of dataFile) {
+
+            if(fileRow.key == key) {
+
+                fileRow.hasMatch = true;
+                hasMatch         = true;
+
+                for(let field of fileRow.data) {
+                    let elemMatch = elemRow.children('.field-id-' + field.id);
+                    if(elemMatch.length > 0) {
+                        let gridField = getFieldValue(elemMatch);
+                        console.log(gridField);
+                        if(gridField.value !== field.value) {
+
+                            setFieldValue(elemMatch, field.value, field.value);
+                            elemMatch.addClass('changed');
+                            elemRow.addClass('changed');
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        if(!hasMatch) {
+            if(mergeDelete) {
+                elemRow.addClass('save-action-delete');
+            }
+        }
+
+    });
+
+    for(let fileRow of dataFile) {
+        if(!fileRow.hasMatch) {
+            let elemNew = insertGridRow(id, { rowData : fileRow.data });
+            elemNew.addClass('new');
+        }
+    }
+
+}
+function getGridRowMergeKey(id, elemRow) {
+
+    let result  = '';
+    let isFirst = true;
+    let columns = settings[id].mergeGridKeyColumns || ['TITLE'];
+
+    for(let column of columns) {
+
+        if(!isFirst) result += '.';
+
+        let elemCell  = elemRow.children('.field-id-' + column);
+        let fieldData = getFieldValue(elemCell);
+
+        result += fieldData.value || '';
+
+    }
+
+    return result;
+
+}
+
+
+
+// Insert Grid Row Details
+function insertGridRowDetails(link, params, data) {
+
+    if(isBlank(link)) return;
+    if(isBlank(data)) data   = {};
+
+    const id = getPanelSettings('insertGridRowDetails', params, { link : link });
+    
+    genPanelElements(id);
+
+    settings[id].linkGrid    = link.split('/views/13/rows')[0];
+    settings[id].rows        = data.rows               || [];
+    settings[id].permissions = data.permissions        || [];
+    settings[id].gridColumns = data.gridColumns        || [];
+    settings[id].attributes  = settings[id].attributes || [];
+
+    const elemContent = $('#' + id + '-content');
+
+    if(settings[id].narrowPanel) elemContent.addClass('narrow');
+
+    insertGridRowDetailsDone(id);
+
+    settings[id].load();
+
+}
+function insertGridRowDetailsDone(id) {}
+function insertGridRowDetailsData(id) {
+
+    settings[id].timestamp = startPanelContentUpdate(id);
+
+    let requestor = 'item.js | insertGridRowDetailsData()';
+
+    let params = { 
+        link        : settings[id].linkGrid, 
+        timestamp   : settings[id].timestamp,
+        requestor   : requestor
+    }
+
+    let requests = [];
+
+    if(settings[id].rows.length        === 0) requests.push($.get('/plm/grid'        , params));
+    if(settings[id].permissions.length === 0) requests.push($.get('/plm/permissions' , params));
+    if(settings[id].gridColumns.length === 0) requests.push($.get('/plm/grid-columns', { 
+        link           : settings[id].linkGrid, 
+        timestamp      : settings[id].timestamp,
+        useCache       : settings[id].useCache,
+        getValidations : settings[id].editable
+    }));    
+
+    if(settings[id].headerLabel == 'descriptor') requests.push($.get('/plm/details', { link : settings[id].linkGrid })); 
+
+    Promise.all(requests).then(function(responses) {
+
+        if(responses.length > 0) {
+            if(stopPanelContentUpdate(responses[0], settings[id])) return;
+        }
+
+        let rows        = (settings[id].rows.length        > 0) ? settings[id].rows        : getResponseFromResponses(responses, '/plm/grid'        , settings[id].linkGrid).data;
+        let permissions = (settings[id].permissions.length > 0) ? settings[id].permissions : getResponseFromResponses(responses, '/plm/permissions' , settings[id].linkGrid).data;
+        let columns     = (settings[id].gridColumns.length > 0) ? settings[id].gridColumns : getResponseFromResponses(responses, '/plm/grid-columns', settings[id].linkGrid).data.fields;
+
+        settings[id].rows        = rows;
+        settings[id].permissions = permissions;
+        settings[id].gridColumns  = columns;
+        settings[id].columns     = [];
+        settings[id].picklists   = [];
+
+        if(settings[id].headerLabel == 'descriptor') settings[id].descriptor = getResponseFromResponses(responses, '/plm/details', settings[id].linkGrid).data.title;
+
+        getFieldsPicklistsData(id, columns, function(picklistsData) {
+
+            for(let field of columns) {
+                field.preserve = false;
+                if(!includePanelTableColumn(field.id, field.name, settings[id], settings[id].columns.length)) {
+                    field.preserve = true;
+                } else if(field.visibility === 'NEVER') {
+                    field.preserve   = true;
+                    field.visibility = 'ALWAYS';
+                } else {
+                    field.visible = true;
+                }
+                settings[id].columns.push(field);
+            }
+            
+            let elemContent = $('#' + id + '-content');
+            let elemFields  = $('<div></div>').appendTo(elemContent).addClass('section-fields');
+            let rowData     = null;
+
+            for(let row of settings[id].rows) {
+                if(row.rowData[0].__self__ === settings[id].link) {
+                    rowData = row.rowData;
+                }
+            }
+
+            if(rowData !== null) {
+                for(let column of settings[id].columns) {
+                    insertDetailsField(column, rowData, elemFields, settings[id], false, false, false, picklistsData);
+                }
+            }
+            
+            finishPanelContentUpdate(id);
+            insertGridRowDetailsDataDone(id);
+
+        });
+
+    });
+
+}
+function insertGridRowDetailsDataDone(id) {}
+
 
 
 // Insert BOM tree with selected controls

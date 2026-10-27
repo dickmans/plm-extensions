@@ -469,6 +469,27 @@ const registry = {
                     'toggles'
                 ],
                 excluded   : [ 'layout' ]
+            },{ // insertGridRowDetails
+                id          : 'insertGridRowDetails',
+                description : "Shows an item's grid row as an editable form.",
+                usage       : "Use to manage all details of a grow row in a style matching the item details tab",
+                className   : 'grid-row',
+                inputs      : [{
+                    id          : 'link',
+                    title       : 'link',
+                    description : 'API link of the item grid row for which the details should be displayed',
+                    default     : '/api/v3/workspaces/144/items/16557/views/13/rows/36',
+                    type        : 'string',
+                    required    : true
+                }],
+                defaults : {
+                    id          : 'grid-row',
+                    headerLabel : 'Grid Row'
+                },
+                data       : [ 'fieldsEx', 'fieldsIn' ],
+                filters    : [ ],
+                additional : [ 'narrowPanel' ],
+                excluded   : [ 'openSelectedInPLM' ]
             },{ // insertBOM
                 id          : 'insertBOM',
                 description : "Shows the multi-level Bill of Materials tree of an item, with quantities and BOM-view selection. Optionally supports file download, drag-and-drop and selecting rows in a connected viewer.",
