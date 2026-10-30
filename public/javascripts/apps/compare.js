@@ -77,7 +77,11 @@ $(document).ready(function() {
         paramsBOMRight.collapseContents     = true;
         paramsBOMRight.treeSortByPartNumber = (compareBy === 'partnumber');
         paramsBOMRight.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Right'); };
-        paramsBOMRight.afterCompletion      = function(id) { bomFinishedLoading.right = true; afterBOMCompletion(id, idBOMLeft); };
+        paramsBOMRight.afterCompletion      = function(id) {
+            updateRevisionProperty(id, idBOMRight); 
+            bomFinishedLoading.right = true; 
+            afterBOMCompletion(id, idBOMLeft); 
+        };
 
         insertViewer(urlParameters.link, {
             id            : idViewerLeft,
@@ -92,7 +96,11 @@ $(document).ready(function() {
         paramsBOMLeft.collapseContents     = true;
         paramsBOMLeft.treeSortByPartNumber = (compareBy === 'partnumber');
         paramsBOMLeft.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Left'); };
-        paramsBOMLeft.afterCompletion      = function(id) { bomFinishedLoading.left = true; afterBOMCompletion(id, idBOMRight); };
+        paramsBOMLeft.afterCompletion      = function(id) { 
+            updateRevisionProperty(id, idBOMLeft); 
+            bomFinishedLoading.left = true; 
+            afterBOMCompletion(id, idBOMRight); 
+        };
 
         insertBOM(urlParameters.link, paramsBOMLeft);  
 
@@ -153,6 +161,9 @@ function setUIEvents() {
     $('#toggle-sync-viewers').click(function() {
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
         viewersSyncDisabled = $(this).hasClass('toggle-off');
+    });
+    $('#align-viewers').click(function() {
+        alignRightViewer();
     });
     $('#toggle-details').click(function() {
         $('body').toggleClass('no-details-panels');
@@ -250,10 +261,25 @@ function openComparisonItem(link) {
 }
 
 
+// Enable comparison of revision based on property instead of PLM item revision value
+function updateRevisionProperty(id, idBOM) {
+
+    if(settings[id].revisionFieldId == null) return;
+    if(settings[id].revisionFieldId ===  '') return;
+
+    const elemTop   = $('#' + idBOM);
+    const className = '.tree-column-' + settings[id].revisionFieldId.toLowerCase();
+
+    elemTop.find(className).addClass('tree-column-revision');
+
+}
+
+
+
 // Once both BOMs finished loading, start comparison
 function afterBOMCompletion(id, idOther) {
 
-    $('#' + id + '-action-expand-all').click(function() { expandAllNodes(idOther); });
+    $('#' + id + '-action-expand-all'  ).click(function() { expandAllNodes(idOther);   });
     $('#' + id + '-action-collapse-all').click(function() { collapseAllNodes(idOther); });
 
     if(bomFinishedLoading.left  === false) return;
@@ -495,6 +521,100 @@ function syncBOMToggles(idSource, idTarget) {
         });
         
     });
+
+}
+
+
+// Rotate and move the model in the right viewer so it matches the orientation and position of the model in the left viewer
+function alignRightViewer() {
+
+    const viewerLeft  = getViewerInstance(idViewerLeft );
+    const viewerRight = getViewerInstance(idViewerRight);
+
+    if(viewerLeft  === null || viewerLeft.viewer  === null || !viewerLeft.geometryLoaded ) return;
+    if(viewerRight === null || viewerRight.viewer === null || !viewerRight.geometryLoaded) return;
+
+    const modelLeft  = viewerLeft.viewer.model;
+    const modelRight = viewerRight.viewer.model;
+
+    if(!modelLeft || !modelRight) return;
+
+    // The transformation is calculated only once per model, while its placement is untouched, and then reapplied by further clicks
+    // Measuring a model that already has a placement transform does not return reliable bounds
+    if(typeof modelRight.alignMatrix === 'undefined') {
+
+        // Rotation: map the up/front directions of the right model (which define its home view) onto the ones of the left model
+        const frameLeft  = getViewerModelFrame(viewerLeft.viewer);
+        const frameRight = getViewerModelFrame(viewerRight.viewer);
+        const rotation   = new THREE.Matrix4();
+
+        if(frameLeft.front !== null && frameRight.front !== null) {
+            rotation.copy(getFrameMatrix(frameLeft)).multiply(getFrameMatrix(frameRight).transpose());
+        } else {
+            rotation.makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(frameRight.up, frameLeft.up));
+        }
+
+        // Translation: the rotated model is measured and then moved to the lower corner of the left model
+        modelRight.setPlacementTransform(rotation);
+
+        const delta = getModelBounds(modelLeft).min.clone().sub(getModelBounds(modelRight).min);
+
+        modelRight.alignMatrix = new THREE.Matrix4().makeTranslation(delta.x, delta.y, delta.z).multiply(rotation);
+        modelRight.alignUp     = frameLeft.up;
+
+    }
+
+    modelRight.setPlacementTransform(modelRight.alignMatrix);
+
+    // The right viewer now works in the coordinate system of the left model
+    viewerRight.viewer.navigation.setWorldUpVector(modelRight.alignUp.clone());
+    viewerRight.viewer.impl.invalidate(true, true, true);
+
+    if(!viewersSyncDisabled) {
+        const navigation = viewerLeft.viewer.navigation;
+        viewerRight.viewer.syncingViewPoint = true;
+        viewerRight.viewer.navigation.setView(navigation.getPosition(), navigation.getTarget());
+        viewerRight.viewer.navigation.setCameraUpVector(navigation.getCameraUpVector());
+    }
+
+}
+function getViewerModelFrame(viewer) {
+
+    const autocam = viewer.autocam;
+    const up      = (autocam && autocam.sceneUpDirection)    ? autocam.sceneUpDirection.clone()    : new THREE.Vector3().fromArray(viewer.model.getUpVector());
+    const front   = (autocam && autocam.sceneFrontDirection) ? autocam.sceneFrontDirection.clone() : null;
+
+    up.normalize();
+
+    // Front must be usable, meaning not parallel to up
+    if(front !== null) {
+        front.sub(up.clone().multiplyScalar(front.dot(up)));
+        if(front.lengthSq() < 1e-6) return { up : up, front : null };
+        front.normalize();
+    }
+
+    return { up : up, front : front };
+
+}
+function getFrameMatrix(frame) {
+
+    const side = new THREE.Vector3().crossVectors(frame.up, frame.front);
+
+    return new THREE.Matrix4().makeBasis(side, frame.up, frame.front);
+
+}
+function getModelBounds(model) {
+
+    const fragments = model.getFragmentList();
+    const box       = new THREE.Box3();
+    const fragBox   = new THREE.Box3();
+
+    for(let i = 0; i < fragments.getCount(); i++) {
+        fragments.getWorldBounds(i, fragBox);
+        box.union(fragBox);
+    }
+
+    return box;
 
 }
 

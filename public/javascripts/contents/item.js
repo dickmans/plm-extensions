@@ -5864,6 +5864,8 @@ function openBOMView(id) {
 
         if(settings[id].treeSortByPartNumber) sortArray(responses[0].data.bomPartsList, 'path', 'string', 'ascending');
 
+        setRevsionPropertyByField(id, responses[0].data.bomPartsList);
+
         genBOMHeaders(id, elemTable);    
         genBOMRows(id, elemTable, responses[0].data.bomPartsList);
         genTreePath(id);
@@ -5898,6 +5900,21 @@ function openBOMView(id) {
 
 }
 function openBOMViewDone(id, bom, selectedItems, dataAdditional, bomPartsList) {}
+function setRevsionPropertyByField(id, bomPartsList) {
+
+    if(bomPartsList.length < 1) return;
+
+    if(settings[id].revisionFieldId == null) return;
+
+    const index = bomPartsList[0].fields.findIndex(item => item.fieldId === settings[id].revisionFieldId);
+
+    if(index < 0) return;
+
+    for(let part of bomPartsList) {
+        part.revision = part.fields[index].value;
+    }
+
+}
 function genBOMHeaders(id, elemTable) {
 
     if(settings[id].hideTreeHeader) return null;
@@ -6748,8 +6765,6 @@ function insertBOMPartsListData(id) {
                 settings[id].columns.push(field);
             // }
         }
-
-        console.log(parts);
 
         for(let part of parts) {
 

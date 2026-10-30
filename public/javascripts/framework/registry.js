@@ -527,6 +527,7 @@ const registry = {
                     'goThere',
                     'hideDescriptor', 'hideDescriptorRev', 'hideChildren', 'hideItems', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
                     'multiSelect',
+                    'revisionFieldId',
                     'saveButtonLabel', 'selectUnique',
                     'toggles', 'treePath', 'treePathTitle', 'treeShowQuantity', 'treeShowRestricted', 'treeSortByPartNumber',
                     'viewerSelection'
@@ -2033,7 +2034,13 @@ const registry = {
                 description : "Array with filter definitions to select items being hidden from the tree [{ fieldId : 'IGNORE_IN_MBOM', value : 'true' }]",
                 default     : '',
                 type        : 'array'
-            },            
+            },         
+            revisionFieldId : {
+                title       : 'Revision Field ID',
+                description : 'Item Details field to use as revision property (ie PDM_REVISION)',
+                default     : '',
+                type        : 'string'
+            },               
             selectUnique : {
                 title       : 'Select Unique',
                 description : 'When selecting BOM rows, deduplicate by item link',
