@@ -1866,6 +1866,13 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
     text-overflow : ellipsis;
     white-space   : nowrap;
 }
+.header-subtitle-reference {
+    cursor : pointer;
+    color  : var(--color-blue-500);
+}
+.header-subtitle-separator {
+    margin : 0px 12px;
+}
 #header-toolbar {
     display         : flex;
     flex-grow       : 1;
