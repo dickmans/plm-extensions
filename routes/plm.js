@@ -1020,7 +1020,7 @@ function genPayloadSectionsFields(req, prefix, mode) {
 
         let fieldData = {
             __self__ : prefix   + '/views/1/fields/' + field.fieldId,
-            title    : field.title,
+            title    : field.title || '',
             value    : getFieldValue(field)
         }
 
@@ -1058,7 +1058,10 @@ function genPayloadSectionsFields(req, prefix, mode) {
             let fieldSection = getFieldSection(req.body.sections, field);
 
             if(fieldSection !== null) {
-                sectionId = fieldSection.__self__.split('/').pop();
+
+                const linkSection = fieldSection.__self__ || fieldSection.link;
+
+                sectionId = linkSection.split('/').pop();
             }
 
         }
@@ -1132,8 +1135,13 @@ function getFieldSection(sections, field) {
 
             for(let sectionField of section.fields) {
 
-                if(field.fieldId === sectionField.link.split('/').pop()) return section;
-                if(field.link === sectionField.link) return section;
+                const linkSectionField = sectionField.__self__ || sectionField.link || '';
+
+                if(linkSectionField !== '') {
+                    if(field.fieldId === linkSectionField.split('/').pop()) return section;
+                    if(field.link    === linkSectionField) return section;
+                }
+
                 if(sectionField.type === 'MATRIX') {
                     for(let matrix of section.matrices) {
                         for(let matrixFields of matrix.fields) {
@@ -1151,6 +1159,7 @@ function getFieldSection(sections, field) {
                         }
                     }
                 }
+
             }   
         }   
     }
