@@ -333,6 +333,7 @@ body.landing #header-toolbar > .button { display : none; }
     flex-grow    : 1;
     font-size    : 14px;
     font-weight  : bold;
+    min-width    : 0px;
     padding      : 8px 16px;
 }
 .editor-item-title.missing {
