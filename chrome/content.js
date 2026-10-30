@@ -45,7 +45,7 @@ window.addEventListener('click', (e) =>  {
         let elemMenuIcon       = e.target;
         let elemMenuContent    = document.getElementsByClassName('hamburger-menu-content')[0];
         let extensionsEnabled  = elemMenuIcon.getAttribute('plm-extensions');
-        let elemParent         = document.getElementsByClassName('hig__flyout-v1__panel-container')[0];
+        let elemParent         = document.getElementById('fusion-header-hamburger');
         let iconAdministration = document.getElementById('AdministrationMenuIcon');
 
         if(iconAdministration === null) return;
