@@ -586,6 +586,45 @@ function removeContextMenuEntries() {
 }
 
 
+// Insert Subtitle Reference
+function insertHeaderSubtitleWithReference(headerSubtitle, title, link, prepend, separator) {
+
+    prepend   = prepend   || true;
+    separator = separator || '/';
+
+    let elemSubtitle  = $('#header-subtitle');
+    let elemSeparator = $('<span></span>').addClass('header-subtitle-separator').html(separator);
+
+    elemSubtitle.html(headerSubtitle);
+
+    if(title !== '') {
+
+        let elemReference = $('<span></span>')
+            .addClass('header-subtitle-reference')
+            .html(title);
+
+        if(prepend) {
+            elemReference.prependTo(elemSubtitle);
+            if(separator !== '') elemSeparator.insertAfter(elemReference);
+        } else {
+            elemReference.appendTo(elemSubtitle);
+            if(separator !== '') elemSeparator.insertBefore(elemReference);
+        }
+
+        if(link !== '') {
+            elemReference.attr('data-link', link)          
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openItemByLink($(this).attr('data-link'));
+                });    
+        }
+
+    }
+
+}
+
+
 // Cache Status Indicator Feature
 function insertCacheStatusIndicator() {
 
@@ -1589,7 +1628,7 @@ function hideStartupDialog() {
 // Browse responses for matching response and manage related cache
 function getResponseFromResponses(responses, url, link, useCache) {
 
-    if(isBlank(useCache)) useCache = false;
+    useCache = useCache || false;
 
     for(let response of responses) {
         if(('/plm' + response.url).indexOf(url) === 0) {
