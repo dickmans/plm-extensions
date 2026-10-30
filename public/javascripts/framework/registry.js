@@ -671,7 +671,7 @@ const registry = {
                     'workspacesIn', 'workspacesEx'                      
                 ],
                 filters    : [ 'filterByLifecycle', 'filterByWorkspace' ],                
-                additional : [ 'wsIdChangesProcess' ]
+                additional : [ 'wsIdChangesProcess' ]       
             },{ // insertManagedItems
                 id          : 'insertManagedItems',
                 description : "Shows the Managed Items of an item: the records it manages through a managed-item relationship.",
@@ -897,6 +897,7 @@ const registry = {
                     // cloneable       : false,
                 },               
                 additional : [ 
+                    'bookmark',
                     'hideCloseButton', 'hideSubtitle',
                     'includeViewer',
                     // 'onClickClose',
