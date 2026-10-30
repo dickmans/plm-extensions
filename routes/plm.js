@@ -3,18 +3,24 @@ const router        = express.Router();
 const axios         = require('axios');
 const querystring   = require('querystring');
 const fs            = require('fs');
-const fileUpload    = require('express-fileupload');
 const ExcelJS       = require('exceljs/dist/es5');
 const FormData      = require('form-data');
-const { Console }   = require('console');
-const pathUploads   = 'uploads/';
-const { resolveStoragePath } = require('./storage');
 const urlGraphQL    = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
 
-router.use(fileUpload());
+const { resolveStoragePath } = require('./storage');
+const { validatePLMSession } = require('./landing');
+const { uploadMiddleware, getUploadedFiles, saveUploadedFiles } = require('../lib/uploads');
 
-let indexRequest = 0;
+const tenantDomain             = '.autodeskplm360.net';
+const linkParametersToValidate = ['link', 'linkParent', 'linkChild', 'imageLink', 'fileLink', 'edgeLink'];
+
+router.use(validatePLMSession);
+router.use(uploadMiddleware());
+router.use(validateLinkParameters);
+
+
 let sharedCaches = {};
+
 
 function clearSharedCaches() {
     let count = Object.keys(sharedCaches).length;
@@ -37,18 +43,79 @@ function getCustomHeaders(req) {
 
     return headers;
 }
+
+
+// Links passed by the client are appended to the tenant URL, so they must be plain API paths.
+// A value such as '@evil.com/x' would otherwise change the host (https://tenant.autodeskplm360.net@evil.com/x)
+function validateLinkParameters(req, res, next) {
+
+    for(let source of [req.query, req.body]) {
+
+        if(!source || typeof source !== 'object') continue;
+
+        for(let name of linkParametersToValidate) {
+            if(typeof source[name] !== 'undefined' && !isValidLink(source[name])) {
+                console.log('  Request rejected, invalid ' + name + ' : ' + JSON.stringify(source[name]));
+                return res.status(400).json({ error : true, message : 'Invalid ' + name });
+            }
+        }
+
+    }
+
+    next();
+
+}
+function isValidLink(link) {
+
+    const linkFormat = /^\/api\/[^\x00-\x1f\x7f\\]*$/;
+
+    if(typeof link !== 'string') return false;
+    if(link === '')              return true;    // handlers apply their own defaults
+
+    return linkFormat.test(link) && !/(^|\/)\.\.(\/|\?|#|$)/.test(link);
+
+}
+
+
 function getTenantLink(req) {
 
-    let tenant = req.app.locals.tenant;
-    
+    let tenant    = req.app.locals.tenant;
+    let requested = tenant;
+
     if(typeof req.body !== 'undefined') {
-        if(typeof req.body.tenant !== 'undefined')  tenant = req.body.tenant;
+        if(typeof req.body.tenant !== 'undefined')  requested = req.body.tenant;
     }
     if(typeof req.query !== 'undefined') {
-        if(typeof req.query.tenant !== 'undefined')  tenant = req.query.tenant;
+        if(typeof req.query.tenant !== 'undefined')  requested = req.query.tenant;
     }
 
-    return 'https://' + tenant + '.autodeskplm360.net';
+    if(isValidTenantLink(requested)) {
+        tenant = requested;
+    } else {
+        console.log('  Invalid tenant name ignored : ' + JSON.stringify(requested));
+    }
+
+    return 'https://' + tenant + tenantDomain;
+
+}
+function isValidTenantLink(tenant) {
+
+    // A tenant override (used by the tenant comparison) must be a single DNS label and the resulting URL
+    // must point to exactly <tenant>.autodeskplm360.net, otherwise the request (including the user's
+    // access token) could be redirected to another host, e.g. with values like 'evil.com/?' or 'x@evil.com/'
+
+    const tenantLabelFormat = /^[a-z0-9][a-z0-9-]{0,62}$/i;
+
+    if(typeof tenant !== 'string' || !tenantLabelFormat.test(tenant)) return false;
+
+    try {
+        let url = new URL('https://' + tenant + tenantDomain);
+        return url.protocol === 'https:'
+            && url.hostname === tenant.toLowerCase() + tenantDomain
+            && url.username === '' && url.password === '' && url.port === '';
+    } catch(error) {
+        return false;
+    }
 
 }
 function runPromised(url, headers) {
@@ -69,7 +136,7 @@ function runPromised(url, headers) {
 }
 function validateFileInCache(filename) {
 
-    return fs.existsSync('storage/cache/' + filename);
+    return fs.existsSync('storage/images/' + filename);
 
 }
 function downloadFileToCache(url, filename) {
@@ -78,7 +145,7 @@ function downloadFileToCache(url, filename) {
         responseType     : 'arraybuffer',
         responseEncoding : 'binary',
     }).then(function(response) {
-        fs.appendFileSync('storage/cache/' + filename, response.data);
+        fs.appendFileSync('storage/images/' + filename, response.data);
         return { 
             filename : filename,
             success  : true
@@ -160,7 +227,7 @@ function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, item
                 let fileHeader = 'Workspace ID;DMS ID;Descriptor;'
                     + 'Attachment ID;Attachment Filename;Attachment Version;'
                     + 'Attachment Name;Attachment Extension;Attachment Type;'
-                    + 'Created By;Creation Timestamp;Attachment Size;Attachment Status'
+                    + 'Created By;Creation Timestamp;Attachment Size;Attachment Status;'
                     + 'Full Path';
                 fs.appendFileSync(indexPath, fileHeader + '\r\n');
             }
@@ -681,20 +748,29 @@ router.get('/picklists', async function(req, res, next) {
     console.log(' ');
     console.log('  /picklists');
     console.log(' --------------------------------------------');
-    console.log('  req.query.tenant   = ' + req.query.tenant);
-    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log('  req.query.tenant       = ' + req.query.tenant);
+    console.log('  req.query.hideAllUsers = ' + req.query.hideAllUsers);
+    console.log('  req.query.useCache     = ' + req.query.useCache);
     console.log();
 
-    let [url, headers] = await prepareRequest(req, res);
+    if(notCached(req, res)) {
 
-    if(headers !== null) {
-
-        url += '/api/rest/v1/setups/picklists';
-        
+        const url          = getTenantLink(req) + '/api/rest/v1/setups/picklists';
+        const hideAllUsers = (typeof req.query.hideAllUsers === 'undefined') ? false : (req.query.hideAllUsers == 'true');
+            
         axios.get(url, { 
-            headers : headers
+            headers : req.session.headers
         }).then(function(response) {
-            if(response.data === '') response.data = { items : [] };
+            if(response.data === '') response.data = { list : { picklist : [] }};
+            else if(hideAllUsers) {
+                const index = response.data.list.picklist.findIndex(item => item.id === 'CUSTOM_LOOKUP_ALL_USERS_VIEW');
+                if (index !== -1) {
+                    response.data.list.picklist.splice(index, 1);
+                }
+            }
+            for(let picklist of response.data.list.picklist) {
+                picklist.link = picklist.uri.split('.autodeskplm360.net').pop();
+            }
             sendResponse(req, res, response, false);
         }).catch(function (error) {
             sendResponse(req, res, error.response, true);
@@ -703,113 +779,6 @@ router.get('/picklists', async function(req, res, next) {
     }
 
 });
-async function prepareRequest(req, res) {
-
-    if(notCached(req, res)) {
-
-        let tenant = req.app.locals.tenant;
-
-        if(typeof req.body !== 'undefined') {
-            if(typeof req.body.tenant !== 'undefined') tenant = req.body.tenant;
-        }
-        if(typeof req.query !== 'undefined') {
-            if(typeof req.query.tenant !== 'undefined') tenant = req.query.tenant;
-        }
-
-        const tenantLink = 'https://' + tenant + '.autodeskplm360.net';
-
-        let headers = {
-            'Content-Type'  : 'application/json',
-            'Accept'        : 'application/json',
-            'X-Tenant'      : req.app.locals.tenant,
-            'token'         : req.session.headers.token,
-            'Authorization' : req.session.headers.Authorization       
-        }
-
-        let expires = req.session.headers.expires;
-        let now     = new Date().getTime();
-        let expired = ((now - expires) > -10000);
-
-        // if(true) {
-        if(expired) {
-
-            // if(true) {
-            if((now - expires) < 86400000) {
-
-                console.log();
-                console.log(' --- start token refresh ---');
-                console.log();
-
-                let data = {
-                    grant_type    : 'refresh_token',
-                    refresh_token : req.session.headers.refreshToken,
-                    scope         : ["data:read"].join(" "),
-                    client_id     : req.app.locals.clientId,
-                    redirect_uri  : req.app.locals.redirectUri
-                }
-
-                const response = await axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
-                    headers : {
-                        'accept'       : 'application/json',
-                        'content-type' : 'application/x-www-form-urlencoded'
-                    }
-                }).then(function (response) {
-
-                    req.session.headers.token         = response.data.access_token;
-                    req.session.headers.Authorization = 'Bearer ' + response.data.access_token,
-                    req.session.headers.expires       = Date.now() + response.data.expires_in * 1000;
-                    req.session.headers.refreshToken  = response.data.refresh_token;
-
-                    req.session.save(function(err) {});
-
-                    headers.token         = req.session.headers.token;
-                    headers.Authorization = req.session.headers.Authorization;
-
-                }).catch(function (error) {
-
-                    console.log();
-                    console.log(' !!! Error refreshing token !!!');
-                    console.log();
-
-                });
-
-                return [tenantLink, headers];
-
-            } else {
-
-                // Send authentication error message
-                let params = [];
-
-                if((typeof req.body !== 'undefined')) {
-                    if(JSON.stringify(req.body).length > 2) {
-                        params = req.body;
-                    } else params = req.query;
-                } else params = req.query;
-
-                let result = {
-                    params  : params,
-                    url     : req.url,
-                    data    : [],
-                    status  : 500,
-                    message : 'Error in authentication',
-                    error   : true
-                }
-
-                console.log();
-                console.log(' AUTHENTICATION ERROR IN ' + req.url);
-                console.log();
-
-                res.json(result); 
-
-                return ['', null];
-
-            }
-
-        } else return [tenantLink, headers];
-        
-    } else return ['', null];
-    
-}
 
 
 /* ----- GET PICKLIST DEFINITION ----- */
@@ -823,9 +792,8 @@ router.get('/picklist-setup', function(req, res, next) {
     console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
 
-    let id = (typeof req.query.id === 'undefined') ? req.query.link.split('/').pop() : req.query.id;
-
-    let url = getTenantLink(req) + '/api/rest/v1/setups/picklists/' + id;
+    const id  = (typeof req.query.id === 'undefined') ? req.query.link.split('/').pop() : req.query.id;
+    const url = getTenantLink(req) + '/api/rest/v1/setups/picklists/' + id;
     
     axios.get(url, {
         headers : req.session.headers
@@ -1056,7 +1024,7 @@ function genPayloadSectionsFields(req, prefix, mode) {
             value    : getFieldValue(field)
         }
 
-        if(field.hasOwnProperty('fieldTypeId')) fieldData.type = genPayloadFieldType(req, field)
+        if(field.hasOwnProperty('fieldTypeId')) fieldData.type = genPayloadFieldType(req, field);
 
         if(typeof field.classId !== 'undefined') {
             if(field.classId !== '') {
@@ -1071,8 +1039,16 @@ function genPayloadSectionsFields(req, prefix, mode) {
                             __self__ : fieldData.__self__
                         };
                     }
-                }
+                } 
             }
+        }
+
+        if(field.type === 'multi-select') {
+            let values = [];
+            for(let value of fieldData.value) {
+                values.push((typeof value === 'string') ? { value : value } : value);
+            }
+            fieldData.value = values;
         }
 
         let sectionId = field.sectionId;
@@ -1209,7 +1185,7 @@ function getFieldValue(field) {
             break;
 
         case 'integer':
-            value = parseInt(field.value);
+            value = (value === '') ? null : parseInt(field.value);
             break;
 
         case 'image':
@@ -1293,8 +1269,6 @@ function parseSectionPayload(req, prefix, mode) {
                 //     break;
 
                 default:
-                    // console.log(type);
-                    // console.log(field);
                     if(value === '') value = null;
                     break;
 
@@ -1450,22 +1424,11 @@ router.post('/clone', function(req, res) {
                 'title'         : field.title
             });
 
-            // console.log({
-            //     '__self__'      : prefix + '/views/1/fields/' + field.fieldId,
-            //     'value'         : value,
-            //     'urn'           : 'urn:adsk.plm:tenant.workspace.view.field:' + req.app.locals.tenant.toUpperCase() + '.' + wsId + '.1.' + field.fieldId,
-            //     'fieldMetadata' : null,
-            //     'dataTypeId'    : Number(field.typeId),
-            //     'title'         : field.title
-            // });
-
         }
 
         sections.push(sect);
 
     }
-
-    // console.log(sections);
 
     let params = {
         'sourceItemId'  : req.body.link.split('/')[6],
@@ -1476,26 +1439,19 @@ router.post('/clone', function(req, res) {
         }
     };
 
-    // console.log(params);
-
     formData.append('itemDetail', JSON.stringify(params), {
         filename    : 'blob',
         contentType : 'application/json'
     });
 
-    // console.log(formData);
-
     let headers = getCustomHeaders(req);
         headers['content-type'] = formData.getHeaders()['content-type'];
         headers.Accept = 'application/vnd.autodesk.plm.meta+json';
-
-    // console.log(headers);
     
     axios.post(url, formData, { headers : headers }).then(function (response) {
         console.log(response)
         sendResponse(req, res, { 'data' : response.headers.location }, false);
     }).catch(function (error) {
-        // console.log(error);
         sendResponse(req, res, error.response, true);
     });
 
@@ -1889,7 +1845,7 @@ router.get('/details', function(req, res, next) {
                                     let imageId   = field.value.link.split('/').pop();
                                     let split     = link.split('/');
                                     let imageFile = split[4] + '-' + split[6] + '-' + field.__self__.split('/').pop() + '-' + imageId + '.jpg';
-                                    let exists = fs.existsSync('storage/cache/' + imageFile);
+                                    let exists = fs.existsSync('storage/images/' + imageFile);
                                     field.value.imageFile = (exists) ? imageFile : '';    
                                 }
                             }
@@ -2133,11 +2089,11 @@ router.get('/image-cache', function(req, res) {
 
     if(resolveStoragePath('cache', fileName) === null) return res.status(400).json({ error : true, message : 'Invalid file name' });
 
-    fs.stat('storage/cache/' + fileName, function(err, stat) {
+    fs.stat('storage/images/' + fileName, function(err, stat) {
 
         if(err === null) {
 
-            sendResponse(req, res, { data : { url : 'storage/cache/' + fileName } }, false);
+            sendResponse(req, res, { data : { url : 'storage/images/' + fileName } }, false);
 
         } else if(err.code == 'ENOENT') {
 
@@ -2207,8 +2163,8 @@ function downloadImageToCache(req, res, imageLink, fileName) {
             'Accept'        : 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
         }
     }).then(function (response) {
-        fs.appendFileSync('storage/cache/' + fileName, response.data);
-        sendResponse(req, res, { data : { url : '/storage/cache/' + fileName }  }, false);
+        fs.appendFileSync('storage/images/' + fileName, response.data);
+        sendResponse(req, res, { data : { url : '/storage/images/' + fileName }  }, false);
     }).catch(function (error) {
         sendResponse(req, res, error.response, true);   
     });        
@@ -2352,7 +2308,7 @@ router.post('/remove-grid-row', function(req, res, next) {
     console.log(); 
 
     let url  = req.app.locals.tenantLink + req.body.link;
-    
+
     axios.delete(url, {
         headers : req.session.headers
     }).then(function(response) {
@@ -3388,33 +3344,28 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
     console.log('  req.params.updateExisting = ' + req.params.updateExisting);
     console.log();
 
-    if (!req.files)
-        sendResponse(req, res, { 'data' : [], 'status' : 400 }, false);
-    //    return res.status(400).send('No files were uploaded.');
+    let files = getUploadedFiles(req);
 
-    let files          = [];
+    if(files.length === 0) return sendResponse(req, res, { 'data' : [], 'status' : 400 }, false);
+
     let link           = req.params.link || '/api/v3/workspaces/' + req.params.wsId + '/items/' + req.params.dmsId;
     let folderName     = (typeof req.params.folderName     === 'undefined') ?   '' : req.params.folderName;
     let updateExisting = (typeof req.params.updateExisting === 'undefined') ? true : (req.params.updateExisting == 'true');
 
-    if(Array.isArray(req.files.newFiles)) {
-        files = req.files.newFiles;
-    } else files.push(req.files.newFiles);
-  
-    let promises = [];
-
-    for(let file of files) {
-        promises.push(file.mv(pathUploads + file.name));
-    }
-
-    Promise.all(promises).then(function() {
+    // every request uses its own upload folder which is removed when the response is finished
+    saveUploadedFiles(res, files).then(function(savedFiles) {
 
         console.log('   > Moved files to folder uploads');
            
         getAttachments(req, link, function(attachmentsList) {
-            processFiles(req, res, link, attachmentsList, folderName, files, updateExisting);
+            processFiles(req, res, link, attachmentsList, folderName, savedFiles, updateExisting);
+        }, function(error) {
+            sendResponse(req, res, { message : 'Failed to read the existing attachments' }, true);
         });
        
+    }).catch(function(error) {
+        console.log('   > Failed to store uploaded files : ' + error.message);
+        sendResponse(req, res, { message : 'Failed to store the uploaded files' }, true);
     });
    
 });
@@ -3423,15 +3374,14 @@ function processFiles(req, res, link, attachmentsList, folderName, files, update
     if(files.length === 0) {
         sendResponse(req, res, { 'data' : 'success' }, false);
     } else {
-        parseAttachments(req, link, pathUploads + files[0].name, files[0].name, attachmentsList, folderName, updateExisting, function() {
-            fs.unlinkSync(pathUploads + files[0].name);
-            files.splice(0, 1);
-            processFiles(req, res, link, attachmentsList, folderName, files);
+        let file = files.shift();
+        parseAttachments(req, link, file.path, file.name, attachmentsList, folderName, updateExisting, function() {
+            processFiles(req, res, link, attachmentsList, folderName, files, updateExisting);
         });
     }
 
 }
-function getAttachments(req, link, callback) {
+function getAttachments(req, link, callback, callbackError) {
    
     console.log('   > Getting list of existing attachments');
 
@@ -3447,6 +3397,7 @@ function getAttachments(req, link, callback) {
     }).catch(function (error) {
         console.log(' > ERROR');
         console.log(error.message);
+        if(typeof callbackError === 'function') callbackError(error);
     });  
    
 }
@@ -4199,7 +4150,7 @@ router.post('/get-viewables', function(req, res, next) {
                         
                         if(viewable.type == 'Adobe PDF') {
                             viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
-                            viewable.link     = 'storage/cache/' + viewable.filename;
+                            viewable.link     = 'storage/images/' + viewable.filename;
                             viewable.status   = validateFileInCache(viewable.filename) ? 'DONE' : 'PENDING';
                         }
 
@@ -5627,7 +5578,7 @@ router.post('/search', function(req, res) {
                             let imageId = field.fieldData.value;
                             if(!isBlank(imageId)) {
                                 let imageFile = wsId + '-' + row.dmsId + '-' + field.key + '-' + imageId + '.jpg';
-                                let exists = fs.existsSync('storage/cache/' + imageFile);
+                                let exists = fs.existsSync('storage/images/' + imageFile);
                                 if(exists) row.imageFile = imageFile;
                             }
                         }
@@ -5644,8 +5595,7 @@ router.post('/search', function(req, res) {
    
 });
 function setBodyFields(body, fields, grid) {
-   
-//    console.log('/setBodyFields : START');
+
    
    for(let field of fields) {
        body.fields.push({
@@ -5730,8 +5680,6 @@ function setBodySort(body, sorts) {
    
 }
 function setBodyFilter(body, filters) {
-   
-//    console.log(' > START setBodyFilter');
 
    if(typeof filters === 'string') filters = JSON.parse(filters);
    

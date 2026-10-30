@@ -193,7 +193,7 @@ function getFeatureSettingsDone() {
 
 
 // Get Vault ID
-function getVaultId() {
+function getVaultId(callback) {
 
     showStartupDialog();
 
@@ -201,6 +201,7 @@ function getVaultId() {
 
         if(response.success) {
             hideStartupDialog();
+            if(typeof callback !== 'undefined') callback();
         } else {
             showStartupError({
                 title        : 'No Vault Connection',
@@ -6120,7 +6121,7 @@ function genSingleTile(params, panelSettings) {
 
     } else {
 
-        $('<img>').appendTo(elemTileImage).attr('src', '/storage/cache/' + params.imageFile);
+        $('<img>').appendTo(elemTileImage).attr('src', '/storage/images/' + params.imageFile);
 
     }
 

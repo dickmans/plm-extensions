@@ -3,13 +3,11 @@ const router        = express.Router();
 const axios         = require('axios');
 const querystring   = require('querystring');
 const fs            = require('fs');
-const fileUpload    = require('express-fileupload');
 const FormData      = require('form-data');
-const { Console }   = require('console');
-const pathUploads   = 'uploads/';
+const { uploadMiddleware, getUploadedFiles, saveUploadedFiles } = require('../lib/uploads');
 const urlGraphQL    = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
 
-router.use(fileUpload());
+router.use(uploadMiddleware());
 
 
 function getCustomHeaders(req) {
@@ -206,23 +204,17 @@ router.post('/upload', function(req, res) {
     console.log('  req.query.folder   = ' + req.query.folder);
     console.log();
 
-    let files    = [];
-    let promises = [];
+    let files = getUploadedFiles(req);
 
-    if(Array.isArray(req.files.newFiles)) {
-        files = req.files.newFiles;
-    } else files.push(req.files.newFiles);
-
-    for(let file of files) {
-        promises.push(file.mv(pathUploads + file.name));
-    }
+    if(files.length === 0) return sendResponse(req, res, { data : [], status : 400 }, false);
 
     console.log('  > received ' + files.length + ' file(s)');
 
-    Promise.all(promises).then(function() {
+    // every request uses its own upload folder which is removed when the response is finished
+    saveUploadedFiles(res, files).then(function(savedFiles) {
 
-        let filename = files[0].name;
-        let path     = pathUploads + filename;
+        let filename = savedFiles[0].name;
+        let path     = savedFiles[0].path;
 
         createStorage(req, res, filename, function(response) {
 
@@ -251,8 +243,11 @@ router.post('/upload', function(req, res) {
 
         });
 
+    }).catch(function(error) {
+        console.log('  > Failed to store uploaded files : ' + error.message);
+        sendResponse(req, res, { message : 'Failed to store the uploaded files' }, true);
     });
-    
+
 });
 function createStorage(req, res, filename, callback) {
 

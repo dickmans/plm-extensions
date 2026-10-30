@@ -3,7 +3,7 @@
 /environments/*
 /uploads/*
 /settings/*
-/storage/cache/*
+/storage/images/*
 /storage/downloads/*
 /storage/excel-export/*
 /storage/exports/*

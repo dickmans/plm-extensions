@@ -70,6 +70,10 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.protocol          = process.env.PROTOCOL || app.locals.redirectUri.split('://')[0];
     app.locals.port              = process.env.PORT;
     app.locals.hubId             = '';
+
+    if(typeof app.locals.enableCache     === 'string') app.locals.enableCache     = (app.locals.enableCache.toLowerCase()     === 'true');
+    if(typeof app.locals.debugMode       === 'string') app.locals.debugMode       = (app.locals.debugMode.toLowerCase()       === 'true');
+    if(typeof app.locals.fusionConnected === 'string') app.locals.fusionConnected = (app.locals.fusionConnected.toLowerCase() === 'true');
     
     app.locals.vaultGateway      = app.locals.vaultGateway.split('.vg.autodesk.com')[0];
     app.locals.vaultGatewayLink  = (app.locals.vaultGateway === '') ? '' : 'https://' + app.locals.vaultGateway + '.vg.autodesk.com';

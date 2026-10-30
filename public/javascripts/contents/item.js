@@ -2760,7 +2760,7 @@ function insertFieldImage(elemParent, value) {
 
     if(value.hasOwnProperty('imageFile')) {
         if(value.imageFile !== '') {
-            $("<img src='/storage/cache/" + value.imageFile + "'>").appendTo(elemParent);
+            $("<img src='/storage/images/" + value.imageFile + "'>").appendTo(elemParent);
             return;
         }
     }
@@ -4561,9 +4561,10 @@ function clickScreenshotUpload(id, elemClicked) {
 
 
 // Insert Grid table
-function insertGrid(link, params) {
+function insertGrid(link, params, data) {
 
     if(isBlank(link)) return;
+    if(isBlank(data)) data = {};
 
     const id = getPanelSettings('insertGrid', params, { link : link });
     

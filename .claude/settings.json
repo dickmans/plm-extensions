@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check lib/bom-cache-agent.js)",
+      "Bash(node --check bin/www)",
+      "Bash(node --check routes/plm.js)",
+      "Bash(node -e ' *)",
+      "Bash(grep -n \"^function\\\\|^async function\\\\|^\\\\$\\(\\\\|^    \\\\$\\('#\\\\\\(card\\\\|action\\\\\\)\" public/javascripts/framework/monitoring.js)",
+      "Bash(node --check routes/monitoring.js)",
+      "Bash(echo \"check=$?\")",
+      "Bash(node --check public/javascripts/framework/monitoring.js)"
+    ]
+  }
+}

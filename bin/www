@@ -47,8 +47,9 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 
-if(!fs.existsSync('storage'      )) fs.mkdirSync('storage'      );
-if(!fs.existsSync('storage/cache')) fs.mkdirSync('storage/cache');
+if(!fs.existsSync('storage'       )) fs.mkdirSync('storage'       );
+if(!fs.existsSync('storage/images')) fs.mkdirSync('storage/images');
+if(!fs.existsSync('bom-cache'     )) fs.mkdirSync('bom-cache'     );
 
 
 /**
@@ -176,7 +177,6 @@ function buildStartupInfoLines(bind) {
 	lines.push('  ');
 	lines.push('  If your login to the UX solutions fails with an error code 401, you most likely are');
 	lines.push('  using an APS of wrong type or with wrong callback URL.');
-	lines.push('');
 	lines.push('');
 
 	return lines;

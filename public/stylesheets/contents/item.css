@@ -961,6 +961,10 @@ td.field-editable > .picklist-controls > .picklist-input {
 .black-theme .content-item > td.changed.field-type-checkbox { background : var(--color-red-800) !important; }
 
 
+.grid > tbody > .content-item.save-action-delete > td {
+    text-decoration: line-through;
+}
+
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */

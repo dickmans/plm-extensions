@@ -53,6 +53,7 @@ exports.common = {
         items                        : 57,
         nonConformances              : 98,
         problemReports               : 82,
+        requirementSpecifications    : 142,
         requirements                 : 143,
 
         // Products & Projects Workspaces
@@ -565,7 +566,7 @@ exports.applications = {
                 search          : true,
                 editable        : true,
                 multiSelect     : true,
-                path            : true,
+                treePath        : true,
                 counters        : true,
                 viewerSelection : true,
             },
@@ -2523,11 +2524,6 @@ exports.menu = [
             title    : 'Administration Shortcuts',
             subtitle : 'Provides quick access to frequently used admin panels',
             url      : '/shortcuts'
-        },{
-            icon     : 'icon-health-monitor',
-            title    : 'UX Server Monitoring',
-            subtitle : 'Review server health, sessions and storage',
-            url      : '/monitoring'
         }]
     },{
         label      : 'Advanced Administration Utilities',
@@ -2542,6 +2538,11 @@ exports.menu = [
             title    : 'User Settings Manager',
             subtitle : 'Configure standards for new and existing users',
             url      : '/users'
+        },{
+            icon     : 'icon-health-monitor',
+            title    : 'UX Server Monitoring',
+            subtitle : 'Review server health, sessions and storage',
+            url      : '/monitoring'            
         }]
     }]
 ]

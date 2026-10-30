@@ -433,7 +433,7 @@ function perform3LeggedLogin(req, res) {
 
 }
 router.get('/callback', async function(req, res, next) {
-    
+
     console.log();
     console.log('  /callback START');
     console.log(' --------------------------------------------');
@@ -443,7 +443,7 @@ router.get('/callback', async function(req, res, next) {
     try {
 
         await getToken(req, req.query.code);
-        res.redirect(req.query.state);
+        res.redirect(getSafeRedirect(req.query.state));
 
     } catch(error) {
 
@@ -460,6 +460,17 @@ router.get('/callback', async function(req, res, next) {
     }
         
 });
+function getSafeRedirect(target) {
+
+    // The state parameter contains the page to open after login. Only local paths are allowed as redirect target
+    // ('/x?y=z'), not '//host', '/\host' or 'https://host', so the callback cannot be used to leave this server
+
+    if(typeof target !== 'string') return '/';
+    if(!/^\/(?![\/\\])[^\x00-\x1f\x7f]*$/.test(target)) return '/';
+
+    return target;
+
+}
 async function getToken(req, code) {
     
     let data = {
@@ -549,6 +560,8 @@ async function refreshExistingToken(req, res) {
                 expires        : expiration,
                 refreshToken   : response.data.refresh_token
             };
+
+            return true;
             
         } else {
             console.log();
@@ -556,11 +569,16 @@ async function refreshExistingToken(req, res) {
             console.log('             REFRESH FAILED');
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             console.log();
+            return false;
         }
 
+    }).catch(function(error) {
+        console.log('  Token refresh failed : ' + (error.response ? JSON.stringify(error.response.data) : error.message));
+        return false;
     });
 
 }
+
 
 
 /* ------------------------------------------------------------------------------
@@ -716,17 +734,112 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
 
 
 /* ------------------------------------------------------------------------------
-    CHECK USER SESSION
+    RENEW EXPIRED TOKEN FOR ANY LOGIN TYPE (2-legged and SSA have no refresh token,
+    so a new token is requested using the same grant as for the initial login)
    ------------------------------------------------------------------------------ */
-function validatePLMSession(req, res, next) {
+const tokenRenewals = {};
+async function validatePLMSession(req, res, next) {
 
     let headers = req.session && req.session.headers;
 
     if(!headers || !headers.token) return res.status(401).send('PLM login required.');
 
-    if(headers.expires && headers.expires < Date.now() && !headers.refreshToken) return res.status(401).send('Session expired.');
+    if(!isTokenExpired(req)) return next();
 
-    next();
+    // concurrent requests of the same session share a single renewal (refresh tokens are single-use)
+    let key = req.sessionID;
+
+    if(!tokenRenewals[key]) {
+        tokenRenewals[key] = renewSessionToken(req).finally(function() { delete tokenRenewals[key]; });
+    }
+
+    let renewed = false;
+
+    try { renewed = await tokenRenewals[key]; } catch(error) { console.log(error); }
+
+    if(!renewed) return res.status(401).send('Session expired.');
+
+    // a concurrent request may have renewed the token on another req object
+    if(req.session.headers.token !== headers.token || !isTokenExpired(req)) return next();
+
+    req.session.save(function() { next(); });
+
+}
+function isTokenExpired(req) {
+
+    let expires = req.session.headers.expires;
+
+    if(typeof expires === 'undefined') return false;
+
+    // sessions created before the numeric format may hold an ISO date string
+    // let expiresAt = (typeof expires === 'number') ? expires : new Date(expires).getTime();
+
+    // return isNaN(expiresAt) || (expiresAt < (Date.now() + 10000));
+    return (expires < (Date.now() + 10000));
+
+}
+async function renewSessionToken(req) {
+    
+    console.log('renewSessionToken START');
+    console.log(req.session.loginType);
+
+    switch(req.session.loginType) {
+
+        case '3-legged':
+            if(!req.session.headers.refreshToken) return false;
+            return refreshExistingToken(req);
+
+        case '2-legged':
+            return requestNewAppToken(req, {
+                grant_type : 'client_credentials',
+                scope      : 'data:read viewables:read bucket:read code:all',
+            });
+
+        case 'ssa':
+            return requestNewAppToken(req, {
+                grant_type : 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                scope      : 'data:read data:write',
+                assertion  : await generateAssertionJWT(req)
+            });
+
+    }
+
+    return false;
+
+}
+async function requestNewAppToken(req, grantData, useSecret) {
+
+    const clientString = req.app.locals.adminClientId + ':' + req.app.locals.adminClientSecret;
+
+    try {
+
+        let response = await axios.post('https://developer.api.autodesk.com/authentication/v2/token', grantData, {
+            headers : {
+                'accept'        : 'application/json',
+                'content-type'  : 'application/x-www-form-urlencoded',
+                'Authorization' : 'Basic ' + btoa(clientString),
+            }
+        });
+
+        let headers = {
+            'Content-Type' : 'application/json',
+            Accept         : 'application/json',
+            'X-Tenant'     : req.app.locals.tenant,
+            token          : response.data.access_token,
+            Authorization  : 'Bearer ' + response.data.access_token,
+            expires        : Date.now() + (response.data.expires_in - 90) * 1000
+        };
+
+        if(req.session.headers['X-user-id']) headers['X-user-id'] = req.session.headers['X-user-id'];
+
+        req.session.headers = headers;
+
+        return true;
+
+    } catch(error) {
+        console.log('  Token renewal failed : ' + (error.response ? JSON.stringify(error.response.data) : error.message));
+        return false;
+    }
 
 }
 
@@ -791,5 +904,5 @@ async function checkPLMSystemAdmin(req, res) {
 
 
 module.exports = router;
-module.exports.validatePLMSystemAdmin = validatePLMSystemAdmin;
 module.exports.validatePLMSession     = validatePLMSession;
+module.exports.validatePLMSystemAdmin = validatePLMSystemAdmin;
