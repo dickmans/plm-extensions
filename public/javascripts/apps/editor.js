@@ -651,8 +651,6 @@ function afterBOMCompletion(id, data) {
 
         const draftList = parseDraft();
 
-        console.log(draftList);
-
         if(draftList !== null) {
             for(let item of draftList) {
                 bomPartsList.push({
@@ -682,8 +680,6 @@ function afterBOMCompletion(id, data) {
                 }
             });   
         }
-
-        console.log(bomPartsList);
 
     }
 
@@ -2151,7 +2147,6 @@ function setAddExistingRecentsPanel(params) {
 
 // Search Panel Functionality
 function onAddDragStart(e) {
-    console.log('drag start');
 }
 function onAddDragEnd(e) {
 }
