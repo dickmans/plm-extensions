@@ -3,6 +3,9 @@
     --border-v : 14px;
     --border-h : 28px;
 
+    --width-landing-search    : 400px;
+    --width-landing-bookmarks : 400px;
+
     --width-start : 888px;
     --width-tree  : 520px;
     --width-side  : 400px;
@@ -18,7 +21,9 @@
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#landing,
+#landing-search,
+#landing-views,
+#landing-bookmarks,
 #tree,
 #editor,
 #add,
@@ -100,9 +105,16 @@ body.landing #header-toolbar > .button { display : none; }
 
 /* LANDING */
 /* ----------------------------------------------------------------------------- */
-#landing-header {
-    width : calc(100% - (2 * var(--border-h)));
+#landing-search { width : var(--width-landing-search); }
+#landing-views {
+    position: absolute;
+    top : 0px;
+    right : calc(var(--width-landing-bookmarks) + (2 * var(--border-h)));
+    bottom : 0px;
+    left : calc(var(--width-landing-search) + (2 * var(--border-h)));
 }
+#landing-bookmarks { width : var(--width-landing-bookmarks); }
+
 
 
 /* START */
@@ -379,6 +391,33 @@ body.landing #header-toolbar > .button { display : none; }
 .editor-item-actions .icon-right::before {
     font-size : 34px;
 }
+#editor {
+    container-type : inline-size;
+    container-name : editor;
+}
+@container editor (width < 600px) {
+    #editor .with-icon {
+        font-size  : 0px;
+        max-height : 32px;
+        min-height : 32px;
+        height     : 32px;
+        overflow   : hidden;
+        padding    : 0px;
+        max-width  : 32px;
+        min-width  : 32px;
+        width      : 32px;
+    }
+    #editor .with-icon::before {
+        line-height : 32px;
+        margin      : auto;
+    }
+    #editor-side-panel {
+        font-size : 0px;
+        max-width : 32px;
+        min-width : 32px;
+        width     : 32px;
+    }
+}
 
 /* REMOVAL */
 .icon-delete,
@@ -415,7 +454,8 @@ body.landing #header-toolbar > .button { display : none; }
     min-height : 32px;
     height     : 32px;
 }
-.editor-item-insert-next.drag-hover { background : linear-gradient(transparent 15px, var(--color-yellow-500) 15px, var(--color-yellow-500) 18px, transparent 18px); }
+.editor-item-insert-next.drag-hover-valid { background : linear-gradient(transparent 15px, var(--color-yellow-500) 15px, var(--color-yellow-500) 18px, transparent 18px); }
+.editor-item-insert-next.drag-hover-invalid { background : linear-gradient(transparent 15px, var(--color-status-red) 15px, var(--color-status-red) 18px, transparent 18px); }
 .editor-item-insert-next-line {
     background : var(--color-blue-500);
     display    : none;

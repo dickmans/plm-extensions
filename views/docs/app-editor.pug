@@ -200,9 +200,13 @@
                 td 'Requirements'
                 td Name to use for this main workspace
             tr 
+                td wsMain.fieldIdSubtitle 
+                td 'REQUIREMENT_SPECIFICATION'
+                td Field ID of main workspace which references the context element to display with link in the main toolbar
+            tr 
                 td wsMain.bomViewName
                 td 'Editor'
-                td BOM view of the main workspace to use for the structure expansion. This view must contain all required fields.
+                td BOM view of the main workspace to use for the structure expansion. This view must contain all required fields. If parameter bomViewName is defined in panels.insertBOM as well, the latter setting will be used.
             tr 
                 td wsMain.copyFromTemplate
                 td [ 'TITLE', 'DESCRIPTION' ]
@@ -273,6 +277,18 @@
                 th Descripton
                 th Panel Type
             tr 
+                td ..panels.insertLandingSearch
+                td Defines Search panel in Landing Page
+                td insertSearch
+            tr 
+                td ..panels.insertLandingWorkspaceViews
+                td Defines Workspaces Views panel in Landing Page
+                td insertWorkspaceViews
+            tr 
+                td ..panels.insertLandingBookmarks
+                td Defines Bookmarks panel in Landing Page
+                td insertBookmarks
+            tr 
                 td ..panels.insertTemplates
                 td Drives the list of available templates in startup screen when creating a new structure
                 td insertResults
@@ -317,8 +333,30 @@
                     strong Add From Library
                 td insertRecentItems           
     .log 
-        h1 PLM Portal Change Log 
+        h1 Specification Editor Change Log
         table.row-hovering
+            tr 
+                td 30. October 2026
+                td Enhancement
+                td Added configurable landing page to enable standalone mode and to let users switch between datasets
+            tr 
+                td 
+                td Context Item Display
+                td The requirements being edited most probably are linked to a Requirement Specification, or the editor may be launched from a context element like a Product. These context elements may be of relevance while editing the requirements and therefore now are displaye in the main toolbar with link (if existent). The new parameter 
+                    span.code ..wsMain.fieldIdSubtitle 
+                    |was added to a allow for the definition of the referenced item to display.
+            tr 
+                td 
+                td Enhancement
+                td Added Start Menu and Context Actions to this application
+            tr 
+                td 
+                td Enhancement
+                td Added capability to drop items from tree on left to editor panel, enabling multiple instances of the same item within the same structure
+            tr 
+                td 
+                td Enhancement
+                td Improved Drag &amp; Drop : Users can now drop items from left hand side tree navigator in the editor panel to add items multiple times to the same structure. This does not validate circular references yet!
             tr 
                 td 22. July 2026
                 td Initial Release

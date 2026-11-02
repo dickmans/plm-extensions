@@ -435,6 +435,7 @@ exports.applications = {
             wsMain   : {
                 workspaceId      : null,   // uses common.workspaceIds.requirements per default
                 workspaceName    : 'Requirements',
+                fieldIdSubtitle  : 'REQUIREMENT_SPECIFICATION',
                 bomViewName      : 'Editor',  // This view must contain all fields listed in the next settings (copyFromTemplate, advancedFields, itemsLocked, itemsReused)
                 copyFromTemplate : [ 'TITLE', 'DESCRIPTION' ],
                 advancedFieldIds : [ 'MATERIAL_COST', 'TOOLING_COST', 'EFFORT', 'TEST_PROCEDURE', 'EXPECTED_RESULT', 'SUCCESS_CRITERIA' ],
@@ -458,6 +459,16 @@ exports.applications = {
                 }
             }],
             panels : {
+                insertLandingSearch         : { // Defines Search panel in Landing Page
+                    workspacesIn : ['Requirements']
+                },
+                insertLandingWorkspaceViews : { // Defines Workspaces Views panel in Landing Page
+                    headerLabel : 'Workspace Requirements'
+                },
+                insertLandingBookmarks      : { // Defines Bookmarks panel in Landing Page
+                    reload       : true,
+                    workspacesIn : ['Requirements']
+                },
                 insertTemplates     : { // Uses insertResults to show the list of available templates when creating a new structure
                     contentSize     : 'xs',
                     layout          : 'grid',
@@ -481,7 +492,7 @@ exports.applications = {
                     search          : true,
                     toggles         : true,
                     openInPLM       : true,
-                    path            : true
+                    treePath        : true
                 },
                 insertDetails       : { // Displays selected item's details in side panel
                     headerLabel     : 'descriptor',
@@ -2430,6 +2441,11 @@ exports.menu = [
             title    : 'Workspace Navigator',
             subtitle : 'Manage your master data easily',
             url      : '/navigator'
+        },{ // Requirements Editor
+            icon     : 'icon-list-edit',
+            title    : 'Requirements Editor',
+            subtitle : 'Define proper product requirements',
+            url      : '/editor?config=requirements&'
         },{ // Design Reviews
             icon     : 'icon-markup',
             title    : 'Design Reviews',

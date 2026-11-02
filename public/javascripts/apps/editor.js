@@ -55,13 +55,15 @@ $(document).ready(function() {
     }    
 
     appendOverlay();
+    insertMenu();
     setUIEvents();   
     setAppLabels();
     setAddExistingPanel();
 
     let requests = [
         $.get('/plm/sections', { wsId : config.wsMain.workspaceId, useCache : true } ),
-        $.get('/plm/fields'  , { wsId : config.wsMain.workspaceId, useCache : true } )
+        $.get('/plm/fields'  , { wsId : config.wsMain.workspaceId, useCache : true } ),
+        $.get('/services/chrome' )
     ];
 
     if(!isBlank(urlParameters.link)) {
@@ -77,6 +79,8 @@ $(document).ready(function() {
         config.wsMain.sections       = responses[0].data;
         config.wsMain.advancedFields = [];
         config.wsMain.picklists      = [];
+        
+        dataContextMenu = responses[2];
 
         let listPicklists     = [];
         let requestsPicklists = [];
@@ -111,13 +115,13 @@ $(document).ready(function() {
         for(let picklist of listPicklists) requestsPicklists.push($.get('/plm/picklist', { link : picklist }));
 
         if(links.context !== '') {
-            links.root     = getSectionFieldValue(responses[2].data.sections, config.wsContext.fieldIds.link, '', 'link');
-            headerSubtitle = responses[2].data.title;
-            let newTitle   = responses[2].data.title;
-            if(config.wsContext.fieldIds.title !== 'DESCRIPTOR') newTitle = getSectionFieldValue(responses[2].data.sections, config.wsContext.fieldIds.title, '');
+            links.root     = getSectionFieldValue(responses[3].data.sections, config.wsContext.fieldIds.link, '', 'link');
+            headerSubtitle = responses[3].data.title;
+            let newTitle   = responses[3].data.title;
+            if(config.wsContext.fieldIds.title !== 'DESCRIPTOR') newTitle = getSectionFieldValue(responses[3].data.sections, config.wsContext.fieldIds.title, '');
             $('#start-descriptor').html(headerSubtitle);
             $('#start-name').val(newTitle);
-            config.wsContext.sections = responses[3].data;
+            config.wsContext.sections = responses[4].data || [];
         } else {
             links.root = urlParameters.link;
         }
@@ -145,6 +149,9 @@ function setUIEvents() {
 
 
     // Header Toolbar
+    $('#button-home').click(function(e) {
+        openLandingPage();
+    });
     $('#header-subtitle').click(function(e) {
              if(links.root    !== '') openItemByLink(links.root);
         else if(links.context !== '') openItemByLink(links.rocontextot);
@@ -398,25 +405,52 @@ function setAppLabels() {
 // If no dmsId is specified, open standard landing page 
 function openLandingPage() {
 
-    console.log('openLandingPage');
-
     $('#landing').show();
     $('#start'  ).hide();
     $('#main'   ).hide();
 
     $('body').addClass('landing');
+    $('#header-subtitle').html('');
 
-    let filters =  [{"field" : "TITLE","type" : "0","comparator" : "not-blank" ,"value" : ""}]
+    headerSubtitle = '';
+    
+    Object.keys(links).forEach(k => links[k] = '');
 
-    insertWorkspaceViews(config.wsMain.workspaceId, {
-        id          : 'landing',
-        headerLabel : 'Requirements',
-        reload      : true,
-        onClickItem: function(elemClicked) {
+    updateURLLink('', true);
+    removeContextMenuEntries();
+    
+    if(!$('#landing').hasClass('empty')) return;
+
+    // let filters =  [{"field" : "TITLE","type" : "0","comparator" : "not-blank" ,"value" : ""}]
+
+    let paramsSearch    = config.panels.insertLandingSearch || {};
+        paramsSearch.id = 'landing-search';
+        paramsSearch.onClickItem = function(elemClicked) {
             links.root = elemClicked.attr('data-link');
             openEditor();
         }
-    });
+
+    insertSearch(paramsSearch);
+
+    let paramsWorkspaceViews = config.panels.insertLandingWorkspaceViews || {};
+        paramsWorkspaceViews.id          = 'landing-views';   
+        paramsWorkspaceViews.onClickItem = function(elemClicked) {
+            links.root = elemClicked.attr('data-link');
+            openEditor();
+        }
+
+    insertWorkspaceViews(config.wsMain.workspaceId, paramsWorkspaceViews);
+
+    let paramsBookmarks    = config.panels.insertLandingBookmarks || {};
+        paramsBookmarks.id = 'landing-bookmarks';
+        paramsBookmarks.onClickItem = function(elemClicked) {
+            links.root = elemClicked.attr('data-link');
+            openEditor();
+        }
+
+    insertBookmarks(paramsBookmarks);
+
+    $('#landing').removeClass('empty');
 
 }
 
@@ -549,12 +583,18 @@ function openEditor() {
     $('#landing').hide();
     $('#start'  ).hide();
     $('#main'   ).show();
-
+    
+    $('#editor-content').html('');
     $('body').removeClass('landing');
+    
+    updateURLLink(links.root, true);
+    insertContextMenuEntries(links.root);
+
+    nextId = 1;
 
     paramsBOM                 = config.panels.insertBOM;
     paramsBOM.id              = 'tree';
-    paramsBOM.bomViewName     = config.wsMain.bomViewName;
+    paramsBOM.bomViewName     = config.panels.insertBOM.bomViewName || config.wsMain.bomViewName || '';
     paramsBOM.onClickItem     = function(elemClicked) { selectBOMItem( elemClicked); };
     paramsBOM.afterCompletion = function(id, data)    { afterBOMCompletion(id, data); };
 
@@ -580,6 +620,7 @@ function openEditor() {
 
     if(links.root !== '') {
         if(editMode === 'existing') {
+            requests.push($.get('/plm/details' , { link : links.root }));
             if(!isBlank(urlParameters.working)) {
                 requests.push($.get('/plm/versions', { link : links.root }));
                 paramsBOM.revisionBias = 'working';
@@ -589,11 +630,12 @@ function openEditor() {
             requests.push($.get('/plm/descriptor', { link : links.root }));
         }
     }
+    if(links.context !== '') requests.push($.get('/plm/descriptor', { link : links.context }));
 
     Promise.all(requests).then(function(responses) {
 
         if(!isBlank(urlParameters.working) && (editMode === 'existing')) {
-
+            
             let response   = getResponseFromResponses(responses, '/plm/versions'  , links.root);
             headerSubtitle = getResponseFromResponses(responses, '/plm/descriptor', links.root);
 
@@ -612,14 +654,34 @@ function openEditor() {
             headerSubtitle = response.data;
 
         }
-        
-        $('#header-subtitle').html(headerSubtitle);
-        document.title = 'EDIT ' + headerSubtitle;
 
+        setSubtitle(headerSubtitle, responses);  
         insertBOM(links.root, paramsBOM);
         setSidePanel(links.root);
 
     });
+
+}
+function setSubtitle(headerSubtitle, responses) {
+
+    document.title = 'EDIT ' + headerSubtitle;
+
+    const fieldIdSubtitle = config.wsMain.fieldIdSubtitle || '';
+    const contextItem     = getResponseFromResponses(responses, '/plm/descriptor', links.context);
+    const relatedItem     = getResponseFromResponses(responses, '/plm/details'   , links.root   );
+
+    if(links.context !== '') {
+
+        insertHeaderSubtitleWithReference(headerSubtitle, contextItem.data, links.context);
+
+    } else if(fieldIdSubtitle !== '') {
+
+        let title = getSectionFieldValue(relatedItem.data.sections, fieldIdSubtitle, '', 'title');
+        let link  = getSectionFieldValue(relatedItem.data.sections, fieldIdSubtitle, '', 'link');
+
+        insertHeaderSubtitleWithReference(headerSubtitle, title, link);
+
+    }
 
 }
 function afterBOMCompletion(id, data) {
@@ -1569,9 +1631,8 @@ function getFamily(elemEditor) {
 }
 function getChildren(elemEditor) {
 
-    let level     = Number(elemEditor.attr('data-level'));
-    let className = 'level-' + level;
-    let result    = [];
+    const level = Number(elemEditor.attr('data-level'));
+    let result  = [];
 
     elemEditor.nextAll().each(function() {
 
@@ -1581,6 +1642,33 @@ function getChildren(elemEditor) {
         if(levelRef > level) result.push(elemRef);
         else return false;
  
+    });
+
+    return result;
+
+}
+function getSiblings(elemEditor) {
+
+    const level = Number(elemEditor.attr('data-level'));
+    let result  = [];
+
+    elemEditor.prevAll().each(function() {
+
+        const elemRef  = $(this);
+        const levelRef = Number(elemRef.attr('data-level'));    
+        
+        if(levelRef < level) return false;
+        else if(levelRef === level) result.push(elemRef);
+
+    });
+    elemEditor.nextAll().each(function() {
+
+        const elemRef  = $(this);
+        const levelRef = Number(elemRef.attr('data-level'));    
+
+        if(levelRef < level) return false;
+        else if(levelRef === level) result.push(elemRef);
+
     });
 
     return result;
@@ -1844,9 +1932,12 @@ function updateTreeItemTitle(elemInput) {
 function insertMatchingBOMTreeNode(elemEditor, elemPrevious) {
 
     let elemTBody = $('#tree-tbody');
-    let elemItem = genTreeRow('tree',  {
-        level : elemEditor.attr('data-level'),
-        title : elemEditor.find('.editor-item-title').val()
+    let elemItem  = genTreeRow('tree',  {
+        level   : elemEditor.attr('data-level'),
+        title   : elemEditor.find('.editor-item-title').val(),
+        details : {
+            'TITLE' : elemEditor.find('.editor-item-title').val()
+        }
     });
 
     elemItem.find('.tree-title').addClass('tree-column-title');
@@ -2149,6 +2240,25 @@ function setAddExistingRecentsPanel(params) {
 function onAddDragStart(e) {
 }
 function onAddDragEnd(e) {
+
+    removeDropHoverIndicators();
+
+}
+function onDragOver(e) {
+
+    const elemTarget = $(e.target).closest('.editor-item-insert-next');
+
+    if(validateDropTarget(e)) {
+        elemTarget.addClass('drag-hover-valid');
+    } else {
+        elemTarget.addClass('drag-hover-invalid');
+    }
+
+}
+function onDragLeave(e) {
+
+    removeDropHoverIndicators();
+
 }
 function onEditorDrop(e) {
 
@@ -2161,55 +2271,93 @@ function onEditorDrop(e) {
     const elemDragged     = $('.dragged').first();
     const elemContentItem = elemDragged.closest('.content-item');
     const link            = elemContentItem.attr('data-link');
+
+
+    if(validateDropTarget(e)) {
     
-    let levelPrev = Number(elemPrevious.attr('data-level'));
-    let levelNext = levelPrev;
+        let levelPrev = Number(elemPrevious.attr('data-level'));
+        let levelNext = levelPrev;
 
-    if(elemNext.length > 0) levelNext = Number(elemNext.attr('data-level'));
+        if(elemNext.length > 0) levelNext = Number(elemNext.attr('data-level'));
 
-    let level = (levelNext > levelPrev) ? (levelPrev + 1) : levelPrev;
+        let level = (levelNext > levelPrev) ? (levelPrev + 1) : levelPrev;
 
-    $('#overlay').show();
-    
-    $.get('/plm/details', { link : link }, function(response) {
+        $('#overlay').show();
         
-        $('#overlay').hide();
+        $.get('/plm/details', { link : link }, function(response) {
+            
+            $('#overlay').hide();
 
-        const revision = (response.data.versionId === 'w') ? 'WIP' : response.data.versionId;
+            const revision = (response.data.versionId === 'w') ? 'WIP' : response.data.versionId;
 
-        let data = {
-            TITLE       : getSectionFieldValue(response.data.sections, 'TITLE', ''),
-            DESCRIPTION : getSectionFieldValue(response.data.sections, 'DESCRIPTION', ''),
-        }
+            let data = {
+                TITLE       : getSectionFieldValue(response.data.sections, 'TITLE', ''),
+                DESCRIPTION : getSectionFieldValue(response.data.sections, 'DESCRIPTION', ''),
+            }
 
-        for(let advancedField of config.wsMain.advancedFields) {
-            data[advancedField.fieldId] = getSectionFieldValue(response.data.sections, advancedField.fieldId, '');
-        }
+            for(let advancedField of config.wsMain.advancedFields) {
+                data[advancedField.fieldId] = getSectionFieldValue(response.data.sections, advancedField.fieldId, '');
+            }
 
-        data[config.wsMain.itemsLocked.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsLocked.fieldId, '', 'title');
-        data[config.wsMain.itemsReused.fieldId] = config.wsMain.itemsReused.value;
+            data[config.wsMain.itemsLocked.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsLocked.fieldId, '', 'title');
+            data[config.wsMain.itemsReused.fieldId] = config.wsMain.itemsReused.value;
 
-        let elemTop = insertContentEditorElement(elemPrevious, link, '', revision, '', '', level, data);
+            let elemTop = insertContentEditorElement(elemPrevious, link, '', revision, '', '', level, data);
 
-        data[config.wsMain.itemsReused.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsReused.fieldId, '', 'title');
+            data[config.wsMain.itemsReused.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsReused.fieldId, '', 'title');
 
-        if(data[config.wsMain.itemsReused.fieldId] != config.wsMain.itemsReused.value) {
+            if(data[config.wsMain.itemsReused.fieldId] != config.wsMain.itemsReused.value) {
 
-            elemTop.addClass('pending-reuse');
+                elemTop.addClass('pending-reuse');
 
-        }
+            }
 
-        // setChanged(getParent(elemTop));
-        insertMatchingBOMTreeNode(elemTop, elemPrevious);
-        setNumbersAndLevels();
+            // setChanged(getParent(elemTop));
+            insertMatchingBOMTreeNode(elemTop, elemPrevious);
+            setNumbersAndLevels();
 
-    });
+        });
+
+    }
 
     $('.dragged'   ).removeClass('dragged'   ).addClass('pending-set-reuse');
     $('.drag-hover').removeClass('drag-hover');
 
-}
+    removeDropHoverIndicators();
 
+}
+function validateDropTarget(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const elemTarget      = $(e.target).closest('.editor-item-insert-next');
+    const elemPrevious    = elemTarget.closest('.editor-item');
+    const elemDragged     = $('.dragged').first();
+    const elemContentItem = elemDragged.closest('.content-item');
+    const link            = elemContentItem.attr('data-link');
+
+    const parents  = getParents(elemPrevious);
+    const siblings = getSiblings(elemPrevious);
+    const children = getChildren(elemPrevious);
+
+    let links = [elemPrevious.attr('data-link')];
+
+    for(let parent  of parents ) links.push( parent.attr('data-link'));
+    for(let sibling of siblings) links.push(sibling.attr('data-link'));
+    for(let child   of children) links.push(  child.attr('data-link'));
+
+    if(links.includes(link)) return false;
+
+    return true;
+
+}
+function removeDropHoverIndicators() {
+
+    $('.drag-hover-valid'  ).removeClass('drag-hover-valid'  );
+    $('.drag-hover-invalid').removeClass('drag-hover-invalid');
+
+}
 
 
 // Save all changes when clicking the Save button
