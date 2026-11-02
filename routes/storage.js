@@ -57,16 +57,12 @@ router.get('/folders', validatePLMSession, function(req, res, next) {
     };
 
     if(fs.existsSync(path)) {
-        console.log('1');
         fs.readdir(path, function (err, files) {
-            console.log('2');
             files.forEach(function (file) {
-                console.log('3');
                 if(fs.lstatSync(path + '/' + file).isDirectory()) {
                     response.folders.push(file);
                 }
             });
-            console.log('4');
             res.json(response);
 
         });
