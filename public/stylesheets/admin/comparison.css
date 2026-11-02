@@ -136,14 +136,14 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     width         : var(--width-buttons);
 }
 #comparison-options .header {
-    height : 26px;
-    max-height : 26px;
-    min-height : 26px;
-    line-height : 22px;
-    padding-top : 0px;
-    text-align  : center;
-    overflow    : hidden;
-    white-space : nowrap;
+    height        : 26px;
+    max-height    : 26px;
+    min-height    : 26px;
+    line-height   : 22px;
+    padding-top   : 0px;
+    text-align    : center;
+    overflow      : hidden;
+    white-space   : nowrap;
     text-overflow : ellipsis;
 }
 #comparison-options .label {
@@ -202,23 +202,23 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
 }
 .result-icon {
     font-weight : 200;
-    height      : 38px;
-    line-height : 38px;
+    height      : 30px;
+    line-height : 30px;
     text-align  : center;
     max-width   : 60px;
     min-width   : 60px;
     width       : 60px;
 }
 .result-label { 
-    height      : 38px;
-    line-height : 38px;
+    height      : 30px;
+    line-height : 30px;
     max-width   : 190px;
     min-width   : 190px;
     width       : 190px;
 }
 .result-summary {
     font-size   : 12px;
-    line-height : 38px;
+    line-height : 30px;
     text-align  : right;
     max-width   : 250px;
     min-width   : 250px;
@@ -228,8 +228,8 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     color       : var(--color-surface-level-1);
     padding-right : 10px;
     text-align  : center;
-    height      : 38px;
-    line-height : 38px;
+    height      : 30px;
+    line-height : 30px;
     max-width   : 48px;
     min-width   : 48px;
     width       : 48px;
@@ -242,15 +242,16 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     flex-direction  : column;
     flex-grow       : 1;
     gap             : 1px;
-    max-width       : calc(100% - 604px);    
-    min-width       : calc(100% - 604px);    
-    width           : calc(100% - 604px);    
+    max-width       : calc(100% - 596px);    
+    min-width       : calc(100% - 596px);    
+    width           : calc(100% - 596px);    
 }
 .result-compare {
-    background    : var(--color-surface-level-2);
+    background    : var(--color-surface-level-1);
     display       : none;
+    height        : 30px;
     padding-left  : 8px;
-    padding-right : 2px;
+    padding-right : 0px;
 }
 .action {
     display : flex;
@@ -265,7 +266,7 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     padding         : 4px 12px;
 }
 .action.with-comparison-button > .action-text.button {
-    max-width       : calc(100% - 112px);
+    max-width       : calc(100% - 88px);
 }
 .action-instructions {
     overflow        : hidden;
@@ -314,13 +315,13 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
 .icon-compare.button {
     border-radius : 0px;
     font-size     : 24px;
-    line-height   : 36px;
-    max-height    : 36px;
-    min-height    : 36px;
-    height        : 36px;
-    max-width     : 36px;
-    min-width     : 36px;
-    width         : 36px;
+    line-height   : 28px;
+    max-height    : 28px;
+    min-height    : 28px;
+    height        : 28px;
+    max-width     : 28px;
+    min-width     : 28px;
+    width         : 28px;
 }
 
 
