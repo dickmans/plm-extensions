@@ -63,10 +63,8 @@ router.get('/start', function(req, res, next) {
     });
 });
 router.get('/monitoring' , async function(req, res, next) {
-
-    if(!checkPLMSystemAdmin(req, res)) return;
+    if(!(await checkPLMSystemAdmin(req, res))) return;
     launch('framework/monitoring', 'monitoring', 'UX Server Monitoring', req, res, next);
-
 });
 router.get('/error-loading', function(req, res, next) {
     res.render('framework/error-loading.pug');
@@ -181,8 +179,6 @@ async function launch(appURL, appSettings, appTitle, req, res) {
     if(isServiceDisabled(appURL, req, res)) return;
     
     let authorized   = req.session.hasOwnProperty('headers');
-    let refreshToken = false;
-    let now          = (new Date().getTime() - 10000);
     let runAs        =  '';
     let useSSA       = false;
 
@@ -204,16 +200,6 @@ async function launch(appURL, appSettings, appTitle, req, res) {
     }
 
     if(authorized) {
-        if(req.session.headers.hasOwnProperty('refreshToken')) {
-            if(req.session.headers.hasOwnProperty('expires')) {
-                if(req.session.headers.expires < now) {
-                    refreshToken = true;
-                }
-            }
-        }
-    }
-
-    if(authorized) {
         if(req.session.hasOwnProperty('loginType')) {
             if(req.session.loginType === '2-legged') {
                 authorized = !useSSA && (runAs !== '');
@@ -223,15 +209,10 @@ async function launch(appURL, appSettings, appTitle, req, res) {
                 authorized = useSSA && (runAs === '');
             }
         }
-    }
+    }    
+  
+    if(authorized) authorized = await ensureFreshToken(req);
 
-    if(refreshToken) {
-
-        await refreshExistingToken(req, res);
-        authorized = true;
-
-    } 
-    
     if(!authorized) {
 
         if(useSSA)                 genTokenforSSA(req, res, appURL, appSettings, appTitle);
@@ -486,25 +467,17 @@ async function getToken(req, code) {
             'accept'        : 'application/json',
             'content-type'  : 'application/x-www-form-urlencoded'
         }
-    }).then(function (response) {
+    }).then(async function (response) {
 
-        if (response.status == 200) {               
-            
+        if (response.status == 200) {
+
             console.log();
-            console.log('  Login to Autodesk Platform Services (APS) successful');
+            console.log('  3-legged login to Autodesk Platform Services (APS) successful');
             console.log();
 
             req.session.loginType = '3-legged';
 
-            req.session.headers = {
-                'Content-Type' : 'application/json',
-                Accept         : 'application/json',
-                'X-Tenant'     : req.app.locals.tenant,
-                token          : response.data.access_token,
-                Authorization  : 'Bearer ' + response.data.access_token,
-                expires        : Date.now() + response.data.expires_in * 1000,
-                refreshToken   : response.data.refresh_token,
-            };
+            await updateSessionHeaders(req, response.data);
 
         }
 
@@ -520,61 +493,26 @@ function base64URLEncode(str) {
 function sha256(buffer) {
     return crypto.createHash('sha256').update(buffer).digest();
 }
+function updateSessionHeaders(req, data, userId) {
 
+    req.session.headers = {
+        'Content-Type' : 'application/json',
+        Accept         : 'application/json',
+        'X-Tenant'     : req.app.locals.tenant,
+        token          : data.access_token,
+        Authorization  : 'Bearer ' + data.access_token,
+    };
 
+    if(data.expires_in    != null) req.session.headers.expires      = Date.now() + (data.expires_in * 1000);
+    if(data.refresh_token != null) req.session.headers.refreshToken = data.refresh_token;
+    if(userId             != null) req.session.headers['X-user-id'] = userId;
 
-/* ------------------------------------------------------------------------------
-    REFRESH EXISTING TOKEN
-   ------------------------------------------------------------------------------ */
-async function refreshExistingToken(req, res) {
+    // Persist immediately, so the new (single-use) refresh token is in the session store before any subsequent request is processed
 
-    let data = {
-        refresh_token : req.session.headers.refreshToken,
-        grant_type    : 'refresh_token',
-        client_id     : req.app.locals.clientId,
-    }
-
-    return axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
-        headers: {
-            'accept'       : 'application/json',
-            'content-type' : 'application/x-www-form-urlencoded'
-        }
-    }).then(function (response) {
-
-        if (response.status == 200) {
-
-            console.log();
-            console.log('  Token refresh successful');
-            console.log();
-
-            let expiration = new Date();
-            
-            expiration.setSeconds(expiration.getSeconds() + (response.data.expires_in - 90));
-
-            req.session.headers = {
-                'Content-Type' : 'application/json',
-                Accept         : 'application/json',
-                'X-Tenant'     : req.app.locals.tenant,
-                token          : response.data.access_token,
-                Authorization  : 'Bearer ' + response.data.access_token,
-                expires        : expiration,
-                refreshToken   : response.data.refresh_token
-            };
-
-            return true;
-            
-        } else {
-            console.log();
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            console.log('             REFRESH FAILED');
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            console.log();
-            return false;
-        }
-
-    }).catch(function(error) {
-        console.log('  Token refresh failed : ' + (error.response ? JSON.stringify(error.response.data) : error.message));
-        return false;
+    return new Promise(function(resolve, reject) {
+        req.session.save(function(error) {
+            if(error) reject(error); else resolve(req.session.headers);
+        });
     });
 
 }
@@ -690,7 +628,7 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
             'content-type'  : 'application/x-www-form-urlencoded',
             'Authorization' : 'Basic ' + btoa(clientString),
         } 
-    }).then(function(response) {
+    }).then(async function(response) {
 
         if (response.status == 200) {               
             
@@ -700,16 +638,7 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
 
             req.session.loginType = '2-legged';
 
-            req.session.headers = {
-                'Content-Type' : 'application/json',
-                Accept         : 'application/json',
-                'X-Tenant'     : req.app.locals.tenant,
-                'X-user-id'    : runAs,
-                token          : response.data.access_token,
-                Authorization  : 'Bearer ' + response.data.access_token,
-                expires        : Date.now() + response.data.expires_in * 1000,
-                refreshToken   : response.data.refresh_token
-            };
+            await updateSessionHeaders(req, response.data, runAs);            
 
             launch(appURL, appSettings, appTitle, req, res);
             
@@ -740,11 +669,21 @@ function loginAsDefinedUser(req, res, appURL, appSettings, appTitle) {
 const tokenRenewals = {};
 async function validatePLMSession(req, res, next) {
 
-    let headers = req.session && req.session.headers;
+    let headers = req.session?.headers;
 
     if(!headers || !headers.token) return res.status(401).send('PLM login required.');
 
-    if(!isTokenExpired(req)) return next();
+    if(!(await ensureFreshToken(req))) return res.status(401).send('Session expired.');
+
+    next();
+
+}
+
+async function ensureFreshToken(req) {
+
+    let expires = req.session.headers.expires;
+
+    if(typeof expires === 'undefined' || expires >= (Date.now() + 10000)) return true;
 
     // concurrent requests of the same session share a single renewal (refresh tokens are single-use)
     let key = req.sessionID;
@@ -753,41 +692,25 @@ async function validatePLMSession(req, res, next) {
         tokenRenewals[key] = renewSessionToken(req).finally(function() { delete tokenRenewals[key]; });
     }
 
-    let renewed = false;
+    let newHeaders = false;
 
-    try { renewed = await tokenRenewals[key]; } catch(error) { console.log(error); }
+    try { newHeaders = await tokenRenewals[key]; } catch(error) { console.log(error); }
 
-    if(!renewed) return res.status(401).send('Session expired.');
+    if(!newHeaders) return false;
 
-    // a concurrent request may have renewed the token on another req object
-    if(req.session.headers.token !== headers.token || !isTokenExpired(req)) return next();
+    // every concurrent request has its own req.session object, so adopt the renewed headers (already saved to the session store)
+    if(req.session.headers !== newHeaders) req.session.headers = { ...newHeaders };
 
-    req.session.save(function() { next(); });
-
-}
-function isTokenExpired(req) {
-
-    let expires = req.session.headers.expires;
-
-    if(typeof expires === 'undefined') return false;
-
-    // sessions created before the numeric format may hold an ISO date string
-    // let expiresAt = (typeof expires === 'number') ? expires : new Date(expires).getTime();
-
-    // return isNaN(expiresAt) || (expiresAt < (Date.now() + 10000));
-    return (expires < (Date.now() + 10000));
+    return true;
 
 }
 async function renewSessionToken(req) {
     
-    console.log('renewSessionToken START');
-    console.log(req.session.loginType);
-
     switch(req.session.loginType) {
 
         case '3-legged':
             if(!req.session.headers.refreshToken) return false;
-            return refreshExistingToken(req);
+            return requestTokenRefresh(req);
 
         case '2-legged':
             return requestNewAppToken(req, {
@@ -807,6 +730,47 @@ async function renewSessionToken(req) {
     return false;
 
 }
+async function requestTokenRefresh(req, res) {
+
+    let data = {
+        refresh_token : req.session.headers.refreshToken,
+        grant_type    : 'refresh_token',
+        client_id     : req.app.locals.clientId,
+    }
+
+    return axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
+        headers: {
+            'accept'       : 'application/json',
+            'content-type' : 'application/x-www-form-urlencoded'
+        }
+    }).then(async function (response) {
+
+        if (response.status == 200) {
+
+            console.log();
+            console.log('  Token refresh successful');
+            console.log();
+
+            return await updateSessionHeaders(req, response.data);
+            
+        } else {
+
+            console.log();
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            console.log('             REFRESH FAILED');
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            console.log();
+
+            return false;
+
+        }
+
+    }).catch(function(error) {
+        console.log('  Token refresh failed : ' + (error.response ? JSON.stringify(error.response.data) : error.message));
+        return false;
+    });
+
+}
 async function requestNewAppToken(req, grantData, useSecret) {
 
     const clientString = req.app.locals.adminClientId + ':' + req.app.locals.adminClientSecret;
@@ -821,20 +785,7 @@ async function requestNewAppToken(req, grantData, useSecret) {
             }
         });
 
-        let headers = {
-            'Content-Type' : 'application/json',
-            Accept         : 'application/json',
-            'X-Tenant'     : req.app.locals.tenant,
-            token          : response.data.access_token,
-            Authorization  : 'Bearer ' + response.data.access_token,
-            expires        : Date.now() + (response.data.expires_in - 90) * 1000
-        };
-
-        if(req.session.headers['X-user-id']) headers['X-user-id'] = req.session.headers['X-user-id'];
-
-        req.session.headers = headers;
-
-        return true;
+        return await updateSessionHeaders(req, response.data, req.session.headers['X-user-id']);
 
     } catch(error) {
         console.log('  Token renewal failed : ' + (error.response ? JSON.stringify(error.response.data) : error.message));
