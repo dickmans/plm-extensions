@@ -1,7 +1,7 @@
 let paramsDetails     = {}
 let paramsAttachments = {}
 let linkSelected      = '';
-let wsConfig          = { workspaceId : '' , isComponent : false };
+let wsConfig          = { workspaceId : ''  };
 
 $(document).ready(function() {
     
@@ -10,57 +10,53 @@ $(document).ready(function() {
     showStartupDialog();
 
     wsConfig.workspaceId = config.workspaceId || common.workspaceIds.items;
-    wsConfig.bomViewName = config.panels.insertDetails.bomViewName || common.workspaces.items.defaultBOMView;
+    wsConfig.bomViewName = config.panels.insertBOM.bomViewName || common.workspaces.items.defaultBOMView;
 
-    $.get('/plm/workspace', { wsId : wsConfig.workspaceId, useCache : true }, function(response) {
+    let requests = [
+        $.get('/plm/sections'    , { wsId : wsConfig.workspaceId, useCache : true }),
+        $.get('/plm/fields'      , { wsId : wsConfig.workspaceId, useCache : true }),
+        $.get('/plm/bom-views'   , { wsId : wsConfig.workspaceId, useCache : true }),
+        $.get('/plm/is-component', { wsId : wsConfig.workspaceId }),
+        $.get('/services/chrome')
+    ];
 
-        if(response.data.systemName === 'CW_COMPONENTS') wsConfig.isComponent = true;
+    getFeatureSettings('portal', requests, function(responses) {
 
-        let requests = [
-            $.get('/plm/sections' , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
-            $.get('/plm/fields'   , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
-            $.get('/plm/bom-views', { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertBOM.useCache     || true }),
-            $.get('/services/chrome')
-        ];
+        wsConfig.sections    = responses[0].data;
+        wsConfig.fields      = responses[1].data;
+        wsConfig.isComponent = responses[3].data;
+        dataContextMenu      = responses[4];
 
-        getFeatureSettings('portal', requests, function(responses) {
+        if(!wsConfig.isComponent) getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
 
-            wsConfig.sections = responses[0].data;
-            wsConfig.fields   = responses[1].data;
-            dataContextMenu   = responses[3];
+        let paramsSearch = config.panels.insertWorkspaceSearch;
+            paramsSearch.id               = 'search';
+            paramsSearch.tileImageFieldId = paramsSearch.tileImageFieldId || common.workspaces.items.fieldIdImage;
+            paramsSearch.onClickItem      = function(elemClicked) { clickTile(elemClicked); };
 
-            if(!wsConfig.isComponent) getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
+        insertWorkspaceSearch(wsConfig.workspaceId, paramsSearch);
 
-            let paramsSearch = config.panels.insertWorkspaceSearch;
-                paramsSearch.id               = 'search';
-                paramsSearch.tileImageFieldId = paramsSearch.tileImageFieldId || common.workspaces.items.fieldIdImage;
-                paramsSearch.onClickItem      = function(elemClicked) { clickTile(elemClicked); };
+        let paramsBookmarks = config.panels.insertBookmarks;
+            paramsBookmarks.workspacesIn    = [wsConfig.workspaceId];
+            paramsBookmarks.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
 
-            insertWorkspaceSearch(wsConfig.workspaceId, paramsSearch);
+        insertBookmarks(paramsBookmarks);
 
-            let paramsBookmarks = config.panels.insertBookmarks;
-                paramsBookmarks.workspacesIn    = [wsConfig.workspaceId];
-                paramsBookmarks.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
+        paramsDetails     = config.panels.insertDetails;
+        paramsAttachments = config.panels.insertAttachments;
 
-            insertBookmarks(paramsBookmarks);
+        if(!isBlank(urlParameters.link)) {
 
-            paramsDetails     = config.panels.insertDetails;
-            paramsAttachments = config.panels.insertAttachments;
+            $('#toggle-search').click();
+            $('#toggle-bom').click();
 
-            if(!isBlank(urlParameters.link)) {
+            linkSelected = urlParameters.link;
 
-                $('#toggle-search').click();
-                $('#toggle-bom').click();
+            $.get('/plm/descriptor', { link : linkSelected }, function(response) {
+                openItem(response.data);
+            });
 
-                linkSelected = urlParameters.link;
-
-                $.get('/plm/descriptor', { link : linkSelected }, function(response) {
-                    openItem(response.data);
-                });
-
-            }
-
-        });
+        }
 
     });
 

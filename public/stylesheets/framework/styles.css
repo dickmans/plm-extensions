@@ -721,6 +721,16 @@ td.tree-first-col {
     text-align : center;
     flex-grow  : 1;
 }
+.tree-files-download-preview {
+    display    : none;
+    font-size  : 12px;
+    gap        : 6px;
+    max-height : 32px;
+    min-height : 32px;
+    height     : 32px;
+    opacity    : 0.8;
+    justify-content : center;
+}
 .tree-files-download-options-actions {
     display     : flex;
     gap         : 10px;
@@ -741,10 +751,9 @@ td.tree-first-col {
 .tree-files-download-counters {
     display     : grid;
     gap         : 4px;
-    padding-top : 20px;
     width       : 250px;
     grid-template-columns : 60px auto;
-    grid-template-rows : 26px 26px 26px 26px 65px auto;
+    grid-template-rows : 20px 20px 20px 20px auto;
 }
 .tree-files-download-counters-value {
     font-weight   : bold;
@@ -752,8 +761,9 @@ td.tree-first-col {
     text-align    : right;
 }
 .tree-files-download-counters-progress-bar {
+    cursor   : pointer;
     position : absolute;
-    top      : 170px;
+    top      : 110px;
     left     : 8px;
     right    : 8px;
 }
@@ -763,7 +773,7 @@ td.tree-first-col {
     top        : 0px;
     right      : 0px;
     left       : 0px;
-    height     : 32px;
+    height     : 40px;
     transition : all ease 0.2s;
 }
 .tree-files-download-counters-progress-done {
@@ -800,16 +810,22 @@ td.tree-first-col {
     z-index     : 2;
 }
 .tree-files-download-counters-actions {
+    align-self  : end;
     display     : flex;
-    gap         : 12px;
+    flex-direction : column;
+    gap         : 8px;
     grid-column : 1 / 2;
-    margin      : 75px 8px 0px;
+    margin      : 0px 8px;
     width       : 236px;
     justify-content : center;
 }
 .tree-files-download-counters-actions > div {
     flex-grow : 1;
     min-width : unset;
+}
+.tree-files-download-completion-actions {
+    display : flex;
+    gap     : 8px;
 }
 .tree-files-download-stop {
     justify-content : center;
@@ -842,16 +858,19 @@ td.tree-first-col {
     gap     : 16px;
 }
 .tree-files-download-status {
-    display   : none;
-    max-width : 0px;
-    min-width : 120px;
-    width     : 120px;
+    border-left : 1px solid var(--color-surface-level-1);
+    display     : none;
+    text-align  : center;
+    max-width   : 0px;
+    min-width   : 120px;
+    width       : 120px;
 }
 .tree-files-download-status > .processing > div {
     background-color : var(--color-blue-500);
     height : 12px;
     width  : 12px;
 }
+
 .tree-files-download-options,
 .tree-files-download-progress {
     overflow : hidden;
@@ -876,6 +895,32 @@ td.tree-first-col {
     display  : inline-block;
     position : unset;
 }
+
+.tree-files-download-status-preview {
+    border-radius : 6px;
+    display       : inline-block;
+    font-size     : 12px;
+    line-height   : 18px;
+    padding       : 0px 10px;
+    text-align    : center;
+    max-width     : 48px;
+    min-width     : 48px;
+    width         : 48px;
+}
+.tree-files-download-include .tree-files-download-status-preview  {
+    background  : var(--color-status-yellow);
+    font-weight : bold;
+}
+.tree-files-download-skip .tree-files-download-status-preview {
+    opacity : 0.5;
+}
+
+.with-files-download-preview .tree-files-download-panel { height : 290px; }
+.with-files-download-preview .tree-files-download-preview { display : flex; }
+.with-files-download-preview .panel-content,
+.with-files-download-preview.with-files-download.panel-top.with-panel-actions > .panel-content { top : 390px; }
+.with-files-download-preview .tree-files-download-progress { height : 325px; }
+.with-files-download-preview .tree-files-download-files-list { max-height : 260px; min-height : 260px; height : 260px; }
 
 
 .panel-top.with-tree-path > .panel-content { bottom : 30px; }

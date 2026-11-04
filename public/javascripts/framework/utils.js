@@ -2119,7 +2119,9 @@ function genPanelTop(id) {
     if(!isBlank(settings[id].link)) elemTop.attr('data-link', settings[id].link);
 
     settings[id].elemTop = elemTop;
-    elemTop.removeClass('with-files-download');
+    
+    elemTop.removeClass('with-files-download')
+           .removeClass('with-files-download-preview')
 
     return elemTop;
 
@@ -4661,7 +4663,6 @@ function treeScrollToBottom(id) {
 }
 function treeScrollToItem(elemClicked, duration) {
 
-
     let index    = elemClicked.attr('data-index') || elemClicked.index();
     let panel    = elemClicked.closest('.panel-top');
     let id       = panel.attr('id');
@@ -4832,6 +4833,7 @@ function treeToggleDownloadPanelAndColumn(id) {
     if(!elemTop.hasClass('with-files-download')) {
         if(elemDownloadOptions.length > 0) elemDownloadOptions.addClass('hidden');
         elemTop.find('.tree-files-download-status').remove();
+        elemTop.removeClass('with-files-download-preview');
         return;
     }
 
@@ -4876,7 +4878,8 @@ function treeToggleDownloadPanelAndColumn(id) {
             .append($('<option value="selected-subs">Selected Items & Sub Components</option>'))
             .append($('<option value="deselected">Deselected Items</option>'))
             .append($('<option value="filtered">Filtered Items</option>'))
-            .attr('id', id + '-tree-files-download-selected');   
+            .attr('id', id + '-tree-files-download-selected')
+            .change(() => updateDownloadPanelPreview(id));
         
         $('<div></div>').appendTo(elemDownloadOptions)
             .addClass('tree-files-download-options-label')
@@ -4891,7 +4894,8 @@ function treeToggleDownloadPanelAndColumn(id) {
         let elemSelectRange = $('<select></select>')
             .addClass('button')
             .addClass('tree-files-download-range')
-            .attr('id', id + '-tree-files-download-range');
+            .attr('id', id + '-tree-files-download-range')
+            .change(() => updateDownloadPanelPreview(id));
 
         let now = new Date();
 
@@ -4937,6 +4941,7 @@ function treeToggleDownloadPanelAndColumn(id) {
                 .html(fileFormat.label)
                 .click(function() {
                     $(this).toggleClass('icon-check-box').toggleClass('icon-check-box-checked');
+                    updateDownloadPanelPreview(id);
                 });
 
             if(!isBlank(fileFormat.tooltip)) elemFormat.attr('title', fileFormat.tooltip);
@@ -4948,7 +4953,9 @@ function treeToggleDownloadPanelAndColumn(id) {
             .addClass('tree-files-download-format-filter')
             .attr('id', id + '-tree-files-download-format-filter')
             .attr('placeholder', 'Custom')
-            .attr('title', 'Provide any text string that must be included in the filename; asterisks (*) will be appended automatically');
+            .attr('title', 'Provide any text string that must be included in the filename; asterisks (*) will be appended automatically')
+            .on('keyup', () => updateDownloadPanelPreview(id))
+            .change(() => updateDownloadPanelPreview(id));
 
 
         // Download Folder Selector
@@ -5034,6 +5041,30 @@ function treeToggleDownloadPanelAndColumn(id) {
 
 
         $('<div></div>').appendTo(elemDownloadOptions)
+            .addClass('tree-files-download-preview');
+
+        let elemPreview = $('<div></div>').appendTo(elemDownloadOptions)
+            .addClass('tree-files-download-preview');
+
+        $('<div></div>').appendTo(elemPreview)
+            .attr('id', id + '-tree-files-download-preview-selected')
+            .addClass('tree-files-download-preview-selected')
+            .html('-');
+
+        $('<div></div>').appendTo(elemPreview)
+            .addClass('tree-files-download-preview-of')
+            .html('of');
+
+        $('<div></div>').appendTo(elemPreview)
+            .addClass('tree-files-download-preview-total')
+            .html('-');
+
+        $('<div></div>').appendTo(elemPreview)
+            .attr('id', id + '-tree-files-download-preview-message')        
+            .addClass('tree-files-download-preview-message')
+            .html('files will be downloaded');
+
+        $('<div></div>').appendTo(elemDownloadOptions);
 
         let elemOptionsActions = $('<div></div>').appendTo(elemDownloadOptions)
             .addClass('tree-files-download-options-actions');   
@@ -5088,11 +5119,16 @@ function treeToggleDownloadPanelAndColumn(id) {
 
         $('<div></div').appendTo(elemProgressCounters)
             .addClass('tree-files-download-counters-label')
-            .html('Files Downloaded');
+            .html('Files Downloaded'); 
 
         let elemCountersProgress = $('<div></div').appendTo(elemProgressCounters)
             .addClass('tree-files-download-counters-progress-bar')   
-            .attr('id', id + '-tree-files-download-counters-progress-bar');   
+            .attr('id', id + '-tree-files-download-counters-progress-bar')
+            .attr('title', 'Click to scroll to current download processes')
+            .click(function() {
+                scrollToDownloadInProgress(id);
+            });
+
 
         $('<div></div').appendTo(elemCountersProgress).addClass('tree-files-download-counters-progress-done').attr('id', id + '-tree-files-download-counters-progress-done');
         $('<div></div').appendTo(elemCountersProgress).addClass('tree-files-download-counters-progress-curr').attr('id', id + '-tree-files-download-counters-progress-curr');
@@ -5101,6 +5137,19 @@ function treeToggleDownloadPanelAndColumn(id) {
 
         let elemCountersActions = $('<div></div').appendTo(elemProgressCounters)
             .addClass('tree-files-download-counters-actions');   
+
+        $('<div></div').appendTo(elemCountersActions)
+            .attr('id', id + '-tree-files-download-auto-scroll')
+            .addClass('tree-files-download-auto-scroll')   
+            .addClass('button')
+            .addClass('with-toggle')
+            .addClass('toggle-off')
+            .html('Auto-Scroll Tree')
+            .attr('id', id + '-tree-files-download-auto-scroll')
+            .attr('title', 'Click to enable automatic scrolling in tree to current download processes')
+            .click(function(e) {
+                $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+            });          
 
         $('<div></div>').appendTo(elemCountersActions)
             .addClass('button')
@@ -5114,7 +5163,10 @@ function treeToggleDownloadPanelAndColumn(id) {
                 stopTreeDownloads(id);
             });  
 
-        $('<div></div>').appendTo(elemCountersActions)
+        let elemClosingActions = $('<div></div').appendTo(elemCountersActions)
+            .addClass('tree-files-download-completion-actions');
+
+        $('<div></div>').appendTo(elemClosingActions)
             .addClass('button')
             .addClass('default')
             .addClass('with-icon')
@@ -5127,7 +5179,7 @@ function treeToggleDownloadPanelAndColumn(id) {
                 returnToTreeDownloadOptions(id);
             }); 
 
-        $('<div></div>').appendTo(elemCountersActions)
+        $('<div></div>').appendTo(elemClosingActions)
             .addClass('button')
             .addClass('with-icon')
             .addClass('icon-close')
@@ -5156,6 +5208,26 @@ function treeToggleDownloadPanelAndColumn(id) {
 
     }
 
+    if(settings[id].bomPartsList.length > 0) {
+        if(settings[id].bomPartsList[0].attachments !== null) {
+
+            let count     = 0;
+            let prevLinks = [];
+
+            for(let part of settings[id].bomPartsList) {
+                if(!prevLinks.includes(part.link)) {
+                    count += part.attachments.length;
+                    prevLinks.push(part.link);
+                }
+            }
+
+            elemDownloadOptions.find('.tree-files-download-preview-total').html(count);
+            elemDownloadOptions.addClass('with-preview');
+            $('#' + id).addClass('with-files-download-preview');
+            updateDownloadPanelPreview(id);
+        }
+    }
+
     elemDownloadOptions.removeClass('hidden');
 
 }
@@ -5168,6 +5240,42 @@ function insertDateRangeFilter(elemSelectRange, label, days) {
     elemSelectRange.append($('<option value="' + date.getTime() + '">' + label + '</option>'));
 
 }
+function updateDownloadPanelPreview(id) {
+
+    if(!$('#' + id).hasClass('with-files-download-preview')) return;
+
+    const selection = $('#' + id + '-tree-files-download-selected').val();
+    const elemRange = $('#' + id + '-tree-files-download-range');
+    const formats   = getTreeDownloadSelectedFormats(id);
+    let elemMessage = $('#' + id + '-tree-files-download-preview-message');
+    let elemTBody   = $('#' + id + '-tbody');
+    
+    let countTotal = 0;
+    let prevLinks  = [];
+
+    countTotal += includeRootFilesInDownload(id, selection, formats) || 0;
+
+    elemTBody.children().each(function() {
+
+        const elemRow   = $(this);
+
+        elemRow.removeClass('tree-files-download-include').removeClass('tree-files-download-skip');
+
+        let countFiles = includeFilesInDownload(id, elemRow, selection, formats, prevLinks);
+
+        countTotal += countFiles || 0;
+
+    });
+
+    $('#' + id + '-tree-files-download-preview-selected').html(countTotal);
+
+    if (elemRange.prop('selectedIndex') === 0) {
+        elemMessage.html('files will be downloaded');
+    } else {
+        elemMessage.html('files will be downloaded at max (depends on file date)');
+    }
+
+}
 async function startTreeDownload(id) {
 
     if (!window.showDirectoryPicker) {
@@ -5177,19 +5285,14 @@ async function startTreeDownload(id) {
 
     try {
         
-        let fileHandler =  null;
-        let elemTBody   = $('#' + id + '-tbody');
-        let selection   = $('#' + id + '-tree-files-download-selected').val();
+        const elemTBody = $('#' + id + '-tbody');
+        const selection = $('#' + id + '-tree-files-download-selected').val();
+        const formats   = getTreeDownloadSelectedFormats(id);
+        let fileHandler = null;
         let subFolders  = $('#' + id + '-tree-files-download-subfolders').val();
         let items       = [];
+        let prevLinks   = [];
 
-        elemTBody.find('.tree-download-complete').removeClass('tree-download-complete');
-        elemTBody.find('.tree-files-download-status').html('');
-        
-        $('#' + id + '-tree-files-download-stop').removeClass('disabled').addClass('red');
-        $('#' + id + '-tree-files-download-files-list').html('');
-        $('#' + id + '-tree-files-download-files-header').html('Downloading files of ' + $('#' + id + '-tree-files-download-selected').children(':selected').html());
-        
         downloadQueue = {
             id         : id,
             requests   : settings[id].downloadRequests || 3,
@@ -5214,17 +5317,7 @@ async function startTreeDownload(id) {
             }
         };
 
-        $('.tree-files-download-format').each(function() {
-            let elemFormat = $(this);
-            if(elemFormat.hasClass('icon-check-box-checked')) {
-                let filters = elemFormat.attr('data-filter').split(',');
-                for(let filter of filters) downloadQueue.formats.push(filter);
-            }
-        });
-
-        let customFilter = $('#' + id + '-tree-files-download-format-filter').val();
-
-        if(!isBlank(customFilter)) downloadQueue.formats.push(customFilter);
+        downloadQueue.formats = getTreeDownloadSelectedFormats(id);
 
         if(downloadQueue.folder === 'local-drive') {
             downloadQueue.formats  = downloadQueue.formats.toString();
@@ -5232,6 +5325,14 @@ async function startTreeDownload(id) {
             downloadQueue.method   = 'get'
             fileHandler            = await window.showDirectoryPicker() ;
         }
+
+        elemTBody.find('.tree-download-complete').removeClass('tree-download-complete');
+        elemTBody.find('.tree-files-download-status').html('');
+
+        $('#' + id + '-tree-files-download-stop').removeClass('disabled').addClass('red');
+        $('#' + id + '-tree-files-download-files-list').html('');
+        $('#' + id + '-tree-files-download-files-header').html('Downloading files of ' + $('#' + id + '-tree-files-download-selected').children(':selected').html());        
+
 
         if(selection === 'all') {
      
@@ -5256,65 +5357,44 @@ async function startTreeDownload(id) {
 
             let elemRow = $(this);
             let link    = elemRow.attr('data-link');
-            let valid   = (selection === 'all');
             let level   = Number(elemRow.attr('data-level'));
             let title   = elemRow.attr('data-title').split(' [REV:')[0];
+            let count   = includeFilesInDownload(id, elemRow, selection, formats, prevLinks);
+            let valid   = (count > 0);
 
             if(level === 1) topLevelFolder = title;
             if(level > previousLevel) bomTreeFolders.push(title); else { bomTreeFolders.length = (level - 1); bomTreeFolders.push(title); }
 
-            previousLevel = level;
+            previousLevel = level;         
 
-            if(!elemRow.hasClass('tree-download-complete')) {
-    
-                if(selection === 'selected-subs') {
-                    if(elemRow.hasClass('selected')) { 
-                        valid = true;
-                    } else {
-                        let path = getTreeItemPath(elemRow, ';');
-                        for(let parent of path.links) {
-                            for(let downloadPending of downloadQueue.pending) {
-                                if(downloadPending.link === parent) {
-                                    valid = true;
-                                    break;
+            if(!elemRow.hasClass('tree-files-download-skip')) {
+                if(!elemRow.hasClass('tree-download-complete')) {
+
+                    if(!items.includes(link)) {
+                        if(valid) {
+                                
+                            if(subFolders !== 'top') {
+                                if(subFolders !== 'path') {
+                                    items.push(link);
                                 }
                             }
-                        }
+
+                            let subFolder = '';
+
+                                 if(subFolders === 'item') subFolder = elemRow.attr('data-title').split(' [REV:')[0];
+                            else if(subFolders === 'top' ) subFolder = topLevelFolder;
+                            else if(subFolders === 'path') subFolder = bomTreeFolders.toString().replaceAll(',', '/');
+
+                            downloadQueue.pending.push({
+                                link      : link,
+                                title     : elemRow.attr('data-title'),
+                                version   : getItemRevisionFromDescriptor(elemRow.attr('data-title')),
+                                subFolder : subFolder.trim(),
+                                index     : elemRow.index()
+                            });
+
+                        } 
                     }
-                } else if(elemRow.hasClass('selected')) { 
-                    if(selection === 'selected') valid = true; 
-                } else if(selection === 'deselected') {
-                    valid = true; 
-                } 
-
-                if(elemRow.hasClass('result')) {
-                    if(selection === 'filtered') valid = true;
-                }
-
-                if(!items.includes(link)) {
-                    if(valid) {
-                            
-                        if(subFolders !== 'top') {
-                            if(subFolders !== 'path') {
-                                items.push(link);
-                            }
-                        }
-
-                        let subFolder = '';
-
-                                if(subFolders === 'item') subFolder = elemRow.attr('data-title').split(' [REV:')[0];
-                        else if(subFolders === 'top' ) subFolder = topLevelFolder;
-                        else if(subFolders === 'path') subFolder = bomTreeFolders.toString().replaceAll(',', '/');
-
-                        downloadQueue.pending.push({
-                            link      : link,
-                            title     : elemRow.attr('data-title'),
-                            version   : getItemRevisionFromDescriptor(elemRow.attr('data-title')),
-                            subFolder : subFolder.trim(),
-                            index     : elemRow.index()
-                        });
-
-                    } 
                 }
             }
 
@@ -5323,6 +5403,7 @@ async function startTreeDownload(id) {
                 downloadQueue.counters.skipped++;
                 let elemCell = elemRow.find('.tree-files-download-status');
                 if(elemCell.length > 0) {
+                    elemCell.html('');
                     $('<div></div>').appendTo(elemCell)
                         .addClass('tree-file-downloaded')
                         .addClass('with-icon')
@@ -5338,9 +5419,10 @@ async function startTreeDownload(id) {
 
         $('#' + id + '-tree-files-download-options' ).toggleClass('hidden');
         $('#' + id + '-tree-files-download-progress').toggleClass('hidden');
+        $('#' + id + '-tree-files-download-auto-scroll').removeClass('hidden');
         $('#' + id + '-tree-files-download-stop').removeClass('hidden');
         $('#' + id + '-tree-files-download-counters-progress-bar').removeClass('hidden');
-        $('#' + id + '-tree-files-download-progress').find('.tree-files-download-completion-action').addClass('hidden');
+        $('#' + id + '-tree-files-download-progress').find('.tree-files-download-completion-actions').addClass('hidden');
         $('#' + id + '-tree-files-download-counters-total').html(downloadQueue.counters.total);
         $('#' + id + '-tree-files-download-counters-skipped').html(downloadQueue.counters.skipped);
         $('#' + id + '-tree-files-download-counters-files').html('0');
@@ -5349,9 +5431,122 @@ async function startTreeDownload(id) {
 
         for(let i = 0; i < downloadQueue.requests; i++) processTreeDownloads(fileHandler, downloadQueue, settings[id]);
 
-        // processTreeDownloads(fileHandler, downloadQueue);
-
     } catch (err) {}
+
+}
+function getTreeDownloadSelectedFormats(id) {
+
+    let result   = [];
+    let selected = $('#' + id + '-tree-files-download-formats').children('.icon-check-box-checked');
+    let custom   = $('#' + id + '-tree-files-download-format-filter').val();
+    
+    selected.each(function() {
+        let filters    = $(this).attr('data-filter').split(',');
+        for(let filter of filters) result.push(filter);
+    });
+
+
+    if(!isBlank(custom)) result.push(custom);
+
+    return result;
+
+}  
+function includeRootFilesInDownload(id, selection, formats) {
+
+    formats = formats || [];
+
+    if(selection !== 'all') return 0;
+
+    let count = 0;
+
+    for(let fileName of settings[id].bomPartsList[0].attachments) {
+
+        let included = (formats.length === 0);
+
+        for(let format of formats) {
+            if((fileName.toLowerCase().indexOf(format.toLowerCase()) >= 0)) {
+                included = true;
+            }
+        }
+
+        if(included) count++;
+
+    }
+
+    return count;
+
+}
+function includeFilesInDownload(id, elemRow, selection, formats, prevLinks) {
+
+    formats = formats || [];
+
+    const linkRow = elemRow.attr('data-link');
+    let   valid   = (selection === 'all');
+    let   count   = 0;
+
+    if(selection === 'selected-subs') {
+        if(elemRow.hasClass('selected')) { 
+            valid = true;
+        } else {
+            let path = getTreeItemPath(elemRow, ';');
+            for(let parent of path.items) {
+                if(parent.hasClass('selected')) {
+                    valid = true;
+                    break;
+                }
+            }
+        }                
+    } else if(elemRow.hasClass('selected')) { 
+        if(selection === 'selected') valid = true; 
+    } else if(selection === 'deselected') {
+        valid = true; 
+    } 
+
+    if(elemRow.hasClass('result')) {
+        if(selection === 'filtered') valid = true;
+    }    
+
+    for(let part of settings[id].bomPartsList) {
+
+        if(linkRow === part.link) {
+
+            if(part.attachments === null) return 1;
+
+            for(let fileName of part.attachments) {
+
+                let included = (formats.length === 0);
+
+                for(let format of formats) {
+                    if((fileName.toLowerCase().indexOf(format.toLowerCase()) >= 0)) {
+                        included = true;
+                    }
+                }
+
+                if(included && valid) count++;
+
+            }
+
+            if(count > 0) elemRow.addClass('tree-files-download-include')
+                     else elemRow.addClass('tree-files-download-skip');
+            
+            let elemCell = elemRow.find('.tree-files-download-status');
+                elemCell.html('');
+
+            $('<div></div>').appendTo(elemCell)
+                .addClass('tree-files-download-status-preview')
+                .html(count + ' / ' + part.attachments.length);
+
+            break;
+
+        }
+
+    }
+
+    if(prevLinks.includes(linkRow)) return 0;
+    
+    prevLinks.push(linkRow);
+
+    return count;
 
 }
 async function processTreeDownloads(fileHandler, downloadQueue, settings) {
@@ -5362,11 +5557,18 @@ async function processTreeDownloads(fileHandler, downloadQueue, settings) {
 
     if(downloadQueue.pending.length === 0) {
 
-        $('#' + downloadQueue.id + '-tree-files-download-counters-progress-bar').addClass('hidden');
-        $('#' + downloadQueue.id + '-tree-files-download-stop').addClass('hidden');
-        $('#' + downloadQueue.id + '-tree-files-download-progress').find('.tree-files-download-completion-action').removeClass('hidden');
+        if($('.tree-files-download-processing').length === 0) {
 
-        downloadQueue.stopped = true;
+            if($('#' + downloadQueue.id + '-tree-files-download-auto-scroll').hasClass('toggle-on')) scrollToDownloadInProgress(downloadQueue.id);
+
+            $('#' + downloadQueue.id + '-tree-files-download-counters-progress-bar').addClass('hidden');
+            $('#' + downloadQueue.id + '-tree-files-download-auto-scroll').addClass('hidden');
+            $('#' + downloadQueue.id + '-tree-files-download-stop').addClass('hidden');
+            $('#' + downloadQueue.id + '-tree-files-download-progress').find('.tree-files-download-completion-actions').removeClass('hidden');
+
+            downloadQueue.stopped = true;
+
+        }
 
     } else {
 
@@ -5538,6 +5740,8 @@ async function processTreeDownloads(fileHandler, downloadQueue, settings) {
 
         }
 
+        if($('#' + downloadQueue.id + '-tree-files-download-auto-scroll').hasClass('toggle-on')) scrollToDownloadInProgress(downloadQueue.id);
+
         downloadQueue.counters.completed++;
         downloadQueue.counters.files += response.data.length;
 
@@ -5580,7 +5784,7 @@ async function processTreeDownloads(fileHandler, downloadQueue, settings) {
         }
 
         downloadQueue.success.push(response.params.link);
-        processTreeDownloads(fileHandler, downloadQueue, settings)
+        processTreeDownloads(fileHandler, downloadQueue, settings);
 
     }
 
@@ -5659,6 +5863,28 @@ async function createDirectory(fileHandler, path) {
         console.error("Failed to create directory:", err.message);
     }
 }
+function scrollToDownloadInProgress(id) {
+
+    let elemTBody    = $('#' + id + '-tbody');
+    let elemProgress = elemTBody.find('.tree-files-download-processing').first();
+
+    if(elemProgress.length === 0) {
+
+        treeScrollToBottom(id);
+
+    } else {
+
+        let elemTree = $('#' + id + '-content');
+        let elemItem = elemProgress.closest('.content-item');
+        let top      = elemTree.innerHeight() / 2;
+
+        top = elemItem.position().top - top;
+
+        elemTree.animate({ scrollTop: top }, 50);
+
+    }
+
+}
 function stopTreeDownloads(id) {
 
     downloadQueue.stopped        = true;
@@ -5679,6 +5905,7 @@ function returnToTreeDownloadOptions(id) {
 function closeTreeDownloadPanel(id) {
 
     $('#' + id).removeClass('with-files-download');
+    $('#' + id).removeClass('with-files-download-preview');
     $('#' + id + '-tree-files-download-options').addClass('hidden');
     $('#' + id + '-tree-files-download-progress').addClass('hidden');
 

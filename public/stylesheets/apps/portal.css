@@ -47,7 +47,7 @@
     border-width : var(--width-border-v) var(--width-border-h);
     top          : 0px;
     right        : 0px;
-    bottom       : calc(var(--height-files) + (2 * var(--width-border-v)));
+    bottom       : calc(var(--height-files) + (1 * var(--width-border-v)));
     width        : var(--width-panels);
 }
 #attachments {

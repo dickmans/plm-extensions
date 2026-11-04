@@ -88,7 +88,7 @@ router.get('/classes'       , async function(req, res, next) { launch('apps/clas
 router.get('/client'        , async function(req, res, next) { launch('apps/client'        , ''              , 'Mobile PLM Client'        , req, res, next); });
 router.get('/compare'       , async function(req, res, next) { launch('apps/compare'       , 'compare'       , 'BOM Comparison'           , req, res, next); });
 router.get('/dashboard'     , async function(req, res, next) { launch('apps/dashboard'     , 'dashboard'     , 'Dashboard'                , req, res, next); });
-router.get('/editor'        , async function(req, res, next) { launch('apps/editor'        , 'editor'        , 'Specification Editor'     , req, res, next); });
+router.get('/editor'        , async function(req, res, next) { launch('apps/editor'        , 'editor'        , 'Requirements Editor'      , req, res, next); });
 router.get('/explorer'      , async function(req, res, next) { launch('apps/explorer'      , 'explorer'      , 'Product Data Explorer'    , req, res, next); });
 router.get('/impactanalysis', async function(req, res, next) { launch('apps/impactanalysis', 'impactanalysis', 'Change Impact Analysis'   , req, res, next); });
 router.get('/instances'     , async function(req, res, next) { launch('apps/instances'     , 'instances'     , 'BOM Instances Editor'     , req, res, next); });
