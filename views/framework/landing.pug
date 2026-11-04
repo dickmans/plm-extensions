@@ -35,6 +35,10 @@ block body
                         span.block Server Monitoring
                     .button#monitoring-open Open
                         span.block Server Monitor
+            p The BOM Cache provides BOM and where-used data within milliseconds by reading the BOMs of your products in the background. It is the base of the impact analysis. Learn how the cache works and how to set it up:
+                .toolbar
+                    .button#bomcache-docs Learn about 
+                        span.block BOM Cache
             p All applications are based on the same framework, providing configurable user interface panels. Use the Panel Configuration Studio to explore the available panel types and their configuration options. By copying the derived JSON configuration settings to your custom.js file, you can easily adjust the standard applications to your needs.
             .button#studio Panel Configuration 
                 span.link Studio
@@ -64,6 +68,17 @@ block body
                         td File downloads in BOM panels have been improved, offering a better user experience and performance.
                             br
                             |It is recommended to use BOM views which include the Attachments column for best performance.
+                    tr
+                        td 
+                        td New Feature
+                        td If viewing files (dwf) are not available in PLM, but in connected Vault, these viewing files now can be used. This will work for Items being uploaded with the standard Vault Connector which have the itemId stored in property 
+                            span.code PDM_ITEM_ID
+                            |. To use the viewing files of Vault instead of the files in PLM, set the given option in your environment file: 
+                            br
+                            span.code vaultViewer = true;
+                            |&nbsp;&nbsp;&nbsp;(or use the matching environment variable 
+                            span.code VAULT_VIEWER
+                            |)
                     tr
                         td 3. November 2026
                         td Enhancement

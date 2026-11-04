@@ -119,30 +119,24 @@ function buildStartupInfoLines(bind) {
 		lines.push('');
 		lines.push('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
 	} else {
-		lines.push('  >> Using Admin Client ID  ' + app.locals.adminClientId.substring(0, 8) + '...');
+		lines.push('  >> Using Admin Client ID     ' + app.locals.adminClientId.substring(0, 8) + '...');
 		if((app.locals.ssaAccountId !== ''))  {
-			lines.push('  >> Using SAA Account ID   ' + app.locals.ssaAccountId);
+			lines.push('  >> Using SAA Account ID      ' + app.locals.ssaAccountId);
 		}
 		if((app.locals.ssaKeyId !== ''))  {
-			lines.push('  >> Using SSA Key ID       ' + app.locals.ssaKeyId.substring(0,4) + '...');
+			lines.push('  >> Using SSA Key ID          ' + app.locals.ssaKeyId.substring(0,4) + '...');
 		}
 		if((app.locals.ssaPrivateKey !== ''))  {
-			lines.push('  >> Using SSA Private Key  ' + app.locals.ssaPrivateKey.substring(0,42).replaceAll('\n', '') + '...');
+			lines.push('  >> Using SSA Private Key     ' + app.locals.ssaPrivateKey.substring(0,42).replaceAll('\n', '') + '...');
 		}
-	}
-
-	if(app.locals.monitoringSecret !== '') {
-		lines.push('  >> Server Monitoring      enabled by monitoring secret');
-	} else {
-		lines.push('  >> Server Monitoring      disabled (no secret defined)');
 	}
 
 	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
 		lines.push('');
 		lines.push('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
 	} else {
-		lines.push('  >> Using Vault Gateway    ' + app.locals.vaultGateway);
-		lines.push('  >> Using Vault Name       ' + app.locals.vaultName);
+		lines.push('  >> Using Vault Gateway       ' + app.locals.vaultGateway);
+		lines.push('  >> Using Vault Name          ' + app.locals.vaultName);
 	}
 
 	if(typeof app.locals.chrome === 'undefined') {

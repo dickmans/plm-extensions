@@ -1,23 +1,12 @@
-const express       = require('express');
-const router        = express.Router();
-const axios         = require('axios');
-// const querystring   = require('querystring');
-const fs            = require('fs');
+const express = require('express');
+const router  = express.Router();
+const axios   = require('axios');
+const fs      = require('fs');
 
+const { validatePLMSession } = require('./landing');
 
-function getCustomHeaders(req) {
+router.use(validatePLMSession);
 
-    let headers = {
-        'Content-Type'  : 'application/json',
-        'Accept'        : 'application/json',
-        'X-Tenant'      : req.session.tenant,
-        'token'         : req.session.headers.token,
-        'Authorization' : req.session.headers.Authorization       
-    }
-
-    return headers;
-
-}
 
 function sendResponse(req, res, response, error) {
 
@@ -74,7 +63,7 @@ router.get('/server-info', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/server-info';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/server-info';
 
     axios.get(url, {
         headers : req.session.headers
@@ -96,7 +85,7 @@ router.get('/system-options', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/system-options';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/system-options';
 
     axios.get(url, {
         headers : req.session.headers
@@ -119,7 +108,7 @@ router.get('/vaults', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults';
 
     axios.get(url, {
         headers : req.session.headers
@@ -143,9 +132,9 @@ router.get('/id', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults';
 
-    if(req.app.locals.vaultGatewayLink === '') {
+    if(req.app.locals.vaultGateway === '') {
 
         let result = {
             success : false,
@@ -171,7 +160,7 @@ router.get('/id', function(req, res, next) {
             }
 
             console.log('  ');
-            console.log('  >> Found ' + response.data.results.length + ' Vaults at ' + req.app.locals.vaultGatewayLink);
+            console.log('  >> Found ' + response.data.results.length + ' Vaults at ' + req.app.locals.vaultGateway);
             for(let vault of response.data.results) {
                 console.log('   - ' + vault.name);
             }
@@ -201,21 +190,24 @@ router.get('/id', function(req, res, next) {
             res.json(result);
 
         }).catch(function(error) {
-            console.log(error);
-            let vaultName = (req.app.locals.vaultName === '') ? '' :  ' Vault <strong>' + req.app.locals.vaultName + '</strong> ';
-            if(error.response.status === 403) {
-                if(vaultName !== '') vaultName = 'in' + vaultName;
-                error.response.message = 'You do not have adequate permissions to perform this operation ' + vaultName + 'at Vault Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+  
+            let vaultName    = (req.app.locals.vaultName    === '') ? 'Vault'         :  'Vault <strong>' + req.app.locals.vaultName + '</strong>';
+            let vaultGateway = (req.app.locals.vaultGateway === '') ? 'Vault Gateway' :  'Vault Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+            
+            if(error.response.status === 400) {
+                error.response.message = 'Error when connecting to ' + vaultName + ' at ' + vaultGateway;
+            } else if(error.response.status === 403) {
+                error.response.message = 'You do not have adequate permissions to perform this operation in ' + vaultName + ' at ' + vaultGateway;
             } else if(error.response.status === 500) {
-                if(vaultName !== '') vaultName = 'to' + vaultName;
-                error.response.message = 'Connection timed out when connecting ' + vaultName +  'at Vault Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+                error.response.message = 'Connection timed out when connecting to ' + vaultName +  ' at ' + vaultGateway;
             }
+
             sendResponse(req, res, error.response, true);
+
         });
 
     }
     
-
 });
 
 
@@ -228,7 +220,7 @@ router.get('/connect', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/server-info';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/server-info';
 
     axios.get(url, {
         headers : req.session.headers
@@ -260,27 +252,13 @@ router.get('/token', function(req, res, next) {
     console.log('  req.query.fileId  = ' + req.query.fileId);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/server-info';
-
-    // console.log(req.session.headers);
-
-
-// '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions';
-
-
     let result = { 
         success : true, 
         token   : req.session.headers.token,
-        gateway : req.app.locals.vaultGatewayLink,
-        link    : req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId + '/svf/bubble.json'
+        gateway : req.app.locals.vaultGateway,
+        link    : req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId + '/svf/bubble.json'
     };
     
-    // console.log(result);
-    
-    // url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId + '/svf/bubble.json';
-    
-    // console.log(url);
-
     res.json(result);
 
     // axios.get(url, {
@@ -308,74 +286,6 @@ router.get('/token', function(req, res, next) {
     // });
     
 });
-/* ----- GET ACCESS TOKEN ----- */
-router.get('/viewing-file', function(req, res, next) {
-    
-    console.log(' ');
-    console.log('  /vault/viewing-file');
-    console.log(' --------------------------------------------');
-    console.log('  req.query.fileId  = ' + req.query.fileId);
-    console.log('  ');
-
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/server-info';
-
-    // console.log(req.session.headers);
-
-
-// '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions';
-
-
-    // let result = { 
-    //     success : true, 
-    //     token   : req.session.headers.token,
-    //     gateway : req.app.locals.vaultGatewayLink,
-    //     link    : req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId + '/svf/bubble.json'
-    // };
-    
-    // console.log(result);
-    
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId + '/svf/bubble.json';
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-version/' + req.query.fileId + '/svf/bubble.json';
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId;
-    
-    console.log(url);
-    console.log(req.session.headers);
-
-    // res.json(result);
-
-    let custHeaders = {
-        'Accept' : 'application/json',
-        'Authorization' : req.session.headers.Authorization
-    }
-
-    console.log(custHeaders);
-
-    axios.get(url, {
-        // headers : req.session.headers
-        headers : custHeaders
-    }).then(function(response) {
-
-        console.log();
-        console.log('-----');
-        
-        console.log(response);
-        console.log();
-    //     let result = { 
-    //         success : true, 
-    //         version : '' 
-    //     };
-    //     if(response.status !== 200) {
-    //         result.success = false;
-    //     } else {
-    //         result.version = response.data.productVersion;
-    //     }
-    //     res.json(result);
-    }).catch(function(error) {
-        console.log(error.response);
-        // sendResponse(req, res, error.response, true);
-    });
-    
-});
 
 
 
@@ -387,7 +297,7 @@ router.get('/groups', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/groups';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/groups';
 
     axios.get(url, {
         headers : req.session.headers
@@ -410,7 +320,7 @@ router.get('/roles', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/roles';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/roles';
 
     axios.get(url, {
         headers : req.session.headers
@@ -433,7 +343,7 @@ router.get('/users', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/users';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/users';
 
     axios.get(url, {
         headers : req.session.headers
@@ -457,7 +367,7 @@ router.get('/property-definitions', function(req, res, next) {
     console.log('  req.query.entity  = ' + req.query.entity);
     console.log('  ');
 
-    let url    = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/property-definitions';
+    let url    = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/property-definitions';
     let params = {};
 
     if(typeof req.query.entity !== 'undefined') {
@@ -500,7 +410,7 @@ router.get('/property-definitions', function(req, res, next) {
 //     console.log('  req.session.vaultId  = ' + req.session.vaultId);
 //     console.log('  ');
 
-//     let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search';
+//     let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search';
 
 //     console.log(req.session.headers);
 //     console.log(url);
@@ -550,7 +460,7 @@ router.get('/property-definitions', function(req, res, next) {
 //     console.log('  req.query.query    = ' + req.query.query);
 //     console.log('  ');
 
-//     let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search'
+//     let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search'
 //         + '?q=' + req.query.query + '*';
 
 //     console.log(url);
@@ -580,15 +490,15 @@ router.get('/image-cache', function(req, res) {
     console.log('  req.query.fileName = ' + req.query.fileName);
     console.log();
    
-    let url      = req.app.locals.vaultGatewayLink  + req.query.link + '/thumbnail';
+    let url      = req.app.locals.vaultGateway  + req.query.link + '/thumbnail';
     let fileName = (typeof req.query.fileName === 'undefined') ? (req.query.link.split('/').pop() + '.jpg') : req.query.fileName;
-    let path     = 'storage/cache/' + fileName;
+    let path     = 'storage/images/' + fileName;
 
     fs.stat(path, function(err, stat) {
 
         if(err === null) {
             
-            sendResponse(req, res, { data : { url : 'storage/cache/' + fileName }, status : 200 }, false);
+            sendResponse(req, res, { data : { url : 'storage/images/' + fileName }, status : 200 }, false);
 
         } else if(err.code == 'ENOENT') {
 
@@ -598,7 +508,7 @@ router.get('/image-cache', function(req, res) {
                 responseEncoding : 'binary'
             }).then(function(response) {
                 fs.appendFileSync(path , response.data);
-                sendResponse(req, res, { data : { url : 'storage/cache/' + fileName }, status : 200 }, false);
+                sendResponse(req, res, { data : { url : 'storage/images/' + fileName }, status : 200 }, false);
             }).catch(function(error) {
                 sendResponse(req, res, error.response, true);
             });
@@ -640,7 +550,7 @@ router.get('/search', function(req, res, next) {
     
     let query = (placeholder) ? '*' + req.query.query + '*' : req.query.query;
     
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search-results'
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search-results'
         + '?limit=' + limit
         + '&sort=' + sort
         + '&q=' + query;
@@ -672,7 +582,7 @@ router.get('/continue-search', function(req, res, next) {
     console.log('  req.query.next = ' + req.query.next);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + req.query.next;
+    let url = req.app.locals.vaultGateway + req.query.next;
 
     axios.get(url, {
         headers : req.session.headers
@@ -717,7 +627,7 @@ router.get('/search-files', function(req, res, next) {
     let limit             = (typeof req.query.limit             === 'undefined') ?    100 : req.query.limit;
     let sort              = (typeof req.query.sort              === 'undefined') ? 'Name' : req.query.sort;
     
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions';
 
     let params = {
         limit                       : limit,
@@ -768,7 +678,7 @@ router.get('/search-items', function(req, res, next) {
     let limit             = (typeof req.query.limit             === 'undefined') ?    100 : req.query.limit;
     let sort              = (typeof req.query.sort              === 'undefined') ? 'Name' : req.query.sort;
     
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/item-versions';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/item-versions';
 
     let params = {
         limit                       : limit,
@@ -811,10 +721,10 @@ router.get('/search-advanced', function(req, res, next) {
     let releasedFilesOnly = (typeof req.query.releasedFilesOnly === 'undefined') ? false : req.query.releasedFilesOnly;
     let releasedItems     = (typeof req.query.releasedItems     === 'undefined') ? false : req.query.releasedItems;
     let extended          = (typeof req.query.extended          === 'undefined') ? false : req.query.extended;
-    // let url   = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/advanced-search';
-    let url   = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + ':advanced-search';
-    // let url   = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search-advanced';
-    // let url   = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search';
+    // let url   = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/advanced-search';
+    let url   = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + ':advanced-search';
+    // let url   = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search-advanced';
+    // let url   = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/search';
         // + '?limit=' + limit;
         // + '?q=' + req.query.query + '*';
 
@@ -1019,7 +929,7 @@ router.get('/root-folders', function(req, res, next) {
     console.log('  req.session.vaultId  = ' + req.session.vaultId);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/folders/1/sub-folders';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/folders/1/sub-folders';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1043,7 +953,7 @@ router.get('/subfolders', function(req, res, next) {
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/sub-folders';
+    let url = req.app.locals.vaultGateway + req.query.link + '/sub-folders';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1071,7 +981,7 @@ router.get('/folder-contents', function(req, res, next) {
 
     let includeFolders = (typeof req.query.includeFolders === 'undefined') ? true : req.query.includeFolders;
 
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/contents';
+    let url = req.app.locals.vaultGateway + req.query.link + '/contents';
         url += '?includeFolders=' + includeFolders;
 
         console.log(url);
@@ -1099,7 +1009,7 @@ router.get('/folder-properties', function(req, res, next) {
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + req.query.link;
+    let url = req.app.locals.vaultGateway + req.query.link;
 
     axios.get(url, {
         headers : req.session.headers
@@ -1121,9 +1031,7 @@ router.get('/files', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/files';
-
-    console.log(req.session.headers);
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/files';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1151,7 +1059,7 @@ router.get('/file-properties', function(req, res, next) {
     // console.log(vaultId);
 
     let link = (typeof req.query.link !== 'undefined') ? req.query.link : '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/file-versions/' + req.query.fileId;
-    let url = req.app.locals.vaultGatewayLink + link;
+    let url = req.app.locals.vaultGateway + link;
 
     console.log(url);
 
@@ -1175,7 +1083,7 @@ router.get('/file-thumbnail', function(req, res, next) {
     console.log('  req.query.url  = ' + req.query.url);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + req.query.url + '/thumbnail';
+    let url = req.app.locals.vaultGateway + req.query.url + '/thumbnail';
 
     console.log(url);
 
@@ -1185,7 +1093,7 @@ router.get('/file-thumbnail', function(req, res, next) {
         responseEncoding : 'binary'
     }).then(function(response) {
 
-        fs.appendFileSync('storage/cache/raw.jpg' , response.data);
+        fs.appendFileSync('storage/images/raw.jpg' , response.data);
         // response.data = Buffer.from(response.data, 'binary').toString('base64');
 
         // fs.appendFileSync('public/cache/rw.jpg' , response.data);
@@ -1204,15 +1112,15 @@ router.get('/file-thumbnail', function(req, res, next) {
 
 
 /* ----- GET FILE VISUALIZATION ATTACHMENT ----- */
-router.get('/file-visualization-attachment', function(req, res, next) {
+router.get('/file-visualization-attachments', function(req, res, next) {
     
     console.log(' ');
-    console.log('  /vault/file-visualization-attachment');
+    console.log('  /vault/file-visualization-attachments');
     console.log(' --------------------------------------------');
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/visualization-attachment';
+    let url = req.app.locals.vaultGateway + req.query.link + '/visualization-attachments';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1235,17 +1143,114 @@ router.get('/download', function(req, res, next) {
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
     
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/signedurl';
+    let url = req.app.locals.vaultGateway + req.query.link + '/signedurl';
 
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        response.data.link = req.app.locals.vaultGatewayLink + response.data.url;
+        response.data.link = req.app.locals.vaultGateway + response.data.url;
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
     
+});
+
+
+/* ----- GET FILE SVF (WAITS UNTIL VAULT HAS GENERATED IT) ----- */
+const svfLinkPattern = /\/vaults\/(\d+)\/file-versions\/(\d+)\/?$/;
+function sleep(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+router.get('/svf', async function(req, res, next) {
+
+    console.log(' ');
+    console.log('  /vault/svf');
+    console.log(' --------------------------------------------');
+    console.log('  req.query.link  = ' + req.query.link);
+    console.log('  ');
+
+    const match         = svfLinkPattern.exec(req.query.link || '');
+    const vaultId       = match[1];
+    const fileVersionId = match[2];
+    const url           = req.app.locals.vaultGateway + req.query.link + '/svf/bubble.json';
+    const maxAttempts   = 10;
+    const delay         = 1000;
+    const lastResponse  = { status : 504, message : 'SVF was not ready in time' };
+    
+    if(match === null) return sendResponse(req, res, { status : 400, message : 'Invalid file version link' }, true);
+
+    for(let attempt = 1; attempt <= maxAttempts; attempt++) {
+
+        try {
+
+            let response = await axios.get(url, {
+                params         : { ext : '.dwfx', allowSync : true },
+                headers        : req.session.headers,
+                validateStatus : function() { return true; }
+            });
+
+            if(response.status !== 200) {
+                let body = Buffer.isBuffer(response.data) ? response.data.toString() : response.data;
+                console.log('  Response body : ' + ((typeof body === 'string') ? body : JSON.stringify(body)));
+                console.log('  Content-Type  : ' + response.headers['content-type']);
+            }
+
+            if(response.status === 200) {
+                response.data = {
+                    manifest : response.data,
+                    url      : '/vault/svf-resource/' + vaultId + '/' + fileVersionId + '/bubble.json'
+                };
+                return sendResponse(req, res, response, false);
+            }
+
+            // Only 404 / 5xx can mean "not generated yet"; other 4xx errors will not fix themselves by retrying
+            if(response.status >= 400 && response.status < 500 && response.status !== 404) return sendResponse(req, res, response, true);
+
+            lastResponse = response;
+            console.log('  SVF not ready (' + response.status + '), attempt ' + attempt + '/' + maxAttempts);
+
+        } catch(error) {
+            return sendResponse(req, res, error.response, true);
+        }
+
+        await sleep(delay);
+        delay *= 1.5;
+
+    }
+
+    sendResponse(req, res, lastResponse, true);
+
+});
+
+
+/* ----- STREAM SVF FILES (bubble.json, .svf, .pf, ...) TO THE VIEWER ----- */
+router.get('/svf-resource/:vaultId/:fileVersionId/*fileName', function(req, res, next) {
+
+    // Express 5 returns named wildcards as an array of path segments
+    let segments = [].concat(req.params.fileName);
+    let fileName = segments.join('/');
+
+    if(!/^\d+$/.test(req.params.vaultId) || !/^\d+$/.test(req.params.fileVersionId) || segments.indexOf('..') > -1) {
+        return res.status(400).send('Invalid request');
+    }
+
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/' + fileName;
+
+    axios.get(url, {
+        params         : Object.assign({ ext : '.dwfx' }, req.query),
+        headers        : req.session.headers,
+        responseType   : 'stream',
+        validateStatus : function() { return true; }
+    }).then(function(response) {
+        res.status(response.status);
+        if(response.headers['content-type']) res.set('Content-Type', response.headers['content-type']);
+        response.data.pipe(res);
+    }).catch(function(error) {
+        console.log(error.message);
+        res.status(502).send('Could not reach Vault Gateway');
+    });
+
 });
 
 
@@ -1269,12 +1274,8 @@ router.get('/viewable', function(req, res, next) {
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
 
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?allowSync=true&ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?allowSync=true&ext=.dwfx';
-    // // let url = req.app.locals.vaultGatewayLink + req.query.link + '/content?allowSync=false';
+    let url = req.app.locals.vaultGateway + req.query.link + '/svf/bubble.json?allowSync=true&ext=.dwfx';
+    // // let url = req.app.locals.vaultGateway + req.query.link + '/content?allowSync=false';
 
 
     // FUNKTOINIERT
@@ -1339,16 +1340,12 @@ router.get('/file-viewable', function(req, res, next) {
     console.log('  req.query.link  = ' + req.query.link);
     console.log('  ');
 
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?allowSync=true&ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/content?allowSync=false';
+    let url = req.app.locals.vaultGateway + req.query.link + '/svf/bubble.json';
+    // let url = req.app.locals.vaultGateway + req.query.link + '/content?allowSync=false';
+
+    // let url = req.app.locals.vaultGateway + link;
 
     console.log(url);
-    // console.log(req.session.headers);
-
 //https://51630d9c.vg-stg.autodesk.com/AutodeskDM/Services/api/vault/v2/vaults/101/file-versions/61985/visualization-attachment
 //                                    /AutodeskDM/Services/api/vault/v2/vaults/101/file-versions/{id}/visualization-attachment
 
@@ -1398,21 +1395,8 @@ router.get('/viewable/:vaultId/:fileVersionId/:fileName', function(req, res, nex
     console.log('  ');
 
     let fileName = req.params.fileName;
-
-
-// 'https://e475f532.vg.autodesk.com/AutodeskDM/Services/api/vault/v2/vaults/101/file-versions/38851/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true',
-
-
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?allowSync=true&ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?ext=.dwfx';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/' + fileName + '?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/' + fileName + '?ext=.dwf&allowSync=true';
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/' + fileName + '?ext=.dwf';
-    // let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/svf/bubble.json';
-    // let url = req.app.locals.vaultGatewayLink + req.query.link + '/content?allowSync=false';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/' + fileName + '?ext=.dwf';
+    // let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.params.vaultId + '/file-versions/' + req.params.fileVersionId + '/svf/1/0.pf?domain=http%3A%2F%2F10.41.110.49&ext=.dwf&allowSync=true';
 
     console.log(url);
     // console.log(req.session.headers);
@@ -1495,7 +1479,7 @@ router.get('/file-bom', function(req, res, next) {
     let recurse     = (typeof req.query.recurse    === 'undefined') ? false : req.query.recurse;
     let fullModels  = (typeof req.query.fullModels === 'undefined') ? false : req.query.fullModels;
     
-    let url = req.app.locals.vaultGatewayLink + req.query.link + '/uses'
+    let url = req.app.locals.vaultGateway + req.query.link + '/uses'
 
     let params = {
         limit                : limit,
@@ -1515,9 +1499,6 @@ router.get('/file-bom', function(req, res, next) {
 });
 
 
-
-
-
 /* ----- GET ITEM FILES ----- */
 router.get('/item-files', function(req, res, next) {
     
@@ -1529,7 +1510,7 @@ router.get('/item-files', function(req, res, next) {
     console.log('  ');
 
     let link = (typeof req.query.link === 'undefined') ? '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/item-versions/' + req.query.itemId : req.query.link;
-    let url  = req.app.locals.vaultGatewayLink + link + '/associated-files';
+    let url  = req.app.locals.vaultGateway + link + '/associated-files';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1542,8 +1523,6 @@ router.get('/item-files', function(req, res, next) {
 });
 
 
-
-
 /* ----- GET CHANGE ORDERS ----- */
 router.get('/change-orders', function(req, res, next) {
     
@@ -1552,7 +1531,7 @@ router.get('/change-orders', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/change-orders';
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/change-orders';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1574,7 +1553,7 @@ router.get('/change-order', function(req, res, next) {
     console.log('  req.query.id  = ' + req.query.id);
     console.log('  ');
 
-    let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/change-orders/' + req.query.id;
+    let url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/change-orders/' + req.query.id;
 
     axios.get(url, {
         headers : req.session.headers

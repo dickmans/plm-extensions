@@ -509,6 +509,31 @@ function isComponentsWorkspace(req, wsId) {
     if(wsId == 57) return true;
 
 }
+async function getVaultId(req) {
+
+    if(req.session.vaultId != null) return req.session.vaultId;
+
+    const url = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults';
+
+    await axios.get(url).then(function(response) {
+
+        if(response.data.results.length > 0) {
+            if(req.app.locals.vaultName === '') {
+                req.session.vaultId = response.data.results[0].id;
+            } else {
+                for(let result of response.data.results) {
+                    if(req.app.locals.vaultName == result.name) {
+                        req.session.vaultId = result.id;
+                    }
+                }
+            }
+        }
+
+        return req.session.vaultId;
+
+    });
+
+}
 
 
 /* ----- CLEAR CACHE ENTRIES ----- */
@@ -4038,16 +4063,21 @@ router.post('/get-viewables', function(req, res, next) {
     console.log('  req.body.extensionsEx      = ' + req.body.extensionsEx);
     console.log();
     
-    let link              = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
-    let urlBase           = getTenantLink(req) + link + '/attachments';
-    let isComponent       = (typeof req.body.isComponent       === 'undefined') ? false : (req.body.isComponent == 'true');
-    let fileId            = (typeof req.body.fileId            === 'undefined') ? '' : req.body.fileId;
-    let filename          = (typeof req.body.filename          === 'undefined') ? '' : req.body.filename;
-    let suffixPrimaryFile = (typeof req.body.suffixPrimaryFile === 'undefined') ? ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'] : req.body.suffixPrimaryFile;
-    let extensionsIn      = (typeof req.body.extensionsIn      === 'undefined') ? ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'] : req.body.extensionsIn;
-    let extensionsEx      = (typeof req.body.extensionsEx      === 'undefined') ? [] : req.body.extensionsEx;
+    const link              = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
+    const urlBase           = getTenantLink(req) + link + '/attachments';
+    const isComponent       = (typeof req.body.isComponent       === 'undefined') ? false : (req.body.isComponent == 'true');
+    const fileId            = (typeof req.body.fileId            === 'undefined') ? '' : req.body.fileId;
+    const filename          = (typeof req.body.filename          === 'undefined') ? '' : req.body.filename;
+    const suffixPrimaryFile = (typeof req.body.suffixPrimaryFile === 'undefined') ? ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'] : req.body.suffixPrimaryFile;
+    const extensionsIn      = (typeof req.body.extensionsIn      === 'undefined') ? ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'] : req.body.extensionsIn;
+    const extensionsEx      = (typeof req.body.extensionsEx      === 'undefined') ? [] : req.body.extensionsEx;
+    const useVaultViewer    = req.app.locals.vaultViewer || false;
 
-    if(isComponent) {
+    if(useVaultViewer) {
+
+        getVaultItemViewables(req, res, link);
+
+    } else if(isComponent) {
 
         axios.get(getTenantLink(req) + link + '/designs', { 
             headers : req.session.headers 
@@ -4177,6 +4207,77 @@ router.post('/get-viewables', function(req, res, next) {
     }
 
 });
+async function getVaultItemViewables(req, res, link) {
+
+    await getVaultId(req);
+
+
+    // Get Vault Item ID
+    let pdmItemID = await axios.get(getTenantLink(req) + link, { 
+        headers : req.session.headers 
+    }).then(function(response) {
+        let result = '';
+        for(let section of response.data.sections) {
+            for(let field of section.fields) {
+                let fieldId = field.__self__.split('/').pop();
+                if(fieldId === 'PDM_ITEM_ID') {
+                    result = field.value;
+                    break;
+                }
+            }
+        }
+        return result;
+    });
+
+    if(pdmItemID === '') {
+        sendResponse(req, res, { message : 'Could not find matching Vault item as field PDM_ITEM_ID is empty'}, true);
+        return null;
+    }
+
+
+    let response = { data : [] };
+    const url    = req.app.locals.vaultGateway + '/AutodeskDM/Services/api/vault/v2/vaults/' + req.session.vaultId + '/item-versions/' + pdmItemID + '/associated-files';
+
+    let files = await axios.get(url, {
+        headers        : req.session.headers,
+        validateStatus : function() { return true; }
+    });
+
+    if(files.status !== 200) {
+        sendResponse(req, res, { message : 'Failed retrieving files of selected item in Vault in function getVaultItemViewables()' }, true);
+        return null;     
+    }
+
+    for(let file of files.data.results) {
+
+        let result = {
+            primary : (file.itemAssociationType === 'Primary'),
+            url     : file.file.url
+        }
+
+        if(result.primary) {
+        
+            let visualizations = await axios.get(req.app.locals.vaultGateway + result.url + '/visualization-attachments', {
+                headers        : req.session.headers,
+                validateStatus : function() { return true; }
+            });
+
+            if(visualizations.data.results.length > 0) {
+                result.status = 'PENDING';
+                result.source = 'Vault';
+                result.svf    = visualizations?.data?.results[0];
+                result.type   = 'svf';
+            }
+
+        }
+
+        response.data.push(result);
+
+    }
+
+    sendResponse(req, res, response, false);
+
+}
 
 
 /* ----- BOM VIEWS LIST ----- */

@@ -171,6 +171,8 @@ function getPrimaryViewable(viewables) {
 function convertViewable(viewerInstance, params, attempt) {
 
     let viewable = viewerInstance.viewable;
+    
+    viewable.source = viewable.source || 'PLM';
 
     if((viewable.status === 'FAILED') && (attempt > conversionAttempts)) {
         $('#' + viewerInstance.id + '-processing').addClass('hidden');
@@ -184,7 +186,13 @@ function convertViewable(viewerInstance, params, attempt) {
 
     let elemProcessingMessage = $('#' + viewerInstance.id + '-processing-message').html('Getting Viewables');
 
-    if(viewable.status === 'DONE') {
+    if(viewable.source === 'Vault') {
+        $.get('/vault/svf', { link : viewable.svf.url }, function(response) {
+            elemProcessingMessage.html('');
+            viewable.location = response.data.url;
+            launchViewer(viewerInstance, params);
+        });
+    } else if(viewable.status === 'DONE') {
         elemProcessingMessage.html('');
         launchViewer(viewerInstance, params);
         return;
@@ -225,6 +233,8 @@ function launchViewer(viewerInstance, params) {
 
     let viewable = viewerInstance.viewable;
 
+    viewable.location = viewable.location || 'urn:'+ viewable.urn
+
     $('#' + viewerInstance.id + '-processing').addClass('hidden');
 
     if((!viewerInstance.startupCompleted) || (params.restartViewer)) {
@@ -243,6 +253,10 @@ function launchViewer(viewerInstance, params) {
                 onTokenReady(token, timeInSeconds);
             }
         }; // see https://aps.autodesk.com/en/docs/viewer/v7/reference/globals/TypeDefs/InitOptions/
+
+        if(viewable.source === 'Vault') {
+            options = { env : 'Local' };
+        }
 
         Autodesk.Viewing.Initializer(options, function() {
 
@@ -323,7 +337,7 @@ function loadViewableInViewer(viewerInstance) {
         });
     } else {
 
-        Autodesk.Viewing.Document.load('urn:'+ viewable.urn, function(doc) {
+        Autodesk.Viewing.Document.load(viewable.location, function(doc) {
 
             viewer.setGhosting(true);
             viewer.setGroundReflection(viewerSettings.groundReflection);

@@ -65,6 +65,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.ssaPrivateKey     = process.env.SSA_PRIVATE_KEY     || environment.ssaPrivateKey     || '';
     app.locals.vaultGateway      = process.env.VAULT_GATEWAY       || environment.vaultGateway      || '';
     app.locals.vaultName         = process.env.VAULT_NAME          || environment.vaultName         || '';
+    app.locals.vaultViewer       = process.env.VAULT_VIEWER        || environment.vaultViewer       || false;
     app.locals.monitoringSecret  = process.env.MONITORING_SECRET   || environment.monitoringSecret  || '';
     app.locals.tenantLink        = 'https://' + app.locals.tenant + '.autodeskplm360.net';
     app.locals.protocol          = process.env.PROTOCOL || app.locals.redirectUri.split('://')[0];
@@ -74,9 +75,13 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     if(typeof app.locals.enableCache     === 'string') app.locals.enableCache     = (app.locals.enableCache.toLowerCase()     === 'true');
     if(typeof app.locals.debugMode       === 'string') app.locals.debugMode       = (app.locals.debugMode.toLowerCase()       === 'true');
     if(typeof app.locals.fusionConnected === 'string') app.locals.fusionConnected = (app.locals.fusionConnected.toLowerCase() === 'true');
+    if(typeof app.locals.vaultViewer     === 'string') app.locals.vaultViewer     = (app.locals.vaultViewer.toLowerCase()     === 'true');
     
-    app.locals.vaultGateway      = app.locals.vaultGateway.split('.vg.autodesk.com')[0];
-    app.locals.vaultGatewayLink  = (app.locals.vaultGateway === '') ? '' : 'https://' + app.locals.vaultGateway + '.vg.autodesk.com';
+    if(app.locals.vaultGateway !== '') {
+        if(app.locals.vaultGateway.indexOf('http') < 0) {
+            app.locals.vaultGateway = 'https://' + app.locals.vaultGateway + '.vg.autodesk.com';
+        }
+    }
 
     if(typeof app.locals.port === 'undefined') {
         let redirectSplit = app.locals.redirectUri .split(':');
