@@ -1,6 +1,7 @@
 /keys/*.pem
 /node_modules
 /environments/*
+/public/images/custom/*
 /uploads/*
 /settings/*
 /storage/images/*
