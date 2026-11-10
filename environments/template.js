@@ -63,11 +63,11 @@ exports.adminClientSecret = '';
 //                    If the UX server is hosted in your intranet, you can also use a http link the adms server's hostname. 
 //                    For example http://localhost or http://vault-server.
 //   - vaultName    : Provide the name of your Vault as defined in ADMS Console (ie PDMC-Sample)
-//   - vaulViewer   : Set this to true in order to use Vault's viewables instead of the files in PLM (defaults to false)
+//   - vaultViewer  : Set this to true in order to use Vault's viewables instead of the files in PLM (defaults to false)
 // ---------------------------------------------------------------------------------------------------------------------------
 exports.vaultGateway = '';
 exports.vaultName    = '';   
-exports.vaulViewer   = false;
+exports.vaulzViewer  = false;
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
