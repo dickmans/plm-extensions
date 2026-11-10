@@ -4803,8 +4803,6 @@ router.get('/bom-flat', function(req, res, next) {
     let dmsId   = (typeof req.query.dmsId  !== 'undefined') ? req.query.dmsId : link.split('/')[6];
     let url     = req.app.locals.tenantLink + link + '/bom-items?revisionBias=' + req.query.revisionBias + '&rootId=' + dmsId + '&viewDefId=' + req.query.viewId;
 
-    console.log(url);
-
     let headers = getCustomHeaders(req);
         headers['accept'] = 'application/vnd.autodesk.plm.bom.flat.bulk+json';
 
@@ -4833,9 +4831,10 @@ router.get('/bom-item', function(req, res, next) {
     console.log('  req.query.link   = ' + req.query.link);
     console.log();
 
-    let url = (typeof req.query.link !== 'undefined') ? req.query.link : req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/bom-items/' + req.query.edgeId;
+    const urlBase = getTenantLink(req);
+    const urlLink = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/bom-items/' + req.query.edgeId;
 
-    axios.get(url, {
+    axios.get(urlBase + urlLink, {
         headers : req.session.headers
     }).then(function(response) {
         sendResponse(req, res, response, false);
@@ -4926,7 +4925,7 @@ router.post('/bom-add', function(req, res, next) {
     axios.post(url, params, {
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, { data : response.headers.location, status : response.status }, false);
+        sendResponse(req, res, { data : response.headers.location.split('.autodeskplm360.net')[1], status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });

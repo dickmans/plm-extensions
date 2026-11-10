@@ -4281,7 +4281,7 @@ function addBOMItems() {
                     endProcessing();
                     return;
                 } else {
-                    requests.push($.get('/plm/bom-item', { 'link' : response.data }));
+                    requests.push($.get('/plm/bom-item', { link : response.data }));
                 }
             }
 
