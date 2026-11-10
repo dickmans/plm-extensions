@@ -1228,6 +1228,7 @@ function sortArray(array, key, type, direction) {
                 else if (valueA > valueB) result = 1;                
                 break;
             
+            case 'integer':
             case 'number':
                 valueA = Number(valueA);
                 valueB = Number(valueB);
