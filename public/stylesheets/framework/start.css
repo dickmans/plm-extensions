@@ -1,15 +1,17 @@
 :root {
-    --content-height : 658px;
+    --content-height : 910px;
     --content-width  : 1240px;
 }
 
+#wrapper {
+    bottom  : 20px;
+    display : flex;
+}
 #content {
     display        : flex;
     flex-direction : column;
-    position       : absolute;
-    top            : calc(50% - (var(--content-height) / 2) - 2%);
-    right          : calc(50% - (var(--content-width)  / 2));
-    left           : calc(50% - (var(--content-width)  / 2));
+    margin         : auto;
+    width          : var(--width-content);
 }
 #title {
     background  : var(--color-surface-level-5);
