@@ -486,7 +486,8 @@ function addActionEntry(params) {
     $('<div></div>').appendTo(elemText)
         .addClass('action-instructions')
         .html(params.text);
-        $('<div></div>').appendTo(elemNew)
+    
+    $('<div></div>').appendTo(elemNew)
         .addClass('button')
         .addClass('icon')
         .addClass('icon-check-box')
@@ -495,7 +496,20 @@ function addActionEntry(params) {
             e.preventDefault();
             e.stopPropagation();
             $(this).toggleClass('icon-check-box').toggleClass('icon-check-box-checked').toggleClass('checked');
+            updateStatusIcon($(this));
         });
+
+}
+function updateStatusIcon(elemClicked) {
+
+    const elemAction   = elemClicked.closest('.action');
+    const elemActions  = elemAction.parent();
+    const elemCategory = elemActions.parent();
+    const completed    = (elemCategory.find('.icon-check-box').length === 0);
+
+    elemCategory.removeClass('match').removeClass('diff');
+
+    if(completed) elemCategory.addClass('match'); else elemCategory.addClass('diff');
 
 }
 
@@ -1211,8 +1225,9 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
 
     if(isBlank(logPrefix)) logPrefix = '';
 
-    let url  = '/admin#section=setuphome&tab=workspaces&item=itemdetails&params={%22workspaceID%22:%22' + environments.target.workspace.wsId + '%22,%22metaType%22:%22D%22}';
-    let step = 'details';
+    let url   = '/admin#section=setuphome&tab=workspaces&item=itemdetails&params={%22workspaceID%22:%22' + environments.target.workspace.wsId + '%22,%22metaType%22:%22D%22}';
+    let step  = 'details';
+    let index = 1;
 
     let matches = {
         all                     : true,
@@ -1235,6 +1250,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
         fieldsEditability       : true,
         fieldsDefaults          : true,
         fieldsFormulas          : true,
+        fieldsFormulasReview    : true,
         fieldsValidations       : true,
         fieldsValidationSettings: true,
         fieldsSections          : true,
@@ -1255,6 +1271,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
             }
         }
         for(let targetMatrix of sectionTarget.matrices) {
+            targetMatrix.index = index++;
             for(let matrixRow of targetMatrix.fields) {
                 for(let matrixField of matrixRow) {
                     if(!isBlank(matrixField)) {
@@ -1269,6 +1286,8 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
         }
         for(let target of sectionTarget.matrices) target.hasMatch = false;
     }
+
+    index = 1;
 
     for(let sectionSource of sectionsSource) {
 
@@ -1287,6 +1306,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
         }
 
         for(let sourceMatrix of sectionSource.matrices) {
+            sourceMatrix.index = index++;
             for(let matrixRow of sourceMatrix.fields) {
                 for(let matrixField of matrixRow) {
                     if(!isBlank(matrixField)) {
@@ -1370,10 +1390,10 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
                                 sourceMatrix.hasMatch = true;
                                 targetMatrix.hasMatch = true;                                   
 
-                                if(sourceMatrix.fields.length === sourceMatrix.fields.length) {
+                                if(sourceMatrix.fields.length === targetMatrix.fields.length) {
 
                                     for(let iRow = 0; iRow < sourceMatrix.fields.length; iRow++) {
-                                        if(sourceMatrix.fields[iRow].length === sourceMatrix.fields[iRow].length) {
+                                        if(sourceMatrix.fields[iRow].length === targetMatrix.fields[iRow].length) {
                                             for(let iCol = 0; iCol < sourceMatrix.fields[iRow].length; iCol++) {
 
                                                 if(sourceMatrix.fields[iRow][iCol] === null) {
@@ -1400,13 +1420,23 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
 
                                 }
                             }
+                        } 
+                        if(JSON.stringify(sourceMatrix.rowNames) !== JSON.stringify(targetMatrix.rowNames)) {
+                            if (sourceMatrix.rowNames.length !== targetMatrix.rowNames.length) {
+                                addLogEntry(logPrefix + 'Source matrix #' + sourceMatrix.index + ' rows count differs (' + sourceMatrix.rowNames.length + ' vs ' + targetMatrix.rowNames.length + ')', 'diff');
+                            } else addLogEntry(logPrefix + 'Source matrix #' + sourceMatrix.index + ' row names differ: ' + JSON.stringify(sourceMatrix.rowNames), 'diff');
+                        } 
+                        if(JSON.stringify(sourceMatrix.columnNames) !== JSON.stringify(targetMatrix.columnNames)) {
+                            if (sourceMatrix.columnNames.length !== targetMatrix.columnNames.length) {
+                                addLogEntry(logPrefix + 'Source matrix #' + sourceMatrix.index + ' columns count differs (' + sourceMatrix.columnNames.length + ' vs ' + targetMatrix.columnNames.length+ ')', 'diff');
+                            } else addLogEntry(logPrefix + 'Source matrix #' + sourceMatrix.index + ' column names differ: ' + JSON.stringify(sourceMatrix.columnNames), 'diff');
                         }
                     }
 
                     if(!sourceMatrix.hasMatch) {
                         matches.sectionsMatrixes = false;
                         addActionEntry({
-                            text : 'Add matrix with columns <b>' + sourceMatrix.columnNames + '</b> in section <b>' + sectionSource.name + '</b>',
+                            text : 'In base tenant update matrix #' + sourceMatrix.index + ' with columns <b>' + sourceMatrix.columnNames + '</b> in section <b>' + sectionSource.name + '</b>',
                             step : step,
                             url  : url
                         });
@@ -1452,7 +1482,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
             if(!matrixTarget.hasMatch) {
                 matches.sectionsMatrixes = false;
                 addActionEntry({
-                    text : 'Remove matrix with columns <b>' + matrixTarget.columnNames + '</b> in section <b>' + sectionTarget.name + '</b>',
+                    text : 'In target tenant update matrix #' + matrixTarget.index + ' with columns <b>' + matrixTarget.columnNames + '</b> in section <b>' + sectionTarget.name + '</b>',
                     step : step,
                     url  : url
                 });
@@ -1632,6 +1662,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
                                 url  : url
                             });
                         } else if(fieldSource.formulaField) {
+                            matches.fieldsFormulasReview = false;
                             addActionEntry({
                                 text : 'Review formula of field ' + fieldTarget.label + ' in section <b>' + fieldSource.section + '</b> as it cannot be compared automatically',
                                 step : step,
@@ -1718,6 +1749,7 @@ function getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, field
     if(!matches.fieldsEditability)        { matches.all = false; addLogEntry(logPrefix + 'Field editability settings do not match', 'diff');}
     if(!matches.fieldsDefaults)           { matches.all = false; addLogEntry(logPrefix + 'Field default values do not match', 'diff');}
     if(!matches.fieldsFormulas)           { matches.all = false; addLogEntry(logPrefix + 'Computed fields definition does not match', 'diff');}
+    if(!matches.fieldsFormulasReview)     { matches.all = false; addLogEntry(logPrefix + 'Computed field formulas should be compared', 'diff');}
     if(!matches.fieldsValidations)        { matches.all = false; addLogEntry(logPrefix + 'Field validations do not match', 'diff');}
     if(!matches.fieldsValidationSettings) { matches.all = false; addLogEntry(logPrefix + 'Field validation variables do not match', 'diff');}
     if(!matches.fieldsSections)           { matches.all = false; addLogEntry(logPrefix + 'Fields are in different sections', 'diff');}
