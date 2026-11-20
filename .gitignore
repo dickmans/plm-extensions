@@ -1,3 +1,4 @@
+/.claude/state/
 /keys/*.pem
 /node_modules
 /environments/*
