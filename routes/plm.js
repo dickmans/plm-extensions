@@ -1,11 +1,11 @@
-const express       = require('express');
-const router        = express.Router();
-const axios         = require('axios');
-const querystring   = require('querystring');
-const fs            = require('fs');
-const ExcelJS       = require('exceljs/dist/es5');
-const FormData      = require('form-data');
-const urlGraphQL    = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
+const express     = require('express');
+const router      = express.Router();
+const axios       = require('axios');
+const querystring = require('querystring');
+const fs          = require('fs');
+const ExcelJS     = require('exceljs');
+const FormData    = require('form-data');
+const urlGraphQL  = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
 
 const { resolveStoragePath } = require('./storage');
 const { validatePLMSession } = require('./landing');

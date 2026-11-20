@@ -172,6 +172,9 @@ function buildStartupInfoLines(bind) {
 	lines.push('  If your login to the UX solutions fails with an error code 401, you most likely are');
 	lines.push('  using an APS of wrong type or with wrong callback URL.');
 	lines.push('');
+	lines.push('');
+	lines.push('--> You can now open the landing page at ' + app.locals.redirectUri.split('/callback')[0]);
+	lines.push('');
 
 	return lines;
 

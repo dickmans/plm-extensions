@@ -1,6 +1,6 @@
 {
   "name": "plm-extensions",
-  "version": "October 2026",
+  "version": "20. November 2026",
   "private": true,
   "engines": {
     "node": ">=22.13"
@@ -21,6 +21,7 @@
     "morgan": "*",
     "pug": "*",
     "serve-favicon": "*",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "uuid": "^14.0.3"
   }
 }
