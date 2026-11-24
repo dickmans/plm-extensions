@@ -6201,9 +6201,13 @@ function genBOMRowCells(id, item, elemRow, elemFirstCol) {
                 // if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
                 // else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
 
-                elemCell.html(value)
-                    .addClass('bom-column-'  + column.fieldId.toLowerCase())
-                    .addClass('tree-column-' + column.fieldId.toLowerCase());
+                if(column.formulaField) {
+                    elemCell.addClass('field-computed');
+                    elemCell.addClass('no-scrollbar');
+                    elemCell.html($('<div></div>').html(value).text());
+                } else elemCell.html(value);
+                elemCell.addClass('bom-column-'  + column.fieldId.toLowerCase());
+                elemCell.addClass('tree-column-' + column.fieldId.toLowerCase());
 
             }
 
