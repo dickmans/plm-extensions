@@ -378,6 +378,9 @@ td.tree-first-col {
 }
 .tree-columns-hidden .tree-first-col { max-width : unset !important; }
 
+.tree-column-primary_file_revision_version  { max-width : 86px; min-width : 86px; width : 86px; }
+.tree-column-lifecycle       { max-width : 100px; min-width : 100px; width : 100px;  }
+.tree-column-unit_of_measure { max-width :  80px; min-width :  80px; width :  80px;  }
 
 
 .panel-content.xxs .tree-first-col { gap :  4px; }

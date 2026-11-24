@@ -3251,7 +3251,9 @@ function setPanelCloneStatus(id, responses) {
 }
 function includePanelTableColumn (fieldId, fieldName, panelSettings, counter) {
 
-    if(Number(panelSettings.tableColumnsLimit) > counter) {
+    panelSettings.fieldsLimit = panelSettings.fieldsLimit || 100;
+
+    if(Number(panelSettings.fieldsLimit) > counter) {
         if((panelSettings.fieldsIn.length === 0) || ( panelSettings.fieldsIn.includes(fieldId)) || ( panelSettings.fieldsIn.includes(fieldName))) {
             if((panelSettings.fieldsEx.length === 0) || ((!panelSettings.fieldsEx.includes(fieldId)) && (!panelSettings.fieldsEx.includes(fieldName)))) {
                 return true;

@@ -463,6 +463,10 @@
 .addin .tree-descriptor {
     padding : 0px;
 }
+.addin .tree-first-col { max-width : unset !important; }
+.addin .tree-column-primary_file_revision_version  { max-width :  74px; min-width : 74px; width : 74px; }
+.addin .tree-column-icon       { max-width : 50px; min-width : 50px; width : 50px;  }
+.addin .tree-column-lifecycle       { max-width : 90px; min-width : 90px; width : 90px;  }
 .addin .panel-counters {
     font-size : 11px;
     padding   : 2px 12px;

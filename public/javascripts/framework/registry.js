@@ -14,7 +14,7 @@ const registry = {
                     layout      : 'table',
                     tileIcon    : 'icon-problem'
                 },
-                data        : [ 'fieldsEx', 'fieldsIn', 'workspacesEx', 'workspacesIn', 'timeout', 'userId' ],
+                data        : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesEx', 'workspacesIn', 'timeout', 'userId' ],
                 filters     : [ 'filterByDueDate', 'filterByStatus', 'filterByWorkspace' ],
                 additional  : [ 'openOnDblClick' ],
                 excluded    : [ 'openInPLM' ]
@@ -30,7 +30,7 @@ const registry = {
                     layout      : 'list',
                     tileIcon    : 'icon-history'
                 },
-                data        : [ 'fieldsEx', 'fieldsIn', 'workspacesEx', 'workspacesIn' ],
+                data        : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesEx', 'workspacesIn' ],
                 filters     : [  'filterByWorkspace' ],                
                 additional  : [
                     'dragable', 'onDragStart', 'onDragEnd',
@@ -51,7 +51,7 @@ const registry = {
                     tileIcon    : 'icon-bookmark',
                     tileImage   : true,
                 },
-                data        : [ 'fieldsEx', 'fieldsIn', 'workspacesEx', 'workspacesIn' ],
+                data        : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesEx', 'workspacesIn' ],
                 filters     : ['filterByWorkspace'],
                 additional  : [ 
                     'dragable', 'onDragStart', 'onDragEnd',
@@ -78,7 +78,7 @@ const registry = {
                     tileTitle    : 'DESCRIPTOR',
                     tileSubtitle : 'WF_CURRENT_STATE',
                 },
-                data       : [ 'fieldsEx', 'fieldsIn' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 filters    : [ ],
                 additional : [
                     'additionalData',
@@ -115,7 +115,7 @@ const registry = {
                     searchInFields   : ['DESCRIPTOR'],
                     sortBy           : ['DESCRIPTOR']
                 },
-                data        : [ 'fieldsIn', 'fieldsEx' ],   
+                data        : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],   
                 filters     : [ 'filterByStatus' ],
                 additional  : [
                     'dragable', 'onDragStart', 'onDragEnd',
@@ -182,7 +182,7 @@ const registry = {
                     tileTitle     : 'DESCRIPTOR',
                     tileSubtitle  : '',
                 },
-                data        : [ 'fieldsIn', 'fieldsEx' ],                
+                data        : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],                
                 filters     : [ 'filterByStatus' ],
                 additional  : [ 
                     'additionalData',
@@ -326,7 +326,7 @@ const registry = {
                     picklistShortcuts : true,
                     createButtonLabel : 'Create'
                 },
-                data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],                  
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],                  
                 additional : [
                     'cancelButton', 'cancelButtonIcon', 'cancelButtonLabel', 'cancelButtonTitle',
                     'createButtonIcon', 'createButtonLabel', 'createButtonTitle',
@@ -400,7 +400,7 @@ const registry = {
                     headerLabel : 'Images',
                     layout      : 'grid',
                 },
-                data       : [ 'fieldsIn', 'fieldsEx' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 additional : [ 'bookmark', 'sectionsIn', 'sectionsEx' ]
             },{ // insertAttachments
                 id          : 'insertAttachments',
@@ -452,7 +452,7 @@ const registry = {
                     headerLabel : 'Grid',
                     layout      : 'table',
                 },
-                data       : [ 'fieldsEx', 'fieldsIn' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 filters    : [ 'filterEmpty', 'filterBySelection' ],
                 additional : [
                     'attributes', 'autoSave', 
@@ -463,6 +463,7 @@ const registry = {
                     'editable',
                     'groupBy',
                     'hideButtonLabels', 'hideButtonCreate', 'hideButtonClone', 'hideButtonDisconnect',
+                    'multiSelect', 'mergeGridKeyColumns', 'mergeFileKeyColumns', 'mergeFileColumns', 'mergeDelete',
                     'rotate',
                     'picklistLimit', 'picklistShortcuts',
                     'saveButtonLabel', 'sortBy', 'sortOrder', 'sortDirection', 'sortType',
@@ -486,7 +487,7 @@ const registry = {
                     id          : 'grid-row',
                     headerLabel : 'Grid Row'
                 },
-                data       : [ 'fieldsEx', 'fieldsIn' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 filters    : [ ],
                 additional : [ 'narrowPanel' ],
                 excluded   : [ 'openSelectedInPLM' ]
@@ -512,7 +513,7 @@ const registry = {
                     // 'additionalRequests' // Handled in code
                     'bomViewName', 'bomViewId',
                     'depth',
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'includeBOMPartList',
                     'revisionBias',
                     'selectItems',
@@ -554,7 +555,7 @@ const registry = {
                 data : [
                     'bomViewName', 'bomViewId', 
                     'depth',                  
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'revisionBias',
                     'selectItems'
                 ],
@@ -585,7 +586,7 @@ const registry = {
                 data : [
                     'bomViewName', 'bomViewId', 
                     'depth',
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'revisionBias',
                     'selectItems',
                     'workspacesIn', 'workspacesEx'                    
@@ -615,7 +616,7 @@ const registry = {
                 },
                 data : [ 
                     'depth', 
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'workspacesIn', 'workspacesEx'  
                 ],
                 filters : [ 'filterByLifecycle', 'filterByWorkspace' ],
@@ -641,7 +642,7 @@ const registry = {
                     tileIcon    : 'icon-product'
                 },
                 data : [ 
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'workspacesIn', 'workspacesEx'  
                 ],
                 filters    : [ 'filterByLifecycle', 'filterByWorkspace' ],                
@@ -667,7 +668,7 @@ const registry = {
                 },
                 data : [
                     'depth',
-                    'fieldsEx', 'fieldsIn',
+                    'fieldsEx', 'fieldsIn', 'fieldsLimit',
                     'workspacesIn', 'workspacesEx'                      
                 ],
                 filters    : [ 'filterByLifecycle', 'filterByWorkspace' ],                
@@ -691,7 +692,7 @@ const registry = {
                     layout      : 'table',
                     tileIcon    : 'icon-product',
                 },
-                data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],
                 filters    : [ 'filterByLifecycle', 'filterByWorkspace' ],                
                 additional : [ 
                     'editable',
@@ -719,7 +720,7 @@ const registry = {
                     createButtonIcon  : '',
                     createButtonTitle : 'Create new process'
                 },
-                data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],                
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],                
                 filters    : [ 'filterByStatus', 'filterByWorkspace' ],                
                 additional : [ 
                     'editable',
@@ -751,7 +752,7 @@ const registry = {
                     tileIcon    : 'icon-calendar',
                     multiSelect : true
                 },
-                data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],                  
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],                  
                 filters    : [ 'filterByStatus', 'filterByWorkspace' ],                 
                 additional : [ 
                     'createButtonIcon', 'createButtonLabel', 'createButtonTitle',
@@ -781,7 +782,7 @@ const registry = {
                     tileIcon          : 'icon-link',
                     filterByWorkspace : true
                 },
-                data       : ['fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],
+                data       : ['fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],
                 filters    : [ 'filterByWorkspace' ],                
                 additional : [ ]
             },{ // insertSourcing
@@ -802,7 +803,7 @@ const registry = {
                     headerLabel : 'Sourcing',
                     layout      : 'table'
                 },
-                data       : ['fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],
+                data       : ['fieldsEx', 'fieldsIn', 'fieldsLimit', 'workspacesIn', 'workspacesEx' ],
                 filters    : [ 'filterBySupplier', 'filterByManufacturer' ],                    
                 additional : [ 'groupBy' ]
             },{ // insertWorkflowHistory
@@ -851,7 +852,7 @@ const registry = {
                     tileIcon    : 'icon-product',
                     number      : false
                 },
-                data       : ['fieldsEx', 'fieldsIn' ],
+                data       : ['fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 additional : [ ]
             },{ // insertChangeLog
                 id          : 'insertChangeLog',
@@ -874,7 +875,7 @@ const registry = {
                     filterByUser   : true,
                     filterByAction : true
                 },
-                data       : [ 'fieldsEx', 'fieldsIn' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 filters    : [ 'filterByUser', 'filterByAction' ],
                 additional : [ 'actionsIn', 'actionsEx', 'usersIn', 'usersEx' ],
                 excluded   : [ 'layout', 'openSelectedInPLM' ] 
@@ -1003,7 +1004,7 @@ const registry = {
                     limit       : 20,
                     fieldsIn    : ['DESCRIPTOR']
                 },
-                data       : [ 'fieldsIn', 'fieldsEx' ],
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],
                 filters    : [ 'filterByStatus', 'filterByWorkspace' ],
                 additional : [ 'limit', 'pagination', 'sortSelection' ],
                 excluded   : [ 'layout' ]
@@ -1032,7 +1033,7 @@ const registry = {
                     textNoData     : 'No properties found for the selected class',
                     fieldsIn       : ['DESCRIPTOR']
                 },
-                data       : [ 'fieldsIn' ],      
+                data       : [ 'fieldsIn', 'fieldsLimit' ],      
                 additional : [ 'advancedFilter', 'idContents', 'showInDialog' ],
                 excluded   : [ 'layout' ]
             },{ // insertItemClassification
@@ -1091,7 +1092,7 @@ const registry = {
                     headerLabel : 'Users',
                     layout      : 'table'
                 },
-                data       : [ 'fieldsEx', 'fieldsIn' ],            
+                data       : [ 'fieldsEx', 'fieldsIn', 'fieldsLimit' ],            
                 additional : [ ]
             }
         ]        
@@ -1335,12 +1336,6 @@ const registry = {
                 default      : false,
                 type         : 'boolean'
             },            
-            tableColumnsLimit : {
-                title       : 'Table Columns Limit',
-                description : "Maximum number of columns to display when layout is 'table' (includes the number column)",
-                default     : 100,
-                type        : 'integer'
-            },
             tableRanges : {
                 title       : 'Table Ranges',
                 description : 'Show min/max range indicators on numeric columns',
@@ -1523,7 +1518,13 @@ const registry = {
             description : 'Set list of fields/columns to be shown (provide labels)',
             default     : '',
             type        : 'array'
-        },        
+        },    
+        fieldsLimit : {
+            title       : 'Fields Limit',
+            description : "Maximum number of fields / columns to display (includes the number column in case of trees)",
+            default     : 100,
+            type        : 'integer'
+        },            
         topClassId : {
             title       : 'Top Class ID',
             description : 'Restrict the classification tree to descendants of this class ID',

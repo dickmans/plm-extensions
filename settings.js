@@ -2344,18 +2344,20 @@ exports.applications = {
             },{ 
                 type   : 'bom', 
                 params : { 
-                    id               : 'item-bom',
-                    bomViewName      : 'Basic',
-                    headerLabel      : 'BOM',
-                    collapseContents : true,
-                    contentSize      : 'xs',
-                    counters         : true,
-                    openInPLM        : true,
-                    path             : true,
-                    search           : true,
-                    toggles          : true,
-                    onClickItem      : function(elemClicked) { clickBOMItem(elemClicked); },
-                    afterCompletion  : function(id) { genAddinPLMBOMActions(id); }
+                    id                : 'item-bom',
+                    bomViewName       : 'Basic',
+                    headerLabel       : 'BOM',
+                    fieldsIn          : [ 'DESCRIPTOR', 'Icon', 'File Revision', 'Lifecycle' ],
+                    collapseContents  : true,
+                    contentSize       : 'xs',
+                    counters          : true,
+                    openSelectedInPLM : true,
+                    path              : true,
+                    reload            : true,
+                    search            : true,
+                    toggles           : true,
+                    onClickItem       : function(elemClicked) { clickBOMItem(elemClicked); },
+                    afterCompletion   : function(id) { genAddinPLMBOMActions(id); }
                 } 
             },{ 
                 type   : 'similar-items', 
