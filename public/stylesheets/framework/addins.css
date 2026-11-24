@@ -580,6 +580,21 @@
     margin-top : 16px;
     width      : 100%;
 }
+.addin .drop-zone {
+    font-size    : 10px;
+    padding-left : 12px;
+}
+.addin .drop-zone-icon { 
+    font-size   : 16px;
+    line-height : 22px;
+}
+.addin .drop-zone-processing {
+    padding-top : 6px;
+}
+.addin .drop-zone-processing > div {
+    height : 10px;
+    width  : 10px;
+}
 
 
 /*  ROOT PARENTS */
