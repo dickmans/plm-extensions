@@ -171,13 +171,10 @@ function genAddinPLMItemTileActions(elemActions) {
 }
 function genAddinTileAction(elemActions, action, icon, tooltip) {
 
-    console.log(config);
-
     if(typeof config.hostApplicationActions == 'undefined') return;
     if(isBlank(host)) return;
     if(!config.hostApplicationActions[host.toLowerCase()][action]) return;
     
-
     elemActions.addClass('addin-actions');
 
     let elemAction = $('<div></div>').appendTo(elemActions)

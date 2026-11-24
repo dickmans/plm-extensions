@@ -4,14 +4,22 @@ $(document).ready(function() {
     setUIEvents();
     setAddinEvents();
 
+    let summaryContents = config.item.tabs;
+        
+    for(let content of summaryContents) {
+        if(content.type === 'bom') {
+            content.params.onClickItem     = function(elemClicked) { selectBOMItem(elemClicked); };
+            content.params.afterCompletion = function(id) { genAddinPLMBOMActions(id); }
+        }
+    }
+
     insertItemSummary(urlParameters.link, {
         id              : 'item',
         bookmark        : true,
         openInPLM       : true,
         reload          : true,
         summaryLayout   : 'tabs',
-        summaryContents : config.item.tabs
-
+        summaryContents : summaryContents
     });    
 
 });
@@ -24,7 +32,7 @@ function insertBOMDone() {
 
     if(host.toLowerCase() === 'inventor') {
 
-    let elemToolbar = $('#item-bom-controls');
+        let elemToolbar = $('#item-bom-controls');
 
         $('<div></div>').prependTo(elemToolbar)
             .addClass('button')

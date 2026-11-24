@@ -2355,9 +2355,7 @@ exports.applications = {
                     path              : true,
                     reload            : true,
                     search            : true,
-                    toggles           : true,
-                    onClickItem       : function(elemClicked) { clickBOMItem(elemClicked); },
-                    afterCompletion   : function(id) { genAddinPLMBOMActions(id); }
+                    toggles           : true
                 } 
             },{ 
                 type   : 'similar-items', 
