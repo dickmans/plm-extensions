@@ -301,6 +301,7 @@
 .icon-flag-finish::before       { content : '\f06e'; }
 .icon-file::before              { content : '\e66d'; }
 .icon-filter::before            { content : '\e152'; }
+.icon-filter-alt::before        { content : '\ef4f'; font-variation-settings: 'FILL' 1 }
 .icon-filter-empty::before      { content : '\f703'; }
 .icon-filter-right::before      { content : '\f3d1'; }
 .icon-filter-selected::before   { content : '\f0c5'; }
@@ -314,7 +315,8 @@
 .icon-goto-parent::before       { content : '\f72e'; }
 .icon-goto-folder::before       { content : '\e675'; }
 .icon-group::before             { content : '\e7ef'; }
-.icon-group-add::before         { content : '\e7f0'; }
+.icon-grouping-add::before      { content : '\e02e'; }
+.icon-grouping-clear::before    { content : '\f745'; }
 .icon-help::before              { content : '\f1c0'; }
 .icon-health-monitor::before    { content : '\eaa2'; }
 .icon-help-circle::before       { content : '\e887'; }
@@ -406,6 +408,7 @@
 .icon-side-panel::before        { content : '\f7e5'; }
 .icon-skip::before              { content : '\e01f'; }
 .icon-sliders::before           { content : '\e429'; }
+.icon-sort::before              { content : '\e8d5'; }
 .icon-square::before            { content : '\e3c6'; }
 .icon-start::before             { content : '\e1c4'; }
 .icon-starts-with::before       { content : '\ec73'; }
