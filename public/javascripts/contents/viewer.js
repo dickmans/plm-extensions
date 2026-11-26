@@ -2276,7 +2276,7 @@ function viewerAddViewsToolbar(viewerInstance) {
     
     addCustomViewControl(viewerInstance, newToolbar, 'my-view-home-button', 'home', 'icon-home', 'Home');
 
-    if(!isiPad) {
+    if(!isTablet) {
 
         addCustomViewControl(viewerInstance, newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
         addCustomViewControl(viewerInstance, newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');

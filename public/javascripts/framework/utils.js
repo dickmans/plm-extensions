@@ -2,9 +2,9 @@ let userAccount         = { displayName : '', groupsAssigned : [] };
 let urlParameters       = {};
 let languageId          = '1';
 let username            = '';
-const isiPad            = ( navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) );
-const isiPhone          = navigator.userAgent.match(/iPhone/i) != null;
-const isMobile          = (isiPad || isiPhone) ;
+let isTablet            = (navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+let isPhone             = (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone/i)) !== null;
+let isMobile            = (isTablet || isPhone) ;
 let applicationFeatures = {}
 let dataContextMenu     = {}
 let viewerFeatures      = {};
@@ -28,14 +28,21 @@ $(document).ready(function() {
     else if(theme.toLowerCase() === 'fusion') { $('body').addClass('fusion-theme'); theme = 'fusion'; }
     else                                      { $('body').addClass( 'light-theme'); theme =  'light'; }
 
+    isPhone = (urlParameters.platform === 'phone') || isPhone;
+
     beforeApplicationStart();
     insertAvatar();  
     enableTabs();
     enablePanelToggles();
     setFormEvents();
 
-    $('#header-logo'    ).click(function() { reloadPage(true); });
-    $('#header-title'   ).click(function() { reloadPage(false); });
+    $('#header-logo' ).click(function() { reloadPage(true); });
+    $('#header-title').click(function() { reloadPage(false); });
+
+    if(isPhone ) $('body').addClass('platform-phone'  );
+    if(isTablet) $('body').addClass('platform-tablet' );
+    if(isMobile) $('body').addClass('platform-mobile' );
+    else         $('body').addClass('platform-desktop');
 
 });
 function beforeApplicationStart() {

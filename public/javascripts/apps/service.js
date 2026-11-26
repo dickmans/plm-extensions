@@ -371,7 +371,7 @@ function setUIEvents() {
             .removeClass('screen-request'); 
     });
 
-    if(isiPad) $('#toggle-bom').click();
+    if(isTablet) $('#toggle-bom').click();
 }
 
 
@@ -544,7 +544,7 @@ function openItem() {
     paramsBOM.selectItems       = { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart };
     paramsBOM.onClickItem       = function(elemClicked) { onClickBOMItem(elemClicked); }
 
-    if(isiPad) paramsBOM.singleToolbar = 'actions';
+    if(isTablet) paramsBOM.singleToolbar = 'actions';
 
     finishedLoading.engineeringBOM = false;
     finishedLoading.serviceBOM     = false;
@@ -1858,7 +1858,7 @@ function adjustCartHeight() {
 
         if(!isVisible) setTimeout(function() { elemCart.fadeIn(); }, 300);
 
-        topTabs = (isiPad) ? 80 : 100;
+        topTabs = (isTablet) ? 80 : 100;
 
     } else {
 
@@ -1872,7 +1872,7 @@ function adjustCartHeight() {
             heightCartList  = countPartsInCart * heightTiles;
         }
 
-        topTabs = heightCart + ((isiPad) ? 50 : 70);
+        topTabs = heightCart + ((isTablet) ? 50 : 70);
 
     }
 
