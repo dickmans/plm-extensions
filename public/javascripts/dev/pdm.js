@@ -2,12 +2,14 @@ $(document).ready(function() {
 
     setUIEvents();
 
-    insertVaultBrowser();
-    insertVaultEngineeringChangeOrders();
-    insertVaultGroups();
-    insertVaultRoles();
-    insertVaultUsers();
-    insertVaultSystemOptions();
+    getVaultId(function() {
+        insertVaultBrowser();
+        insertVaultEngineeringChangeOrders();
+        insertVaultGroups();
+        insertVaultRoles();
+        insertVaultUsers();
+        insertVaultSystemOptions();        
+    });
 
 });
 
