@@ -2,6 +2,8 @@ const express = require('express');
 const axios   = require('axios');
 const crypto  = require('node:crypto');
 const jwt     = require('jsonwebtoken');
+const fs      = require('node:fs');
+const path    = require('node:path');
 const router  = express.Router();
 
 
@@ -73,14 +75,6 @@ router.get('/error-loading', function(req, res, next) {
 
 
 /* ------------------------------------------------------------------------------
-    CUSTOM APPLICATIONS
-    router.get('/<endpoint>', async function(req, res, next) { launch('<pug filename in /views>', '<node in settings file>', '<page title>', req, res); });
-   ------------------------------------------------------------------------------ */
-//    router.get('/template', async function(req, res, next) { launch('custom/template', 'custom', 'App Title', req, res); });
-
-
-
-/* ------------------------------------------------------------------------------
     STANDARD APPLICATIONS
    ------------------------------------------------------------------------------ */
 router.get('/abom'          , async function(req, res, next) { launch('apps/abom'          , 'abom'          , 'Asset BOM Editor'         , req, res, next); });
@@ -141,13 +135,6 @@ router.get('/template', async function(req, res, next) { launch('tutorial/1-temp
 
 
 /* ------------------------------------------------------------------------------
-    CUSTOM APPLICATIONS
-   ------------------------------------------------------------------------------ */
-router.get('/playground' , async function(req, res, next) { launch('custom/playground', '', 'UX Playground', req, res, next); });
-
-
-
-/* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
 router.get('/assets'       , async function(req, res, next) { launch('dev/assets'       , '', 'Asset Management'                 , req, res, next); });
@@ -170,6 +157,64 @@ router.get('/transmittals' , async function(req, res, next) { launch('dev/transm
 router.get('/worklist'     , async function(req, res, next) { launch('dev/worklist'     , 'worklist', 'Worklist'                 , req, res, next); });
 
       
+
+/* ------------------------------------------------------------------------------
+    CUSTOM APPLICATIONS (EXPLICIT)
+    Register your custom applications below, with the same format as the 
+    standard applications above. Make use of the folders custom for storing 
+    your pug, js and css files.
+   ------------------------------------------------------------------------------ */    
+//  router.get('/myapp', async function(req, res, next) { launch('custom/myapp', 'myapp', 'My Custom App', req, res, next); });
+
+
+
+/* ------------------------------------------------------------------------------
+    CUSTOM APPLICATIONS (HOT DEPLOYMENT)
+    
+    You can also deploy custom applications on the fly without server restart.
+    Simply copy the given .pug file to /views/custom, a matching endpoint will
+    be registered with the same file automatically. When the pug file gets
+    removed, the endpoint will get disabled. These custom apps will be enabled
+    automatically, they do not require an entry in servicesEnabled in the 
+    setting file. However, the custom apps can be disabled using servicesEnabled
+    (by setting appName = false). 
+    These apps do not support custom settings in the settings file, this is only
+    possible with explicit endpoint registrations above.
+    This definition must remain at end of all explicit endpoints registered 
+    above, which will override custom apps having the same name.
+
+    An application title can be set by an optional first line in the pug file:
+    //- title: My Application
+   ------------------------------------------------------------------------------ */
+
+
+router.get('/:app', async function(req, res, next) {
+
+    const name      = req.params.app;
+    const pathViews = path.join(__dirname, '..', 'views', 'custom');
+
+    if(!/^[a-z][a-z0-9-]*$/.test(name)) return next();
+
+    let file = path.join(pathViews, name + '.pug');
+
+    if(!fs.existsSync(file)) return next();
+
+    launch('custom/' + name, name, getCustomAppTitle(file, name), req, res, next);
+
+});
+function getCustomAppTitle(file, name) {
+
+    try {
+        let firstLine = fs.readFileSync(file, 'utf8').split(/\r?\n/, 1)[0];
+        let match     = firstLine.match(/^\/\/-\s*title:\s*(.+?)\s*$/i);
+        if(match) return match[1];
+    } catch(error) {}
+
+    return name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+
+}
+
+
 
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
@@ -324,9 +369,13 @@ async function launch(appURL, appSettings, appTitle, req, res) {
 }
 function isServiceDisabled(appURL, req, res) {
 
-    let urlEnd = appURL.split('/').pop();
+    let urlEnd  = appURL.split('/').pop();
+    let enabled = req.app.locals.server.servicesEnabled[urlEnd];
 
-    if(req.app.locals.server.servicesEnabled[urlEnd]) return false;
+    // Custom applications (hot deployed) are enabled unless explicitly set to false
+    if(appURL.startsWith('custom/') && typeof enabled === 'undefined') enabled = true;
+
+    if(enabled) return false;
 
     res.locals.message = 'Page not found';
     res.locals.error = { status : 404, stack : 'Cannot find /' + urlEnd + ' on this server'};
