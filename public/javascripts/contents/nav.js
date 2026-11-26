@@ -30,12 +30,12 @@ function insertMOWData(id) {
         let listWorkspaces  = [];
         let enableDueToggle = false;
         let columns         = [
-            { displayName : 'Due Date'      , fieldId : 'due'       },
-            { displayName : 'Item'          , fieldId : 'item'      },
-            { displayName : 'Workspace'     , fieldId : 'workspace' },
-            { displayName : 'State'         , fieldId : 'current'   },
-            { displayName : 'State Set On'  , fieldId : 'date'      },
-            { displayName : 'State Set By'  , fieldId : 'user'      }
+            { displayName : 'Due Date'    , fieldId : 'due'       },
+            { displayName : 'Item'        , fieldId : 'item'      },
+            { displayName : 'Workspace'   , fieldId : 'workspace' },
+            { displayName : 'State'       , fieldId : 'current'   },
+            { displayName : 'State Set On', fieldId : 'date'      },
+            { displayName : 'State Set By', fieldId : 'user'      }
         ]
 
         for(let column of columns) {
@@ -46,16 +46,17 @@ function insertMOWData(id) {
 
         for(let item of response.data.outstandingWork) {
 
-            let dateClass   = '';
-            let date        = '';
-            let dueFilter   = '';
-            let workspace   = item.workspace.title;
+            let dateClass       = '';
+            let date            = '';
+            let dueFilter       = '';
+            const workspaceName = item.workspace.title;
+            const workspaceId   = item.workspace.link.split('/').pop();
 
-            if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspace))) {
-                if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspace))) {
+            if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspaceName))|| ( settings[id].workspacesIn.includes(workspaceId))) {
+                if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspaceName))|| (!settings[id].workspacesEx.includes(workspaceId))) {
 
                     if(!listStates.includes(item.workflowStateName)) listStates.push(item.workflowStateName);
-                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+                    if(!listWorkspaces.includes(workspaceName)) listWorkspaces.push(workspaceName);
 
                     if(item.hasOwnProperty('milestoneDate')) {
                             let targetDate = new Date(item.milestoneDate);
@@ -74,14 +75,14 @@ function insertMOWData(id) {
                         link        : item.item.link,
                         image       : '',
                         title       : item.item.title,
-                        subtitle    : workspace,
+                        subtitle    : workspaceName,
                         details     : '',
                         partNumber  : item.item.title.split(' - ')[0],
                         status      : item.workflowStateName,
                         data        : [
                             { fieldId : 'due'        , value : date, classNames : ['mow-date', dateClass]},
                             { fieldId : 'item'       , value : item.item.title },
-                            { fieldId : 'workspace'  , value : workspace },
+                            { fieldId : 'workspace'  , value : workspaceName },
                             { fieldId : 'current'    , value : item.workflowStateName },
                             { fieldId : 'date'       , value : date },
                             { fieldId : 'user'       , value : item.workflowUser.title }
@@ -89,7 +90,7 @@ function insertMOWData(id) {
                         filters : [
                             { key : 'due', value : dueFilter },
                             { key : 'status', value : item.workflowStateName },
-                            { key : 'workspace', value : workspace },
+                            { key : 'workspace', value : workspaceName },
                         ],
                         quantity    : '',
                         classNames  : []

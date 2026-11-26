@@ -1929,6 +1929,14 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
     justify-content : end;
     margin          : 13px 32px 0px 0px;
 }
+#header-toolbar .spacer {
+    background : var(--color-surface-level-1);
+    width      : 1px;
+    min-width  : 1px;
+    max-width  : 1px;
+    height     : 34px;
+    margin     : 4px 2px 0px 2px;
+}
 #header-toolbar select {
     height  : 34px;
     padding : 0px 16px;

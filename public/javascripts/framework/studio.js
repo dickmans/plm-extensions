@@ -392,6 +392,7 @@ function insertCommonOptionControl(className, key, commonOption, defaultValue) {
             if(defaultValue !== null) elemControl.val(defaultValue);
             break;
 
+        case 'json':
         case 'textarea':
             elemControl = $('<textarea></textarea>').appendTo(elemOption)
                 .on('keyup', function() {setJSONString(); })

@@ -310,6 +310,6 @@ body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-footer {
 table.dataTable tbody tr td {
     cursor : pointer;
 }
-table.dataTable tbody tr:hover td {
+table.dataTable tbody tr.content-item:hover td {
     background : var(--color-hover-border); 
 }

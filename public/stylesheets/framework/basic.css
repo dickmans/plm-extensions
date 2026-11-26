@@ -190,14 +190,14 @@ table.grid.rotated tr:first-of-type > td {
 .fixed-column > thead > tr > th:first-of-type {
     z-index : 7;
 }
-table.row-hovering tr:hover td,
-table.row-hovering tbody tr:hover td {
+table.row-hovering tr:hover.content-item td,
+table.row-hovering tbody tr:hover.content-item td {
     border-color    : var(--color-hover-border);
     cursor          : pointer;
 }
 table.row-hovering tr:hover td.field-readonly,
 table.row-hovering tbody tr:hover td.field-readonly {
-    background      : var(--color-hover-background) !important;
+    /* background      : var(--color-hover-background) !important; */
 }
 tr.selected td.field-readonly {
     background   : var(--color-selected-background) !important;

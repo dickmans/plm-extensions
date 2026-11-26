@@ -5063,10 +5063,10 @@ function saveGridData(id) {
 
     if(!settings[id].autoSave) appendOverlay(false);
 
-    let requests    = [];
-    let elemTBody   = $('#' + id + '-tbody');
-    let rowsNew     = [];
-    let index       = 0;
+    let requests  = [];
+    let elemTBody = $('#' + id + '-tbody');
+    let rowsNew   = [];
+    let index     = 0;
 
     elemTBody.children('.hidden').each(function() {
 
@@ -5095,7 +5095,7 @@ function saveGridData(id) {
         });
 
         rowsNew.push(elemRow);
-        requests.push($.post('/plm/add-grid-row', params))
+        requests.push($.post('/plm/add-grid-row', params));
 
     });
 
@@ -5512,8 +5512,8 @@ function insertBOM(link , params, data) {
     if(settings[id].fieldsIn.length > 0) settings[id].hideTreeColumns = false;
     if(settings[id].fieldsEx.length > 0) settings[id].hideTreeColumns = false;
     if(settings[id].bomViewSelector    ) settings[id].hideTreeColumns = false;
-
-    if(isiPad) settings[id].downloadFiles = false;
+    
+    if(isTablet) settings[id].downloadFiles = false;
 
     // settings[id].hideChildren = params.hideChildren || [];
     // settings[id].hideItems    = params.hideItems    || [];

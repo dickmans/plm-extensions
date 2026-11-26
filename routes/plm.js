@@ -1036,8 +1036,10 @@ function genPayloadSectionsFields(req, prefix, mode) {
 
     for(let field of req.body.fields) {
 
+        const fieldId = field.fieldId || field.fieldSelf.split('/').pop();
+
         let fieldData = {
-            __self__ : prefix   + '/views/1/fields/' + field.fieldId,
+            __self__ : prefix   + '/views/1/fields/' + fieldId,
             title    : field.title || '',
             value    : getFieldValue(field)
         }
@@ -2302,12 +2304,15 @@ router.post('/update-grid-row', function(req, res, next) {
     console.log('  req.body.dmsId   = ' + req.body.dmsId);
     console.log('  req.body.link    = ' + req.body.link);
     console.log('  req.body.rowId   = ' + req.body.rowId);
+    console.log('  req.body.rowLink = ' + req.body.rowLink);
     console.log('  req.body.data    = ' + req.body.data);
     console.log(); 
 
+    const rowId = req.body.rowId || req.body.rowLink.split('/').pop();
+
     let url  = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url  = req.app.locals.tenantLink + url;
-        url += '/views/13/rows/'  + req.body.rowId;
+        url += '/views/13/rows/' + rowId;
 
     let rowData = genPayloadGridFields(req);
 
