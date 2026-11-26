@@ -51,10 +51,12 @@ exports.common = {
         engineeringProjects          : 213,
         engineeringProjectActivities : 211,
         items                        : 57,
+        qualityInspections           : 101,
         nonConformances              : 98,
         problemReports               : 82,
         requirementSpecifications    : 142,
         requirements                 : 143,
+        requirementValidations       : 144,
 
         // Products & Projects Workspaces
         products               : 95,
