@@ -2408,6 +2408,19 @@ const registry = {
                 default     : false,
                 type        : 'boolean'
             },            
+            expandContents : {
+                title       : 'Expand Contents',
+                description : "When defined, users can expand additional contents of content items",
+                default     : '',
+                type        : 'select',
+                list        : [ 'attachments', 'grid', 'managed-items' ]
+            },            
+            expandSettings : {
+                title       : 'Expand Settings',
+                description : "Drive the contents being displayed when expanding a content item",
+                default     : '',
+                type        : 'json',
+            },            
             disconnectButtonIcon : {
                 title       : 'Disconnect Button Icon',
                 description : 'Icon class for the Disconnect/Remove button',
@@ -2659,8 +2672,7 @@ function getPanelSettings(name, params, inputs) {
 
     if(settings[id].contentSizes.length > 0) settings[id].contentSize = settings[id].contentSizes[0];
 
-    for(let input of panelType.inputs) {
-
+    if(settings[id].expandContents == null) settings[id].expandContents = false;
         let key = input.id;
         settings[id][key] = inputs[key] || input.default
 

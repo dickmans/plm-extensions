@@ -6602,6 +6602,8 @@ function genTableHeaders(id, elemTHead) {
 
     }
 
+    if(settings[id].expandContents) $('<th></th>').appendTo(elemTHRow);
+
     if(settings[id].number    ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-number'    ).html('Nr');
     if(settings[id].descriptor) $('<th></th>').appendTo(elemTHRow).addClass('content-column-descriptor').html('Item');
     if(settings[id].quantity  ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-quantity'  ).html('Qty');
@@ -6712,6 +6714,15 @@ function genTableRows(id, elemTBody, items, editableFields) {
                     clickContentItemCheckbox(e, $(this));
                 });
     
+        }
+
+        if(settings[id].expandContents) {
+            $('<td></td>').prependTo(elemRow)
+                .html('<div class="icon icon-right"></div>')
+                .addClass('content-item-expand')
+                .click(function(e) {
+                    clickContentItemExpand(e, $(this));
+                });                        
         }
 
         if(settings[id].number    ) $('<td></td>').appendTo(elemRow).addClass('content-column-number').html(count++);
@@ -6944,7 +6955,7 @@ function collapseAllTableGroups(id) {
 
     $('#' + id + '-content').find('.content-item').addClass('hidden');
     $('#' + id + '-content').find('.table-group-title').addClass('collapsed');
-    
+
 }
 
 
@@ -7058,6 +7069,62 @@ function clickContentItem(e, elemClicked) {
 }
 function clickContentItemDone(e, elemClicked) {}
 
+
+// Expand Content Item
+function clickContentItemExpand(e, elemExpand) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const elemItem  = elemExpand.closest('.content-item');
+    const elemIcon  = elemExpand.find('.icon');
+    const elemNext  = elemItem.next();
+    const elemPanel = elemItem.closest('.panel-top');
+    const link      = elemItem.attr('data-link');
+    const id        = elemPanel.attr('id');
+
+    elemIcon.toggleClass('icon-right').toggleClass('icon-toggle-expand');
+
+    const isExpanded = elemIcon.hasClass('icon-toggle-expand');
+    const newExpand  = !elemNext.hasClass('expanded-contents-row');
+    const countCells = elemItem.children('td').length;
+    const idExpand   = 'expand-' + elemItem.index();
+
+    if(isExpanded) {
+
+        if(newExpand) {
+
+            const elemExpandRow = $('<tr></tr>').insertAfter(elemItem)
+                .addClass('expanded-contents-row');
+            
+            const elemExpandCell = $('<td></td>').appendTo(elemExpandRow)
+                .addClass('expanded-contents-cell')
+                .attr('colspan', countCells);
+
+            $('<div></div>').appendTo(elemExpandCell)
+                .addClass('expanded-contents-container')
+                .attr('id', idExpand);
+
+            const expandSettings = settings[id].expandSettings || {};
+
+            const params = {
+                ...expandSettings,
+                id: idExpand
+            };
+            
+            switch(settings[id].expandContents) {
+
+                case 'attachments'  : insertAttachments(link, params);  break;
+                case 'grid'         : insertGrid(link, params);         break;
+                case 'managed-items': insertManagedItems(link, params); break;
+
+            }
+
+        } else elemNext.removeClass('hidden');
+
+    } else if(!newExpand) elemNext.addClass('hidden');
+
+}
 
 
 // Panel Drag & Drop placeholders
