@@ -1192,7 +1192,9 @@ function getFieldValue(field) {
     let value = field.value;
     let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
 
-    if(typeof value === 'string') {
+    if(typeof value === 'undefined') {
+        value = '';
+    } else if(typeof value === 'string') {
         if(value.indexOf('/api/v3/') === 0) {
             if(typeof field.type === 'undefined') return { link : value };
         }
@@ -1202,6 +1204,10 @@ function getFieldValue(field) {
 
         case 'date':
             if(value == '') value = null;
+            else if(value == 'now') {
+                const now = new Date();
+                value = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+            }
             else {
                 if (value !== null) value = value.replaceAll('/', '-');
                 let split = value.split('-');
