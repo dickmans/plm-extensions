@@ -1,31 +1,3 @@
-let paramsSummary = {
-    id       : 'summary',
-    contents : [ { 
-        type   : 'details', 
-        params : {
-            id               : 'details-details', 
-            collapseContents : true, 
-            hideHeader       : true,
-            layout           : 'narrow'
-        }
-    },{
-        type   : 'attachments',
-        params : { 
-            id            : 'details-attachments', 
-            contentSize   : 's',
-            editable      : true , 
-            singleToolbar : 'controls'
-        }
-    }],
-    layout           : 'tabs',
-    hideCloseButton  : true,
-    openInPLM        : true,
-    bookmark         : true,
-    saveTabSelection : true
-};
-
-
-
 $(document).ready(function() {
     
     setUIEvents();
@@ -172,6 +144,13 @@ function selectClass(elemClicked) {
 function clickClassItem(elemClicked) {
 
     let link = elemClicked.attr('data-link');
+
+    const paramsSummary = {
+        ...config.panels.insertItemSummary,
+        id              : 'summary',
+        hideSubtitle    : true,
+        hideCloseButton : true
+    };
 
     insertItemSummary(link, paramsSummary);
 

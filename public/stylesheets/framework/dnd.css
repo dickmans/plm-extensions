@@ -7,8 +7,7 @@
     gap           : 12px;
     height        : 32px;
     line-height   : 32px;
-    min-width     : 380px;
-    padding       : 0px 0px;
+    padding       : 0px 20px;
     text-align    : center;
     justify-content : center;
 }
@@ -17,6 +16,11 @@
     border-color : var(--color-blue-200);
     color        : var(--color-blue-100);
     background   : var(--color-blue-800) !important;
+}
+.drop-zone-content {
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 .drop-zone-icon {
     color       : var(--color-blue-500);
@@ -36,7 +40,10 @@
     display : none;
 }
 .drop-zone-message {
-    display : none;
+    display       : none;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 .drop-zone.upload-in-progress .drop-zone-message {
     display : block;

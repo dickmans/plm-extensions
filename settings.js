@@ -204,7 +204,33 @@ exports.applications = {
     },
 
     classes : {
-        fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION', 'CLASS_NAME']
+        fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION', 'CLASS_NAME'],
+        panels : {
+            insertItemSummary : {
+                summaryLayout   : 'tabs',
+                summaryContents : [ { 
+                    type   : 'details', 
+                    params : {
+                        id               : 'details-details', 
+                        collapseContents : true, 
+                        hideHeader       : true,
+                        layout           : 'narrow'
+                    }
+                },{
+                    type   : 'attachments',
+                    params : { 
+                        id            : 'details-attachments', 
+                        contentSize   : 's',
+                        editable      : true , 
+                        hideHeader      : true , 
+                        singleToolbar : 'actions'
+                    }
+                }],
+                openInPLM        : true,
+                bookmark         : true,
+                saveTabSelection : true
+            }
+        }
     },
 
     compare : {
