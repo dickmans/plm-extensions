@@ -3486,12 +3486,13 @@ function filterPanelContent(id) {
     let toggleEmpty       = $('#' + id + '-filter-empty-only');
     let toggleFilters     = $('.' + id + '-filter-toggle');
     let selectFilters     = $('.' + id + '-filter');
+    let domClassFilters   = settings[id].panelContentFilterClasses || [];
     let filterSelected    = false;
     let filterEmpty       = false;
     let filters           = [];
     let allHidden         = true;
     let clearAllFilters   = (searchInputValue === '');
-    let isTree            = elemTop.hasClass('tree') || elemContent.hasClass('tree');
+    let isTree            = elemTop.hasClass('tree') || elemContent.hasClass('tree');
 
     toggleFilters.each(function() {
         let elemToggle = $(this);
@@ -3631,6 +3632,17 @@ function filterPanelContent(id) {
                     }
                 }
 
+            }
+        }
+
+        if(showContentItem) {
+            if(domClassFilters.length > 0) {
+                for(let domClassFilter of domClassFilters) {
+                    if(!elemContentItem.hasClass(domClassFilter)) {
+                        showContentItem = false;
+                        break;
+                    }
+                }
             }
         }
 
