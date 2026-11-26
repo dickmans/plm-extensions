@@ -32,9 +32,12 @@ exports.common = {
         engineeringProjects          : 213,
         engineeringProjectActivities : 211,
         items                        : 57,
+        qualityInspections           : 101,        
         nonConformances              : 98,
         problemReports               : 82,
+        requirementSpecifications    : 142,
         requirements                 : 143,
+        requirementValidations       : 144,        
 
         // Products & Projects Workspaces
         products               : 95,
@@ -51,10 +54,7 @@ exports.common = {
         equipments             : 280,
         equipmentServices      : 284,
         serialNumbers          : 277,
-        serializedItems        : 282,
-        assets                 : 280,
-        assetItems             : 282,
-        assetServices          : 284,
+        serializedItems        : 282
 
     },
 
