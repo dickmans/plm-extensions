@@ -550,7 +550,7 @@ const registry = {
                 defaults : {
                     id          : 'bom-parts-list',
                     headerLabel : 'BOM Parts List',
-                    layout      : 'list'
+                    layout      : 'table'
                 },                
                 data : [
                     'bomViewName', 'bomViewId', 

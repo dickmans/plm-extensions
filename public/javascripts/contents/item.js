@@ -5641,8 +5641,6 @@ function getBOMViews(id) {
                 .html(bomView.name)
                 .attr('value', bomView.id);
 
-
-
             let view = {
                 id      : bomView.id,
                 name    : bomView.name,
@@ -5690,7 +5688,7 @@ function getBOMViews(id) {
             sortArray(view.columns, 'sortFieldsIncluded', 'integer');
             settings[id].bomViews.push(view);
 
-            let selectView = (isBlank(settings[id].bomViewName)) ? (settings[id].bomViews.length === 0): (bomView.name === settings[id].bomViewName);
+            const selectView = (isBlank(settings[id].bomViewName)) ? (settings[id].bomViews.length === 0) : (bomView.name === settings[id].bomViewName);
 
             // if(!isBlank(settings[id].bomViewName)) {
                 // if(bomView.name === settings[id].bomViewName) {
@@ -5706,7 +5704,7 @@ function getBOMViews(id) {
 
         }
         
-        if(bomViewMissing) console.error('BOM view "' + settings[id].bomViewName + '" could not be found in workspace ' + settings[id].link.split('/')[4] + ' for panel "' + id + '"');
+        if(bomViewMissing) console.error('BOM view "' + settings[id].bomViewName + '" could not be found in workspace ' + settings[id].link.split('/')[4] + ' for panel "' + id + '". Using BOM View "' + settings[id].bomViewName + '" instead.');
 
         if(settings[id].bomViewSelector) elemSelect.show();
 
@@ -5854,7 +5852,7 @@ function openBOMView(id) {
             settings[id].selectItems.values = settings[id].selectItems.values.map(function(item) { 
                 return item.toLowerCase(); 
             }); 
-        }        
+        }
 
         let elemContent = $('#' + id + '-content');
         let elemTable = $('<table></table>').appendTo(elemContent)
@@ -6739,7 +6737,15 @@ function insertBOMPartsList(link, params) {
 
     const id = getPanelSettings('insertBOMPartsList', params, { link : link });
     
-    genPanelElements(id);      
+    genPanelElements(id);   
+    
+    $('<select></select>').appendTo(genPanelToolbar(id, 'controls'))
+        .addClass('bom-view-selector')
+        .addClass('button')
+        .attr('id', id + '-view-selector')
+        .change(function() {
+            settings[id].load();
+        });  
 
     insertBOMPartsListDone(id);
     getBOMViews(id);
@@ -6749,6 +6755,7 @@ function insertBOMPartsListDone(id) {}
 function insertBOMPartsListData(id) {
 
     settings[id].timestamp = startPanelContentUpdate(id);
+    settings[id].viewId    = $('#' +  id + '-view-selector').val();
 
     let params = {
         link          : settings[id].link,
@@ -6762,14 +6769,17 @@ function insertBOMPartsListData(id) {
 
         if(stopPanelContentUpdate(response, settings[id])) return;
 
+        if(settings[id].hasOwnProperty('bomViews')) {
+            for(let view of settings[id].bomViews) {
+                if( settings[id].viewId == view.id) {
+                    settings[id].columns              = view.columns;
+                    break;
+                }
+            }
+        }        
+
         let parts = getBOMPartsList(settings[id], response.data);
         let items = [];
-
-        for(let field of settings[id].viewColumns) {
-            // if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], settings[id].columns.length)) {
-                settings[id].columns.push(field);
-            // }
-        }
 
         for(let part of parts) {
 
@@ -6781,14 +6791,14 @@ function insertBOMPartsListData(id) {
                 });
 
                 for(let field of part.fields) {
-                
+
                     if(field.fieldId === common.workspaces.items.fieldIdNumber            ) contentItem.partNumber = field.value;
                     if(field.fieldId === settings[id].tileImageFieldId) contentItem.imageId    = field.value;
                     if(field.fieldId === settings[id].tileTitle       ) contentItem.title      = field.value;
                     if(field.fieldId === settings[id].tileSubtitle    ) contentItem.subtitle   = field.value;
                     if(field.fieldId === settings[id].groupBy         ) contentItem.group      = field.value;
-                    if(field.fieldId === 'DESCRIPTOR'                          ) contentItem.descriptor = field.value;
-                    if(field.fieldId === 'WF_CURRENT_STATE'                    ) contentItem.status     = field.value;
+                    if(field.fieldId === 'DESCRIPTOR'                 ) contentItem.descriptor = field.value;
+                    if(field.fieldId === 'WF_CURRENT_STATE'           ) contentItem.status     = field.value;
                 
                     for(let tileDetail of contentItem.details) {
                         if(field.fieldId === tileDetail.fieldId) {
