@@ -255,10 +255,11 @@ body.dark-theme #guiviewer3d-toolbar .toggle-labels.active {
 
 /*  PART NUMBER TAGS EXTENSION  */
 /* ----------------------------------------------------------------------------- */
-.part-number-tag-click-mode-button  .adsk-button-icon::before { content : '\f52b'; }
-.part-number-tag-manual-button      .adsk-button-icon::before { content : '\e266'; }
-.part-number-tag-all-visible-button .adsk-button-icon::before { content : '\f216'; }
-.part-number-tag-clear-button       .adsk-button-icon::before { content : '\f7ac'; }
+.part-number-tag-click-mode-button   .adsk-button-icon::before { content : '\f52b'; }
+.part-number-tag-manual-button       .adsk-button-icon::before { content : '\e266'; }
+.part-number-tag-all-visible-button  .adsk-button-icon::before { content : '\f216'; }
+.part-number-tag-clear-button        .adsk-button-icon::before { content : '\f7ac'; }
+.part-number-tag-dim-untagged-button .adsk-button-icon::before { content : '\e162'; }
 .fusion-theme #part-number-tags-toolbar  .active, 
 .fusion-theme #part-number-tags-toolbar  .active:hover  { 
     background   : var(--color-blue-500) !important; 

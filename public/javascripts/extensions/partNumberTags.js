@@ -25,8 +25,25 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
         this.visibleButton = null;
         this.clickButton = null;
         this.clearButton = null;
+        this.dimButton = null;
 
         this.active = false;
+        this.dimUntaggedActive = false;
+
+        /*
+         * Ghosting of untagged components.
+         *
+         * Untagged leaf components are hidden, the viewer then
+         * renders hidden components ghosted (see viewer.setGhosting).
+         *
+         * ghostedIds: Map<model, Set<dbId>> of leaves hidden by this feature
+         *
+         * The viewer's standard ghosting level is used unchanged.
+         */
+        this.ghostedIds = new Map();
+        this._dimTimer = null;
+        this._originalGhosting = null;
+
         this.clickTagModeActive = false;
 
         this.TAG_SOURCE_MANUAL = "manual";
@@ -165,7 +182,8 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
                         this.button,
                         this.visibleButton,
                         this.clickButton,
-                        this.clearButton
+                        this.clearButton,
+                        this.dimButton
                     ]
                 ) {
                     if (button) {
@@ -177,6 +195,14 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
             }
 
         }
+
+        if (this._dimTimer) {
+            clearTimeout(this._dimTimer);
+            this._dimTimer = null;
+        }
+
+        this.dimUntaggedActive = false;
+        this.updateDimming();
 
         this.clearGroups();
 
@@ -321,6 +347,31 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
             this.clearGroups();
         };
 
+        /*
+         * Toggle button:
+         * Show components without a tag without color,
+         * so that tagged components stand out.
+         */
+        this.dimButton =
+            new Autodesk.Viewing.UI.Button(
+                "part-number-tag-dim-button"
+            );
+
+        this.addButtonClasses(
+            this.dimButton,
+            "part-number-tag-dim-untagged-button"
+        );
+
+        this.dimButton.setToolTip(
+            "Toggle ghosting of components without Part Number Tag"
+        );
+
+        this.dimButton.onClick = () => {
+            this.setDimUntagged(
+                !this.dimUntaggedActive
+            );
+        };
+
         toolbarGroup.addControl(
             this.clickButton
         );
@@ -336,6 +387,145 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
         toolbarGroup.addControl(
             this.clearButton
         );
+
+        toolbarGroup.addControl(
+            this.dimButton
+        );
+    }
+
+    /*
+     * ==========================================================
+     * GHOST UNTAGGED COMPONENTS
+     * ==========================================================
+     */
+    setDimUntagged(enabled) {
+        this.dimUntaggedActive = Boolean(enabled);
+
+        if (this.dimButton) {
+            this.dimButton.setState(
+                this.dimUntaggedActive
+                    ? Autodesk.Viewing.UI.Button.State.ACTIVE
+                    : Autodesk.Viewing.UI.Button.State.INACTIVE
+            );
+        }
+
+        this.updateDimming();
+    }
+
+    /*
+     * Debounced, so that sequences such as
+     * "remove old theming, apply new theming"
+     * only trigger a single pass.
+     */
+    scheduleDimUpdate() {
+        if (
+            !this.dimUntaggedActive &&
+            !this.ghostedIds.size
+        ) {
+            return;
+        }
+
+        if (this._dimTimer) {
+            return;
+        }
+
+        this._dimTimer = setTimeout(() => {
+            this._dimTimer = null;
+            this.updateDimming();
+        }, 0);
+    }
+
+    /*
+     * Synchronizes visibility of untagged leaf components
+     * with the state of the toggle. Tagged components
+     * are shown and keep the color of their group.
+     */
+    updateDimming() {
+        const taggedByModel = new Map();
+
+        for (const group of this.groups.values()) {
+            for (const instance of group.instances || []) {
+                if (!taggedByModel.has(instance.model)) {
+                    taggedByModel.set(instance.model, new Set());
+                }
+
+                taggedByModel.get(instance.model).add(instance.dbId);
+            }
+        }
+
+        if (!this.dimUntaggedActive) {
+            /* Switched off: show everything we ghosted again */
+            for (const [model, ids] of this.ghostedIds) {
+                if (ids.size) this.viewer.show([...ids], model);
+            }
+
+            this.ghostedIds.clear();
+
+            if (this._originalGhosting !== null) {
+                this.viewer.setGhosting(this._originalGhosting);
+                this._originalGhosting = null;
+            }
+
+            this.viewer.impl.invalidate(true, true, true);
+            return;
+        }
+
+        /* Switched on: remember viewer settings and apply ghosting */
+        if (this._originalGhosting === null) {
+            this._originalGhosting = this.viewer.impl.showGhosting !== false;
+            this.viewer.setGhosting(true);
+        }
+
+        for (const model of this.getViewerModels()) {
+            const tree = model.getInstanceTree();
+
+            if (!tree) continue;
+
+            const tagged = taggedByModel.get(model) || new Set();
+
+            let ghosted = this.ghostedIds.get(model);
+
+            if (!ghosted) {
+                ghosted = new Set();
+                this.ghostedIds.set(model, ghosted);
+            }
+
+            const toHide = [];
+            const toShow = [];
+
+            tree.enumNodeChildren(
+                tree.getRootId(),
+
+                (dbId) => {
+                    if (tree.getChildCount(dbId) !== 0) return;
+
+                    if (tagged.has(dbId)) {
+                        /* Tagged again: show it */
+                        if (ghosted.has(dbId)) toShow.push(dbId);
+
+                        return;
+                    }
+
+                    if (ghosted.has(dbId)) return;
+
+                    /* Only ghost what is visible, keep hidden items hidden */
+                    if (!this.isNodeVisible(model, dbId)) return;
+
+                    toHide.push(dbId);
+                },
+
+                true
+            );
+
+            /* Register first, because isNodeVisible() treats them as visible */
+            toHide.forEach((dbId) => ghosted.add(dbId));
+            toShow.forEach((dbId) => ghosted.delete(dbId));
+
+            if (toHide.length) this.viewer.hide(toHide, model);
+            if (toShow.length) this.viewer.show(toShow, model);
+        }
+
+        this.viewer.impl.invalidate(true, true, true);
     }
 
     /*
@@ -1716,6 +1906,15 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
         model,
         dbId
     ) {
+        /*
+         * Components ghosted by this extension are only
+         * hidden for display purposes and still count as
+         * visible for tagging.
+         */
+        if (this.ghostedIds.get(model)?.has(dbId)) {
+            return true;
+        }
+
         if (
             typeof this.viewer
                 .isNodeVisible ===
@@ -2336,6 +2535,8 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
     }
 
     applyGroupColor(group) {
+        this.scheduleDimUpdate();
+
         /*
          * Apply this group's unique color to all
          * geometry instances sharing the same
@@ -2411,6 +2612,8 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
         this.groups.delete(
             key
         );
+
+        this.scheduleDimUpdate();
 
         this.viewer.impl.invalidate(
             true
@@ -3042,6 +3245,8 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
         }
 
         this.groups.clear();
+
+        this.scheduleDimUpdate();
 
         if (clearTheming) {
             try {
