@@ -125,6 +125,14 @@
     color : white;
 }
 
+/* Blue theme : addins have a transparent header on a pale surface, so accent is only used for the default button */
+.addin.blue-theme #header.dark { background : transparent; color : var(--color-font); }
+.addin.blue-theme #header.dark #header-subtitle { border-color : var(--color-font); }
+.addin.blue-theme #header.dark .button { background : var(--color-surface-level-1); border-color : var(--color-gray-600); color : var(--color-font); }
+.addin.blue-theme #header.dark .button:hover { background : var(--color-surface-level-1); border-color : var(--color-accent); color : var(--color-accent); }
+.addin.blue-theme #header.dark .button.default { background : var(--color-accent) !important; border-color : var(--color-accent) !important; color : white; }
+.addin.blue-theme #header.dark .button.default:hover { background : var(--color-accent-hover) !important; border-color : var(--color-accent-hover) !important; color : white; }
+
 
 /*  BUTTONS */
 /* ----------------------------------------------------------------------------- */

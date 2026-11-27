@@ -19,6 +19,11 @@ let chartThemes = {
         axisColor : '#000',
         gridColor : '#eeeeee'
     },
+    'blue' : {
+        fontColor : '#444',
+        axisColor : '#000',
+        gridColor : '#eceef2'
+    },
 }
 
 

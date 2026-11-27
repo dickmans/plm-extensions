@@ -13,7 +13,7 @@
 //  - clientId        : Client ID generated for your APS application of type 'Desktop, Mobile Single-Page App' using PKCE
 //  - redirectUri     : Callback URL of your APS application (do not forget to append /callback). Your app may have multiple callback URLs
 //  - settings        : Refers to file in folder /setings overriding standard configuration settings
-//  - defaultTheme    : Select from dark, light or fusion
+//  - defaultTheme    : Select from dark, light, black, blue or fusion
 //  - enableCache     : Enables cache globally, memorizing dedicated API call responses on server side for better performance
 //  - debugMode       : Enables console printout of panel settings for debugging purposes
 //  - fusionConnected : When UX Extensions will be used with Components provided by the Fusion connector, set this to true

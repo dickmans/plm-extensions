@@ -3,6 +3,7 @@ $(document).ready(function() {
          if(theme.toLowerCase() ===  'dark' ) { $('body').addClass( 'dark-theme' ); theme =  'dark' ; }
     else if(theme.toLowerCase() === 'black' ) { $('body').addClass('black-theme' ); theme = 'black' ; }
     else if(theme.toLowerCase() === 'fusion') { $('body').addClass('fusion-theme'); theme = 'fusion'; }
+    else if(theme.toLowerCase() ===   'blue') { $('body').addClass('blue-theme'  ); theme = 'blue';   }
     else                                      { $('body').addClass('light-theme' ); theme = 'light' ; }
 
     updateLinks();
@@ -34,6 +35,7 @@ $(document).ready(function() {
         $('body').removeClass('black-theme');
         $('body').removeClass('light-theme');
         $('body').removeClass('fusion-theme');
+        $('body').removeClass('blue-theme');
         $('body').addClass($(this).val() + '-theme');
 
         theme = $(this).val();

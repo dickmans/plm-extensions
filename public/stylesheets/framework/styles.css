@@ -2108,6 +2108,17 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
     color        : white; 
 }
 
+/*  BLUE THEME : accent colored header, default buttons and panel headers  */
+.blue-theme #header.dark { background : var(--color-accent); color : white; }
+.blue-theme #header.dark #header-subtitle { border-color : rgba(255, 255, 255, 0.5); }
+.blue-theme #header.dark .button { background : rgba(255, 255, 255, 0.12); border-color : rgba(255, 255, 255, 0.5); color : white; }
+.blue-theme #header.dark .button:hover { background : rgba(255, 255, 255, 0.24); border-color : white; color : white; }
+.blue-theme #header.dark #header-search { background : rgba(255, 255, 255, 0.12); border-color : rgba(255, 255, 255, 0.5); color : white; }
+.blue-theme #header.dark .button.default { background : white !important; border-color : white !important; color : var(--color-accent); }
+.blue-theme #header.dark .button.default:hover { background : var(--color-accent-tint) !important; border-color : var(--color-accent-tint) !important; color : var(--color-accent-hover); }
+
+.blue-theme .panel-header { border-color : var(--color-accent); }
+
 #header.dark .button.disabled,
 #header.dark .button.disabled:hover {
     border-color : rgba(128, 128, 128, 0.5);
@@ -3046,6 +3057,8 @@ and (max-device-width : 1900px)  {
 .no-data.row.xl  > div { line-height : 190px; }
 .no-data.row.xxl > div { line-height : 280px; }
 
+.blue-theme .no-data-icon { color : var(--color-accent); }
+
 
 /*  TABS */
 /* ----------------------------------------------------------------------------- */
@@ -3075,6 +3088,8 @@ and (max-device-width : 1900px)  {
 .tabs.dark > .selected {
     border-color : black;
 }
+
+.blue-theme .tabs > .selected { border-color : var(--color-accent); }
 
 
 
@@ -3153,6 +3168,7 @@ and (max-device-width : 1900px)  {
   .dark-theme .button,
  .black-theme .button { background : var(--color-surface-level-4); border-color : var(--color-surface-level-4); }
 .fusion-theme .button { background : var(--color-surface-level-1); border-color :rgba(128, 128, 128, 0.5); border-radius : 4px; color : rgba(60,60,60); }
+  .blue-theme .button { background : white; border-color : var(--color-surface-level-4); }
 
 .fusion-theme .surface-level-2 .button { border-color : #bcbcbc; }
 
@@ -3165,6 +3181,7 @@ and (max-device-width : 1900px)  {
     background   : var(--color-surface-level-5);
     border-color : var(--color-surface-level-5);
 } 
+ .blue-theme .button:hover { border-color : var(--color-accent); box-shadow : 0 0 0 3px var(--color-surface-level-3); }
 
 .button.default {
     background   : var(--color-blue-500) !important; 
@@ -3179,6 +3196,15 @@ and (max-device-width : 1900px)  {
 .fusion-theme .button.default:hover {
     background   : var(--color-blue-400)  !important; 
     border-color : var(--color-blue-400)  !important; 
+    box-shadow   : none !important;
+}
+.blue-theme .button.default {
+    background   : var(--color-accent) !important; 
+    border-color : var(--color-accent) !important; 
+}
+.blue-theme .button.default:hover {
+    background   : var(--color-accent-hover) !important; 
+    border-color : var(--color-accent-hover) !important; 
     box-shadow   : none !important;
 }
 .button.enabled,

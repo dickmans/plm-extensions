@@ -17,6 +17,13 @@
     color        : var(--color-blue-100);
     background   : var(--color-blue-800) !important;
 }
+.blue-theme .drop-zone { background : white !important; }
+.blue-theme .drop-zone:hover,
+.blue-theme .drop-zone.drag-hover { 
+    border-color : var(--color-accent-hover);
+    color        : var(--color-accent-tint);
+    background   : var(--color-accent) !important; 
+}
 .drop-zone-content {
     overflow      : hidden;
     text-overflow : ellipsis;

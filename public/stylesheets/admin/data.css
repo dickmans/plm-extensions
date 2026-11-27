@@ -238,6 +238,15 @@ select#workspace {
     padding : 8px 16px;
 }
 
+.blue-theme #properties {
+    background   : var(--color-yellow-400) !important;
+    border-color : var(--color-yellow-400) !important;
+}
+.blue-theme #properties:hover {
+    background   : var(--color-yellow-500) !important;
+    border-color : var(--color-yellow-500) !important;
+}
+
 
 /*  ACTIONS */
 /* ----------------------------------------------------------------------------- */
